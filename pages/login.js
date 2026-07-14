@@ -105,11 +105,7 @@ export default function LoginPage() {
           incrementRedirectCount()
           const redirectDestination = router.query.redirect || '/dashboard'
           if (redirectDestination === '/dashboard' || !router.query.redirect) {
-            router.replace('/dashboard').then(() => {
-              if (typeof window !== 'undefined') {
-                window.location.hash = 'overview'
-              }
-            })
+            router.replace('/dashboard#submit-complaint')
           } else {
             router.replace(redirectDestination)
           }
@@ -176,11 +172,7 @@ export default function LoginPage() {
       }
       const redirectDest = router.query.redirect || '/dashboard'
       if (redirectDest === '/dashboard' || !router.query.redirect) {
-        router.replace('/dashboard').then(() => {
-          if (typeof window !== 'undefined') {
-            window.location.hash = 'overview'
-          }
-        })
+        router.replace('/dashboard#submit-complaint')
       } else {
         router.replace(redirectDest)
       }
@@ -272,11 +264,7 @@ export default function LoginPage() {
       }
       const redirectDest = router.query.redirect || '/dashboard'
       if (redirectDest === '/dashboard' || !router.query.redirect) {
-        router.replace('/dashboard').then(() => {
-          if (typeof window !== 'undefined') {
-            window.location.hash = 'overview'
-          }
-        })
+        router.replace('/dashboard#submit-complaint')
       } else {
         router.replace(redirectDest)
       }

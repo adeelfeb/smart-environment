@@ -1,13 +1,80 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const getNavIcon = (key) => {
   const icons = {
-    'overview': (
+    'admin-dashboard': (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="3" width="7" height="7"></rect>
         <rect x="14" y="3" width="7" height="7"></rect>
         <rect x="14" y="14" width="7" height="7"></rect>
         <rect x="3" y="14" width="7" height="7"></rect>
+      </svg>
+    ),
+    'submit-complaint': (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="16"></line>
+        <line x1="8" y1="12" x2="16" y2="12"></line>
+      </svg>
+    ),
+    'complaint-history': (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+      </svg>
+    ),
+    'complaints': (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+      </svg>
+    ),
+    'gis-map': (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+        <line x1="8" y1="2" x2="8" y2="18"></line>
+        <line x1="16" y1="6" x2="16" y2="22"></line>
+      </svg>
+    ),
+    'analytics': (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="18" y1="20" x2="18" y2="10"></line>
+        <line x1="12" y1="20" x2="12" y2="4"></line>
+        <line x1="6" y1="20" x2="6" y2="14"></line>
+      </svg>
+    ),
+    'corporations': (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 21h18"></path>
+        <path d="M5 21V7l8-4v18"></path>
+        <path d="M19 21V11l-6-4"></path>
+        <path d="M9 9v.01"></path>
+        <path d="M9 12v.01"></path>
+        <path d="M9 15v.01"></path>
+      </svg>
+    ),
+    'citizen-management': (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+        <circle cx="9" cy="7" r="4"></circle>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+      </svg>
+    ),
+    'audit-logs': (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 20h9"></path>
+        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+      </svg>
+    ),
+    'system-settings': (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"></path>
       </svg>
     ),
     'user-management': (
@@ -18,37 +85,11 @@ const getNavIcon = (key) => {
         <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
       </svg>
     ),
-    'add-origin': (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="8" x2="12" y2="16"></line>
-        <line x1="8" y1="12" x2="16" y2="12"></line>
-      </svg>
-    ),
-    'api-endpoints': (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M4 7h16M4 12h16M4 17h16"></path>
-        <circle cx="8" cy="7" r="1"></circle>
-        <circle cx="8" cy="12" r="1"></circle>
-        <circle cx="8" cy="17" r="1"></circle>
-      </svg>
-    ),
     'help': (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="10"></circle>
         <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
         <line x1="12" y1="17" x2="12.01" y2="17"></line>
-      </svg>
-    ),
-    'privacy': (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-        <path d="M9 12l2 2 4-4"></path>
-      </svg>
-    ),
-    'requests': (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
       </svg>
     ),
     'messages': (
@@ -85,685 +126,380 @@ export default function DashboardLayout({
   children,
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const sidebarRef = useRef(null);
   const displayName = user?.name || 'User';
   const items = Array.isArray(navItems) ? navItems : [];
   const messagesUnread = typeof chatUnreadCount === 'number' ? chatUnreadCount : 0;
 
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') setSidebarOpen(false);
+    };
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, [sidebarOpen]);
 
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth > 960) {
-        setSidebarOpen(false);
-      }
-    };
-
-    const handleClickOutside = (e) => {
-      if (sidebarOpen && window.innerWidth <= 960) {
-        const sidebar = document.querySelector('.sidebar');
-        const toggle = document.querySelector('.sidebar-toggle');
-        if (sidebar && toggle && !sidebar.contains(e.target) && !toggle.contains(e.target)) {
-          setSidebarOpen(false);
-        }
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    if (sidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
   }, [sidebarOpen]);
 
   return (
-    <div className="dashboard-shell">
-      <button
-        className="sidebar-toggle"
-        onClick={toggleSidebar}
-        aria-label="Toggle sidebar"
-        aria-expanded={sidebarOpen}
-      >
-        <span className="hamburger-icon">
-          <span></span>
-          <span></span>
-          <span></span>
-        </span>
-      </button>
-      {sidebarOpen && <div className="sidebar-overlay" onClick={toggleSidebar}></div>}
-      <aside className={`sidebar ${sidebarOpen ? 'is-open' : ''}`}>
-        <div className="sidebar-top">
-          <div className="brand" aria-label="EcoWatch" style={{ padding: '0.8rem 0.85rem 0.6rem' }}>
-            <div className="brand-mark">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8 38C8 38 6 14 24 8C24 8 26 32 8 38Z" fill="#10b981" opacity="0.9" transform="translate(0,-12) scale(0.85)"/>
-                <circle cx="17" cy="15" r="4" stroke="#047857" strokeWidth="1.5" fill="white" fillOpacity="0.4"/>
-                <line x1="20" y1="18" x2="22" y2="20" stroke="#047857" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
+    <div className="shell">
+      {/* Mobile top bar */}
+      <header className="topbar">
+        <button className="topbar-burger" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div className="topbar-brand">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M8 38C8 38 6 14 24 8C24 8 26 32 8 38Z" fill="#10b981" opacity="0.9" transform="translate(0,-12) scale(0.85)"/></svg>
+          <span>EcoWatch</span>
+        </div>
+        <div className="topbar-spacer" />
+      </header>
+
+      {/* Overlay */}
+      {sidebarOpen && <div className="overlay" onClick={() => setSidebarOpen(false)} />}
+
+      {/* Sidebar */}
+      <aside className={`sidebar ${sidebarOpen ? 'is-open' : ''}`} ref={sidebarRef}>
+        <div className="sidebar-head">
+          <div className="brand">
+            <div className="brand-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M8 38C8 38 6 14 24 8C24 8 26 32 8 38Z" fill="#10b981" opacity="0.9" transform="translate(0,-12) scale(0.85)"/><circle cx="17" cy="15" r="4" stroke="#047857" strokeWidth="1.5" fill="white" fillOpacity="0.4"/><line x1="20" y1="18" x2="22" y2="20" stroke="#047857" strokeWidth="1.5" strokeLinecap="round"/></svg>
             </div>
             <div className="brand-text">
-              <span className="brand-title">
-                <span className="brand-title-eco">Eco</span>
-                <span className="brand-title-watch">Watch</span>
-              </span>
-              <span className="brand-subtitle">{displayName}</span>
+              <span className="brand-name"><span className="eco">Eco</span>Watch</span>
+              <span className="brand-user">{displayName}</span>
             </div>
           </div>
-
-          <nav className="nav" aria-label="Primary" style={{ padding: '0 0.85rem' }}>
-            <ul className="nav-list">
-              {items.map((item) => {
-                const isActive = item.key === activeNav;
-                return (
-                  <li key={item.key} className="nav-list-item">
-                    <button
-                      type="button"
-                      className={`nav-button${isActive ? ' is-active' : ''}`}
-                      aria-current={isActive ? 'page' : undefined}
-                      onClick={() => {
-                        onNavSelect?.(item.key);
-                        if (window.innerWidth <= 960) {
-                          setSidebarOpen(false);
-                        }
-                      }}
-                    >
-                      <span className="nav-icon">{getNavIcon(item.key)}</span>
-                      <span className="nav-label">{item.label}</span>
-                      {item.key === 'messages' && messagesUnread > 0 && (
-                        <span className="nav-badge" aria-label={`${messagesUnread} unread`}>
-                          {messagesUnread > 99 ? '99+' : messagesUnread}
-                        </span>
-                      )}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
+          <button className="sidebar-close" onClick={() => setSidebarOpen(false)} aria-label="Close menu">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
         </div>
 
-        <div className="sidebar-bottom" aria-label="Secondary" style={{ padding: '0.6rem 0.85rem 0.85rem' }}>
+        <nav className="sidebar-nav">
+          <ul>
+            {items.map((item) => {
+              const active = item.key === activeNav;
+              return (
+                <li key={item.key}>
+                  <button
+                    className={`nav-btn ${active ? 'active' : ''}`}
+                    aria-current={active ? 'page' : undefined}
+                    onClick={() => { onNavSelect?.(item.key); setSidebarOpen(false); }}
+                  >
+                    <span className="nav-ico">{getNavIcon(item.key)}</span>
+                    <span className="nav-lbl">{item.label}</span>
+                    {item.key === 'messages' && messagesUnread > 0 && (
+                      <span className="badge">{messagesUnread > 99 ? '99+' : messagesUnread}</span>
+                    )}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+
+        <div className="sidebar-foot">
           <button
-            type="button"
-            className={`secondary-button secondary-button--settings${activeNav === 'settings' ? ' is-active' : ''}`}
-            onClick={() => {
-              onOpenSettings?.();
-              if (window.innerWidth <= 960) {
-                setSidebarOpen(false);
-              }
-            }}
+            className={`foot-btn ${activeNav === 'settings' ? 'active' : ''}`}
+            onClick={() => { onOpenSettings?.(); setSidebarOpen(false); }}
           >
-            <span className="nav-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"></path>
-              </svg>
-            </span>
-            <span className="nav-label">SETTINGS</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/></svg>
+            <span>Settings</span>
           </button>
-          <button
-            type="button"
-            className="secondary-button secondary-button--logout"
-            onClick={onLogout}
-            disabled={isLoggingOut}
-          >
-            <span className="nav-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                <polyline points="16 17 21 12 16 7"></polyline>
-                <line x1="21" y1="12" x2="9" y2="12"></line>
-              </svg>
-            </span>
-            <span className="nav-label">{isLoggingOut ? 'LOGGING OUT...' : 'LOGOUT'}</span>
+          <button className="foot-btn logout" onClick={onLogout} disabled={isLoggingOut}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <span>{isLoggingOut ? 'Logging out...' : 'Logout'}</span>
           </button>
         </div>
       </aside>
 
+      {/* Content */}
       <main className="content">
-        <div className="content-inner">{children}</div>
+        <div className="content-scroll">{children}</div>
       </main>
 
       <style jsx>{`
-        .dashboard-shell {
+        .shell {
           height: 100vh;
+          height: 100dvh;
           display: flex;
           background: #f8fafc;
           color: #0f172a;
           overflow: hidden;
-          position: relative;
         }
 
-        .sidebar-toggle {
+        /* ── Top bar (mobile) ── */
+        .topbar {
           display: none;
           position: fixed;
-          top: 1rem;
-          right: 1rem;
-          z-index: 1001;
-          background: #ffffff;
-          color: #0f172a;
-          border: 1px solid #e5e7eb;
-          border-radius: 12px;
-          padding: 0.75rem;
-          cursor: pointer;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
-          width: 48px;
-          height: 48px;
+          top: 0; left: 0; right: 0;
+          height: 56px;
+          background: #02201a;
+          color: #fff;
           align-items: center;
-          justify-content: center;
+          padding: 0 16px;
+          gap: 12px;
+          z-index: 900;
+          box-shadow: 0 2px 8px rgba(0,0,0,.15);
+        }
+        .topbar-burger {
+          background: none; border: none; color: #fff; cursor: pointer;
+          width: 40px; height: 40px; display: grid; place-items: center;
+          border-radius: 10px; transition: background .15s;
+          flex-shrink: 0;
+        }
+        .topbar-burger:hover { background: rgba(255,255,255,.1); }
+        .topbar-brand {
+          display: flex; align-items: center; gap: 8px;
+          font-weight: 700; font-size: .95rem; letter-spacing: .02em;
+        }
+        .topbar-spacer { flex: 1; }
+
+        /* ── Overlay ── */
+        .overlay {
+          display: none;
+          position: fixed; inset: 0;
+          background: rgba(0,0,0,.45);
+          z-index: 998;
+          backdrop-filter: blur(2px);
+          -webkit-backdrop-filter: blur(2px);
+          animation: fade-in .2s ease;
         }
 
-        .sidebar-toggle:hover {
-          transform: scale(1.05);
-          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-        }
-
-        .sidebar-toggle:active {
-          transform: scale(0.98);
-        }
-
-        .hamburger-icon {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          width: 24px;
-          height: 18px;
-        }
-
-        .hamburger-icon span {
-          display: block;
-          width: 100%;
-          height: 2px;
-          background: #0f172a;
-          border-radius: 2px;
-          transition: transform 0.3s ease, opacity 0.3s ease;
-        }
-
+        /* ── Sidebar ── */
         .sidebar {
-          width: min(236px, 21vw);
-          background: linear-gradient(180deg, #02201a 0%, #064e3b 40%, #065f46 70%, #047857 100%);
+          width: min(240px, 22vw);
+          background: linear-gradient(180deg, #02201a 0%, #064e3b 50%, #047857 100%);
           color: #d1fae5;
           display: flex;
           flex-direction: column;
           flex-shrink: 0;
           height: 100%;
-          padding: 0;
-          border-right: 1px solid rgba(16, 185, 129, 0.15);
-          box-shadow: 16px 0 42px rgba(2, 32, 26, 0.35);
-          transition: transform 0.3s ease;
+          border-right: 1px solid rgba(16,185,129,.12);
           position: relative;
-          overflow: hidden;
-          isolation: isolate;
+          z-index: 10;
         }
 
-        .sidebar::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background:
-            radial-gradient(circle at 20% 10%, rgba(16, 185, 129, 0.15), transparent 55%),
-            radial-gradient(circle at 80% 90%, rgba(5, 150, 105, 0.12), transparent 60%);
-          opacity: 0.98;
-          pointer-events: none;
-          z-index: 0;
-        }
-
-        .sidebar-top {
-          display: flex;
-          flex-direction: column;
-          padding: 0;
-          gap: 1.05rem;
-          min-height: 0;
-          position: relative;
-          z-index: 1;
-        }
-
-        .brand {
+        .sidebar-head {
           display: flex;
           align-items: center;
-          gap: 0.9rem;
+          justify-content: space-between;
+          padding: 20px 16px 12px;
+          border-bottom: 1px solid rgba(16,185,129,.1);
         }
-
-        .brand-mark {
-          width: 2.75rem;
-          height: 2.75rem;
-          border-radius: 12px;
-          background: rgba(16, 185, 129, 0.15);
-          display: grid;
+        .sidebar-close {
+          display: none;
+          background: rgba(255,255,255,.08);
+          border: 1px solid rgba(255,255,255,.1);
+          color: #d1fae5;
+          width: 32px; height: 32px;
+          border-radius: 8px;
+          cursor: pointer;
           place-items: center;
-          border: 1px solid rgba(16, 185, 129, 0.25);
-          box-shadow: 0 8px 16px rgba(2, 32, 26, 0.3);
+          transition: background .15s;
+        }
+        .sidebar-close:hover { background: rgba(255,255,255,.15); }
+
+        .brand { display: flex; align-items: center; gap: 10px; }
+        .brand-icon {
+          width: 36px; height: 36px; border-radius: 10px;
+          background: rgba(16,185,129,.15);
+          display: grid; place-items: center;
+          border: 1px solid rgba(16,185,129,.2);
           flex-shrink: 0;
         }
-
-        .brand-text {
-          display: flex;
-          flex-direction: column;
-          line-height: 1.2;
-        }
-
-        .brand-title {
-          font-weight: 700;
-          font-size: 0.9rem;
-          letter-spacing: 0.02em;
-          display: flex;
-          align-items: center;
-          line-height: 1.2;
-        }
-        .brand-title-eco {
-          color: #34d399;
-        }
-        .brand-title-watch {
-          color: #ffffff;
-        }
-
-        .brand-subtitle {
-          font-size: 0.72rem;
-          color: rgba(209, 250, 229, 0.75);
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
+        .brand-text { display: flex; flex-direction: column; line-height: 1.2; }
+        .brand-name { font-weight: 700; font-size: .9rem; letter-spacing: .02em; }
+        .brand-name .eco { color: #34d399; }
+        .brand-user {
+          font-size: .7rem; color: rgba(209,250,229,.65);
+          white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
           max-width: 140px;
         }
 
-        .nav-list {
-          list-style: none;
-          display: flex;
-          flex-direction: column;
-          gap: 0.4rem;
-          padding: 0;
-          margin: 0;
+        /* ── Nav ── */
+        .sidebar-nav {
+          flex: 1;
+          overflow-y: auto;
+          padding: 12px 12px 8px;
         }
-
-        .nav-button {
+        .sidebar-nav ul {
+          list-style: none; margin: 0; padding: 0;
+          display: flex; flex-direction: column; gap: 2px;
+        }
+        .nav-btn {
           width: 100%;
-          text-align: left;
-          padding: 0.75rem 0.9rem;
-          border-radius: 10px;
-          border: 1px solid rgba(16, 185, 129, 0.12);
-          background: rgba(255, 255, 255, 0.06);
-          color: #d1fae5;
-          font-size: 0.875rem;
-          font-weight: 500;
-          transition: all 0.2s ease;
-          cursor: pointer;
           display: flex;
           align-items: center;
-          gap: 0.7rem;
+          gap: 10px;
+          padding: 10px 12px;
+          border-radius: 8px;
+          border: 1px solid transparent;
+          background: transparent;
+          color: #d1fae5;
+          font-size: .82rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all .15s ease;
+          text-align: left;
           position: relative;
         }
-
-        .nav-button:hover,
-        .nav-button:focus-visible {
-          outline: none;
-          background: rgba(16, 185, 129, 0.15);
-          border-color: rgba(16, 185, 129, 0.3);
-          transform: translateX(3px);
-          color: #ffffff;
+        .nav-btn:hover {
+          background: rgba(255,255,255,.08);
+          color: #fff;
         }
-
-        .nav-button.is-active {
-          background: rgba(16, 185, 129, 0.25);
-          border-color: rgba(52, 211, 153, 0.5);
-          color: #ffffff;
+        .nav-btn.active {
+          background: rgba(16,185,129,.2);
+          border-color: rgba(52,211,153,.35);
+          color: #fff;
+          font-weight: 600;
         }
-
-        .nav-button.is-active::before {
+        .nav-btn.active::before {
           content: '';
           position: absolute;
-          left: 0;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 3px;
-          height: 55%;
+          left: 0; top: 50%; transform: translateY(-50%);
+          width: 3px; height: 50%;
           background: #34d399;
           border-radius: 0 3px 3px 0;
         }
-
-        .nav-icon {
-          display: flex;
-          align-items: center;
-          justify-content: center;
+        .nav-ico {
+          display: grid; place-items: center;
+          width: 20px; height: 20px;
           flex-shrink: 0;
-          width: 20px;
-          height: 20px;
-          opacity: 0.8;
-          transition: opacity 0.2s ease, transform 0.2s ease, color 0.2s ease;
-          color: currentColor;
+          opacity: .75;
+          transition: opacity .15s, transform .15s;
         }
-
-        .nav-button:hover .nav-icon,
-        .nav-button.is-active .nav-icon {
-          opacity: 1;
-          transform: scale(1.1);
+        .nav-btn:hover .nav-ico, .nav-btn.active .nav-ico {
+          opacity: 1; transform: scale(1.08);
         }
-
-        .nav-label {
+        .nav-lbl {
           text-transform: uppercase;
-          letter-spacing: 0.04em;
-          font-size: 0.82rem;
+          letter-spacing: .04em;
+          font-size: .78rem;
           font-weight: 600;
-          transition: color 0.2s ease;
         }
-
-        .nav-button.is-active .nav-label {
-          font-weight: 700;
-        }
-
-        .nav-badge {
-          flex-shrink: 0;
-          min-width: 20px;
-          height: 20px;
-          padding: 0 6px;
+        .badge {
+          margin-left: auto;
+          min-width: 18px; height: 18px;
+          padding: 0 5px;
           border-radius: 999px;
           background: #ef4444;
           color: #fff;
-          font-size: 0.7rem;
+          font-size: .65rem;
           font-weight: 700;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          margin-left: auto;
-          box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+          box-shadow: 0 2px 6px rgba(239,68,68,.4);
         }
 
-        .sidebar-bottom {
-          margin-top: auto;
-          display: grid;
-          gap: 0.5rem;
-          padding: 0;
-          position: relative;
-          z-index: 1;
+        /* ── Footer ── */
+        .sidebar-foot {
+          padding: 8px 12px 16px;
+          display: flex; flex-direction: column; gap: 4px;
+          border-top: 1px solid rgba(16,185,129,.1);
         }
-
-        .secondary-button {
-          width: 100%;
-          text-align: left;
-          padding: 0.7rem 0.9rem;
-          border-radius: 10px;
-          border: 1px solid rgba(16, 185, 129, 0.12);
-          background: rgba(255, 255, 255, 0.06);
+        .foot-btn {
+          display: flex; align-items: center; gap: 10px;
+          padding: 9px 12px;
+          border-radius: 8px;
+          border: 1px solid transparent;
+          background: transparent;
           color: #d1fae5;
-          font-size: 0.82rem;
+          font-size: .78rem;
           font-weight: 600;
-          transition: all 0.2s ease;
           cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 0.7rem;
-          position: relative;
+          transition: all .15s;
           text-transform: uppercase;
-          letter-spacing: 0.04em;
+          letter-spacing: .04em;
+          text-align: left;
         }
-
-        .secondary-button .nav-icon {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-          width: 20px;
-          height: 20px;
-          opacity: 0.8;
-          transition: opacity 0.2s ease, transform 0.2s ease;
-          color: currentColor;
-        }
-
-        .secondary-button .nav-label {
-          text-transform: uppercase;
-          letter-spacing: 0.04em;
-          font-size: 0.82rem;
-          font-weight: 600;
-        }
-
-        .secondary-button:hover .nav-icon,
-        .secondary-button.is-active .nav-icon {
-          opacity: 1;
-          transform: scale(1.1);
-        }
-
-        .secondary-button:hover,
-        .secondary-button:focus-visible {
-          outline: none;
-          transform: translateX(3px);
-          background: rgba(16, 185, 129, 0.15);
-          border-color: rgba(16, 185, 129, 0.3);
-          color: #ffffff;
-        }
-
-        .secondary-button--settings:hover,
-        .secondary-button--settings:focus-visible {
-          background: rgba(16, 185, 129, 0.2);
-          color: #ffffff;
-        }
-
-        .secondary-button--settings.is-active {
-          background: rgba(16, 185, 129, 0.25);
-          border-color: rgba(52, 211, 153, 0.5);
-          color: #ffffff;
-        }
-
-        .secondary-button--settings.is-active::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 3px;
-          height: 55%;
-          background: #34d399;
-          border-radius: 0 3px 3px 0;
-        }
-
-        .secondary-button--settings.is-active .nav-label {
-          font-weight: 700;
-        }
-
-        .secondary-button--logout {
-          background: rgba(239, 68, 68, 0.12);
+        .foot-btn:hover { background: rgba(255,255,255,.08); color: #fff; }
+        .foot-btn.active { background: rgba(16,185,129,.2); border-color: rgba(52,211,153,.35); color: #fff; }
+        .foot-btn.logout {
           color: #fca5a5;
-          border-color: rgba(239, 68, 68, 0.2);
+          border-color: rgba(239,68,68,.15);
         }
-
-        .secondary-button--logout:hover,
-        .secondary-button--logout:focus-visible {
-          background: rgba(239, 68, 68, 0.25);
-          border-color: rgba(239, 68, 68, 0.4);
-          color: #ffffff;
+        .foot-btn.logout:hover {
+          background: rgba(239,68,68,.15);
+          color: #fff;
         }
+        .foot-btn:disabled { opacity: .6; cursor: wait; }
 
-        .secondary-button--logout:disabled {
-          cursor: wait;
-          opacity: 0.7;
-          transform: none;
-        }
-
+        /* ── Content ── */
         .content {
           flex: 1;
           display: flex;
+          min-width: 0;
           min-height: 0;
         }
-
-        .content-inner {
+        .content-scroll {
           flex: 1;
           display: flex;
           flex-direction: column;
-          padding: 0 3rem 2.5rem 3rem;
+          padding: 28px 32px 32px;
           overflow-y: auto;
-          gap: 2rem;
+          overflow-x: hidden;
+          gap: 1.5rem;
+          -webkit-overflow-scrolling: touch;
         }
 
-        @media (max-width: 960px) {
-          .sidebar-toggle {
-            display: flex;
-          }
+        /* ── Responsive: tablet ── */
+        @media (max-width: 1024px) {
+          .content-scroll { padding: 24px 20px 28px; }
+        }
 
-          .dashboard-shell {
-            flex-direction: column;
-            height: 100vh;
-          }
+        /* ── Responsive: mobile ── */
+        @media (max-width: 768px) {
+          .topbar { display: flex; }
+          .overlay { display: block; }
+          .sidebar-close { display: grid; }
 
           .sidebar {
             position: fixed;
-            top: 0;
-            left: 0;
+            top: 0; left: 0;
             width: min(280px, 85vw);
             height: 100vh;
-            z-index: 1000;
+            height: 100dvh;
+            z-index: 999;
             transform: translateX(-100%);
-            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
-            overflow-y: auto;
-            overflow-x: hidden;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform .25s cubic-bezier(.4,0,.2,1);
+            box-shadow: none;
           }
-
           .sidebar.is-open {
             transform: translateX(0);
+            box-shadow: 4px 0 24px rgba(0,0,0,.2);
           }
 
-          .sidebar-top,
-          .sidebar-bottom {
-            padding: 1.25rem;
-          }
+          .sidebar-head { padding: 16px; }
+          .sidebar-nav { padding: 8px 12px; }
+          .sidebar-foot { padding: 8px 12px 20px; }
 
-          .sidebar-top {
-            padding-top: 1.25rem;
-          }
-
-          .nav-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.4rem;
-          }
-
-          .nav-button {
-            padding: 0.65rem 0.85rem;
-            font-size: 0.85rem;
-          }
-
-          .nav-icon {
-            width: 18px;
-            height: 18px;
-          }
-
-          .secondary-button {
-            width: 100%;
-            padding: 0.65rem 0.85rem;
-            font-size: 0.85rem;
-          }
-
-          .secondary-button .nav-icon {
-            width: 18px;
-            height: 18px;
-          }
-
-          .content-inner {
-            padding: 2rem 1.5rem 3rem;
-            margin-top: 0;
-            padding-top: 4.5rem;
-            width: 100%;
-            max-width: 100%;
-            box-sizing: border-box;
-            overflow-x: hidden;
-          }
-
-          .sidebar-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            animation: fadeIn 0.3s ease;
-            backdrop-filter: blur(2px);
-            -webkit-backdrop-filter: blur(2px);
+          .content-scroll {
+            padding: 72px 16px 24px;
           }
         }
 
-        @keyframes fadeIn {
+        /* ── Responsive: small phone ── */
+        @media (max-width: 400px) {
+          .content-scroll {
+            padding: 64px 12px 20px;
+          }
+          .nav-btn { padding: 9px 10px; }
+          .nav-lbl { font-size: .74rem; }
+        }
+
+        @keyframes fade-in {
           from { opacity: 0; }
           to { opacity: 1; }
-        }
-
-        @media (max-width: 640px) {
-          .sidebar-toggle {
-            top: 0.75rem;
-            right: 0.75rem;
-            width: 44px;
-            height: 44px;
-            padding: 0.65rem;
-            border-radius: 10px;
-          }
-
-          .content-inner {
-            padding: 1.5rem 1rem 2rem;
-            padding-top: 4rem;
-            width: 100%;
-            max-width: 100%;
-            box-sizing: border-box;
-            overflow-x: hidden;
-          }
-
-          .sidebar {
-            width: min(260px, 90vw);
-          }
-
-          .nav-button {
-            padding: 0.6rem 0.75rem;
-            font-size: 0.82rem;
-            gap: 0.6rem;
-          }
-
-          .nav-icon {
-            width: 16px;
-            height: 16px;
-          }
-
-          .secondary-button {
-            padding: 0.6rem 0.75rem;
-            font-size: 0.82rem;
-            gap: 0.6rem;
-          }
-
-          .secondary-button .nav-icon {
-            width: 16px;
-            height: 16px;
-          }
-
-          .brand-mark {
-            width: 2.5rem;
-            height: 2.5rem;
-            border-radius: 10px;
-          }
-
-          .sidebar-top,
-          .sidebar-bottom {
-            padding: 1rem;
-          }
-        }
-
-        @media (max-width: 480px) {
-          .nav-button {
-            padding: 0.55rem 0.7rem;
-            font-size: 0.78rem;
-            gap: 0.55rem;
-          }
-
-          .nav-label {
-            font-size: 0.78rem;
-          }
-
-          .secondary-button {
-            padding: 0.55rem 0.7rem;
-            font-size: 0.78rem;
-            gap: 0.55rem;
-          }
-
-          .secondary-button .nav-label {
-            font-size: 0.78rem;
-          }
         }
       `}</style>
     </div>

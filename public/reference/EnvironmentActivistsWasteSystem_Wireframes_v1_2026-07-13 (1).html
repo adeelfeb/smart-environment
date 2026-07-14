@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WD-0421 — Smart Environment Activists Waste System — LFD / Wireframes</title>
+<style>
+  :root{
+    --line:#8a8a8a;
+    --line-dark:#333;
+    --box:#eeeeee;
+    --box2:#e2e2e2;
+    --text:#222;
+    --muted:#777;
+    --accent:#555;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:'Courier New', monospace; background:#fafafa; color:var(--text);
+    padding:24px 16px 80px;
+  }
+  h1.doctitle{font-size:22px; margin:0 0 4px;}
+  .sub{color:var(--muted); font-size:13px; margin-bottom:24px;}
+  .note-box{
+    border:1px dashed var(--line-dark); background:#fff; padding:14px 16px; margin-bottom:28px; font-size:13px; line-height:1.6;
+  }
+  .note-box b{color:var(--line-dark);}
+  .toc{
+    background:#fff; border:1px solid var(--line); padding:16px 20px; margin-bottom:36px; font-size:13px;
+  }
+  .toc h2{font-size:14px; margin:0 0 10px; text-transform:uppercase; letter-spacing:1px;}
+  .toc-cols{columns:2; column-gap:30px;}
+  .toc a{color:var(--line-dark); text-decoration:none; display:block; padding:2px 0;}
+  .toc a:hover{text-decoration:underline;}
+  .toc .grp{font-weight:bold; margin-top:10px; break-inside:avoid;}
+
+  section.role{margin-bottom:50px;}
+  .role-heading{
+    display:flex; align-items:center; gap:10px; margin:40px 0 18px; padding-bottom:8px; border-bottom:2px solid var(--line-dark);
+  }
+  .role-heading .tag{
+    font-size:11px; background:var(--line-dark); color:#fff; padding:3px 10px; letter-spacing:1px;
+  }
+  .role-heading h2{margin:0; font-size:18px;}
+  .role-desc{font-size:12px; color:var(--muted); margin:0 0 20px; max-width:700px;}
+
+  .grid{display:flex; flex-wrap:wrap; gap:28px;}
+  .screen-block{width:300px;}
+  .screen-label{
+    font-size:12px; font-weight:bold; margin-bottom:6px; display:flex; justify-content:space-between; align-items:baseline;
+  }
+  .screen-label .num{color:#fff; background:var(--line-dark); padding:1px 7px; border-radius:10px; font-size:10px; margin-right:6px;}
+  .screen-label .flow{font-size:10px; color:var(--muted); font-weight:normal;}
+
+  /* phone frame */
+  .phone{
+    width:300px; border:3px solid var(--line-dark); border-radius:22px; background:#fff; padding:8px 8px 14px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.15);
+  }
+  .notch{width:70px; height:6px; background:var(--line-dark); border-radius:4px; margin:0 auto 6px;}
+  .screen{
+    border:1px solid var(--line); min-height:420px; position:relative; overflow:hidden; font-size:11px;
+  }
+  .statusbar{
+    height:16px; background:#fff; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; padding:0 8px; font-size:9px; color:var(--muted);
+  }
+  .appbar{
+    height:34px; background:var(--box2); display:flex; align-items:center; padding:0 10px; font-weight:bold; font-size:12px; border-bottom:1px solid var(--line); gap:8px;
+  }
+  .appbar .back{border:1px solid var(--line-dark); width:16px;height:16px;text-align:center;line-height:14px;font-size:10px;}
+  .body-pad{padding:10px;}
+  .annot{font-size:11px; color:var(--muted); margin-top:8px; line-height:1.5;}
+  .annot li{margin-bottom:3px;}
+
+  /* wireframe primitives */
+  .wf-line{height:8px; background:var(--box2); border-radius:2px; margin:6px 0;}
+  .wf-line.short{width:55%;}
+  .wf-line.med{width:75%;}
+  .wf-line.full{width:100%;}
+  .wf-h{height:11px; background:#c9c9c9; border-radius:2px; margin:4px 0 8px; width:60%;}
+
+  .wf-input{
+    border:1px solid var(--line-dark); height:26px; border-radius:4px; margin-bottom:10px; display:flex; align-items:center; padding:0 8px; font-size:10px; color:var(--muted); background:#fff;
+  }
+  .wf-textarea{
+    border:1px solid var(--line-dark); height:56px; border-radius:4px; margin-bottom:10px; padding:6px 8px; font-size:10px; color:var(--muted); background:#fff;
+  }
+  .wf-btn{
+    border:1px solid var(--line-dark); background:var(--line-dark); color:#fff; text-align:center; padding:7px; border-radius:4px; font-size:10px; font-weight:bold; margin-bottom:8px; letter-spacing:0.5px;
+  }
+  .wf-btn.outline{background:#fff; color:var(--line-dark);}
+  .wf-btn.small{display:inline-block; padding:4px 10px; margin:2px 4px 2px 0;}
+  .wf-chip{
+    display:inline-block; border:1px solid var(--line); border-radius:12px; padding:2px 8px; font-size:9px; margin:2px 3px 2px 0; color:var(--muted);
+  }
+  .wf-chip.active{background:var(--line-dark); color:#fff; border-color:var(--line-dark);}
+
+  .wf-imgbox{
+    height:110px; border:1px dashed var(--line-dark); border-radius:4px; margin-bottom:8px;
+    background:repeating-linear-gradient(45deg,#fff,#fff 8px,#eee 8px,#eee 16px);
+    display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:10px; text-align:center;
+  }
+  .wf-imgbox.sm{height:60px;}
+
+  .wf-card{
+    border:1px solid var(--line); border-radius:4px; padding:8px; margin-bottom:8px; display:flex; gap:8px;
+  }
+  .wf-card .thumb{width:38px; height:38px; background:var(--box2); border:1px dashed var(--line-dark); flex-shrink:0;}
+  .wf-card .lines{flex:1;}
+
+  .wf-mapbox{
+    height:150px; border:1px solid var(--line-dark); border-radius:4px; margin-bottom:8px; position:relative;
+    background-image: linear-gradient(#ddd 1px, transparent 1px), linear-gradient(90deg, #ddd 1px, transparent 1px);
+    background-size:20px 20px; background-color:#f7f7f7;
+  }
+  .wf-mapbox .pin{position:absolute; font-size:14px;}
+  .wf-mapbox .lbl{position:absolute; bottom:4px; left:6px; font-size:9px; color:var(--muted); background:#fff; padding:1px 4px;}
+
+  .wf-kpi-row{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px;}
+  .wf-kpi{
+    flex:1 1 40%; border:1px solid var(--line); border-radius:4px; padding:6px; text-align:center; min-width:64px;
+  }
+  .wf-kpi .num{font-size:14px; font-weight:bold;}
+  .wf-kpi .lbl{font-size:8px; color:var(--muted);}
+
+  .wf-chart{
+    height:80px; border:1px solid var(--line); border-radius:4px; margin-bottom:8px; display:flex; align-items:flex-end; gap:4px; padding:6px; justify-content:center;
+  }
+  .wf-chart .bar{width:10px; background:var(--box2); border:1px solid var(--line-dark);}
+
+  .wf-tabbar{
+    position:absolute; bottom:0; left:0; right:0; height:40px; border-top:1px solid var(--line-dark); display:flex; background:#fff;
+  }
+  .wf-tabbar div{flex:1; text-align:center; font-size:8px; padding-top:8px; color:var(--muted); border-right:1px solid #eee;}
+  .wf-tabbar div.active{color:var(--line-dark); font-weight:bold;}
+  .wf-tabbar div:last-child{border-right:none;}
+
+  .step-dots{display:flex; gap:5px; justify-content:center; margin-bottom:8px;}
+  .step-dots span{width:7px; height:7px; border-radius:50%; background:#ddd; border:1px solid var(--line-dark); display:inline-block;}
+  .step-dots span.on{background:var(--line-dark);}
+
+  .table-mini{width:100%; border-collapse:collapse; font-size:8.5px;}
+  .table-mini th, .table-mini td{border:1px solid var(--line); padding:3px 4px; text-align:left;}
+  .table-mini th{background:var(--box2);}
+
+  .fab{
+    position:absolute; bottom:50px; right:10px; width:34px; height:34px; border-radius:50%; background:var(--line-dark); color:#fff; text-align:center; line-height:34px; font-size:16px; font-weight:bold;
+  }
+  .legend{
+    background:#fff; border:1px solid var(--line); padding:14px 18px; margin:40px 0; font-size:11px;
+  }
+  .legend h3{font-size:12px; margin:0 0 8px;}
+  .legend .row{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+</style>
+</head>
+<body>
+
+<h1 class="doctitle">WD-0421 — Smart Environment Activists Waste Complaint &amp; Monitoring System</h1>
+<div class="sub">Low-Fidelity Design (LFD) / Wireframe Pack — Mobile-First — v1 — 2026-07-13</div>
+
+<div class="toc">
+<h2>Contents — 23 Screens</h2>
+<div class="toc-cols">
+  <div class="grp">Citizen (10)</div>
+  <a href="#s1">1. Splash / Auth Landing</a>
+  <a href="#s2">2. Register</a>
+  <a href="#s3">3. Login</a>
+  <a href="#s4">4. Citizen Home</a>
+  <a href="#s5">5. New Complaint — Step 1: Photo</a>
+  <a href="#s6">6. New Complaint — Step 2: Location &amp; Tag</a>
+  <a href="#s7">7. New Complaint — Step 3: Category &amp; Submit</a>
+  <a href="#s8">8. Submission Success</a>
+  <a href="#s9">9. Complaint History</a>
+  <a href="#s10">10. Complaint Detail / Tracking</a>
+
+  <div class="grp">Admin (5)</div>
+  <a href="#s11">11. Admin Login</a>
+  <a href="#s12">12. Admin Dashboard</a>
+  <a href="#s13">13. Complaint List (Filters/Search)</a>
+  <a href="#s14">14. Complaint Detail (Admin Actions)</a>
+  <a href="#s15">15. Reports / Export</a>
+
+  <div class="grp">Super Admin (6)</div>
+  <a href="#s16">16. Super Admin Dashboard</a>
+  <a href="#s17">17. Corporations Management</a>
+  <a href="#s18">18. Admin Accounts Management</a>
+  <a href="#s19">19. Citizen Accounts Management</a>
+  <a href="#s20">20. System Settings</a>
+  <a href="#s21">21. Audit Logs</a>
+
+  <div class="grp">Shared Modules (2)</div>
+  <a href="#s22">22. GIS Map (Full Screen)</a>
+  <a href="#s23">23. Analytics Dashboard</a>
+</div>
+</div>
+
+<!-- ================= CITIZEN ================= -->
+<section class="role" id="citizen">
+  <div class="role-heading"><span class="tag">ROLE</span><h2>Citizen</h2></div>
+  <p class="role-desc">Registers, logs in, submits a geotagged complaint with photo, manually tags Corporation/Ward, tracks status.</p>
+  <div class="grid">
+
+    <!-- 1 Splash -->
+    <div class="screen-block" id="s1">
+      <div class="screen-label"><span><span class="num">1</span>Splash / Auth Landing</span><span class="flow">entry</span></div>
+      <div class="phone"><div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+          <div class="body-pad" style="text-align:center; padding-top:60px;">
+            <div class="wf-imgbox sm" style="margin:0 auto 20px; width:70%;">APP LOGO</div>
+            <div class="wf-h" style="margin:0 auto 6px; width:70%;"></div>
+            <div class="wf-line short" style="margin:0 auto 20px;"></div>
+            <div class="wf-btn">LOG IN</div>
+            <div class="wf-btn outline">REGISTER</div>
+            <div class="wf-line short" style="margin:16px auto 0; opacity:.6;"></div>
+          </div>
+        </div>
+      </div>
+      <ul class="annot">
+        <li>Single CTA pair; no guest browsing (login required to submit)</li>
+        <li>App name + one-line value prop only</li>
+      </ul>
+    </div>
+
+    <!-- 2 Register -->
+    <div class="screen-block" id="s2">
+      <div class="screen-label"><span><span class="num">2</span>Register</span></div>
+      <div class="phone"><div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+          <div class="appbar"><span>Create Account</span></div>
+          <div class="body-pad">
+            <div class="wf-input">Full Name</div>
+            <div class="wf-input">Mobile Number</div>
+            <div class="wf-input">Email</div>
+            <div class="wf-input">Address</div>
+            <div class="wf-input">Password</div>
+            <div class="wf-input">Confirm Password</div>
+            <div class="wf-btn">CREATE ACCOUNT</div>
+            <div class="wf-line short" style="margin:10px auto 0; text-align:center;"></div>
+          </div>
+        </div>
+      </div>
+      <ul class="annot">
+        <li>Fields per Citizen schema: FullName, Mobile, Email, Address, Password</li>
+        <li>Link at bottom → back to Login</li>
+      </ul>
+    </div>
+
+    <!-- 3 Login -->
+    <div class="screen-block" id="s3">
+      <div class="screen-label"><span><span class="num">3</span>Login</span></div>
+      <div class="phone"><div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+          <div class="appbar"><span>Log In</span></div>
+          <div class="body-pad" style="padding-top:30px;">
+            <div class="wf-input">Email / Mobile</div>
+            <div class="wf-input">Password</div>
+            <div class="wf-line short" style="margin-left:auto; opacity:.7;"></div>
+            <div class="wf-btn" style="margin-top:14px;">LOG IN</div>
+            <div class="wf-line short" style="margin:14px auto 0; text-align:center;"></div>
+          </div>
+        </div>
+      </div>
+      <ul class="annot">
+        <li>"Forgot Password" link → recovery flow (email/mobile OTP or reset link)</li>
+        <li>Same layout pattern reused for Admin/Super Admin login (see #11) with role auto-detected by account</li>
+      </ul>
+    </div>
+
+    <!-- 4 Citizen Home -->
+    <div class="screen-block" id="s4">
+      <div class="screen-label"><span><span class="num">4</span>Citizen Home</span><span class="flow">post-login</span></div>
+      <div class="phone"><div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+          <div class="appbar"><span>Hi, Citizen Name</span></div>
+          <div class="body-pad">
+            <div class="wf-btn">+ REPORT NEW ISSUE</div>
+            <div class="wf-h" style="margin-top:14px;">Recent Complaints</div>
+            <div class="wf-card"><div class="thumb"></div><div class="lines">
+              <div class="wf-line short"></div><div class="wf-line med" style="height:6px;"></div>
+              <span class="wf-chip active">Pending</span></div></div>
+            <div class="wf-card"><div class="thumb"></div><div class="lines">
+              <div class="wf-line short"></div><div class="wf-line med" style="height:6px;"></div>
+              <span class="wf-chip">Resolved</span></div></div>
+            <div class="wf-card"><div class="thumb"></div><div class="lines">
+              <div class="wf-line short"></div><div class="wf-line med" style="height:6px;"></div>
+              <span class="wf-chip">Work in Progress</span></div></div>
+          </div>
+          <div class="wf-tabbar">
+            <div class="active">Home</div><div>New</div><div>History</div><div>Profile</div>
+          </div>
+        </div>
+      </div>
+      <ul class="annot">
+        <li>Bottom tab bar persists across all citizen screens</li>
+        <li>Cards tap-through to Complaint Detail (#10)</li>
+      </ul>
+    </div>
+
+    <!-- 5 New complaint step 1 -->
+    <div class="screen-block" id="s5">
+      <div class="screen-label"><span><span class="num">5</span>New Complaint — Step 1</span><span class="flow">photo</span></div>
+      <div class="phone"><div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+          <div class="appbar"><span class="back">‹</span><span>Report Issue</span></div>
+          <div class="body-pad">
+            <div class="step-dots"><span class="on"></span><span></span><span></span></div>
+            <div class="wf-imgbox" style="height:160px;">📷 CAPTURE PHOTO / UPLOAD</div>
+            <div class="wf-btn outline small">TAKE PHOTO</div>
+            <div class="wf-btn outline small">UPLOAD FROM GALLERY</div>
+            <div class="wf-line short" style="margin-top:16px; opacity:.6;"></div>
+            <div class="wf-btn" style="margin-top:60px;">NEXT →</div>
+          </div>
+        </div>
+      </div>
+      <ul class="annot">
+        <li>Browser camera capture or file upload (per PRD)</li>
+        <li>On photo select → auto-trigger GPS capture in background before Step 2</li>
+      </ul>
+    </div>
+
+    <!-- 6 New complaint step 2 -->
+    <div class="screen-block" id="s6">
+      <div class="screen-label"><span><span class="num">6</span>New Complaint — Step 2</span><span class="flow">location + tag</span></div>
+      <div class="phone"><div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+          <div class="appbar"><span class="back">‹</span><span>Report Issue</span></div>
+          <div class="body-pad">
+            <div class="step-dots"><span class="on"></span><span class="on"></span><span></span></div>
+            <div class="wf-mapbox" style="height:100px;"><span class="pin" style="left:48%; top:40%;">📍</span><span class="lbl">Auto-captured location</span></div>
+            <div class="wf-line med" style="height:6px;"></div>
+            <div class="wf-line short" style="height:6px; opacity:.6;"></div>
+            <div class="wf-h" style="margin-top:12px;">Tag Jurisdiction</div>
+            <div class="wf-input">Select Environment Activists Corporation ▾</div>
+            <div class="wf-input">Select Ward ▾</div>
+            <div class="wf-btn" style="margin-top:30px;">NEXT →</div>
+          </div>
+        </div>
+      </div>
+      <ul class="annot">
+        <li>Lat/Long/Address/Date/Time auto-filled (read-only, small text under map)</li>
+        <li>Corporation + Ward are the only manually-tagged fields, populated from a fetched list, filtered by nearest match if possible</li>
+      </ul>
+    </div>
+
+    <!-- 7 New complaint step 3 -->
+    <div class="screen-block" id="s7">
+      <div class="screen-label"><span><span class="num">7</span>New Complaint — Step 3</span><span class="flow">category + submit</span></div>
+      <div class="phone"><div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+          <div class="appbar"><span class="back">‹</span><span>Report Issue</span></div>
+          <div class="body-pad">
+            <div class="step-dots"><span class="on"></span><span class="on"></span><span class="on"></span></div>
+            <div class="wf-h">Category</div>
+            <span class="wf-chip active">Overflowing Dustbin</span>
+            <span class="wf-chip">Unauthorized Dumping</span>
+            <span class="wf-chip">Damaged Dustbin</span>
+            <span class="wf-chip">Missing Dustbin</span>
+            <div class="wf-h" style="margin-top:12px;">Description</div>
+            <div class="wf-textarea">Placeholder: "Describe the issue (max 500 characters)…"</div>
+            <div class="wf-btn">SUBMIT COMPLAINT</div>
+          </div>
+        </div>
+      </div>
+      <ul class="annot">
+        <li>Category = single-select chips (4 fixed values)</li>
+        <li>Character counter under description box (0/500)</li>
+      </ul>
+    </div>
+
+    <!-- 8 Success -->
+    <div class="screen-block" id="s8">
+      <div class="screen-label"><span><span class="num">8</span>Submission Success</span></div>
+      <div class="phone"><div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+          <div class="body-pad" style="text-align:center; padding-top:70px;">
+            <div style="font-size:36px;">✔</div>
+            <div class="wf-h" style="margin:14px auto; width:60%;"></div>
+            <div class="wf-input" style="justify-content:center; font-weight:bold;">Complaint ID: #WM-00123</div>
+            <div class="wf-line short" style="margin:10px auto;"></div>
+            <div class="wf-btn" style="margin-top:24px;">TRACK COMPLAINT</div>
+            <div class="wf-btn outline">BACK TO HOME</div>
+          </div>
+        </div>
+      </div>
+      <ul class="annot">
+        <li>Generated Complaint ID shown prominently; also sent via notification</li>
+      </ul>
+    </div>
+
+    <!-- 9 History -->
+    <div class="screen-block" id="s9">
+      <div class="screen-label"><span><span class="num">9</span>Complaint History</span></div>
+      <div class="phone"><div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+          <div class="appbar"><span>My Complaints</span></div>
+          <div class="body-pad">
+            <div style="display:flex; gap:6px; margin-bottom:8px;">
+              <div class="wf-input" style="flex:1; margin-bottom:0;">Status ▾</div>
+              <div class="wf-input" style="flex:1; margin-bottom:0;">Type ▾</div>
+              <div class="wf-input" style="flex:1; margin-bottom:0;">Date ▾</div>
+            </div>
+            <div class="wf-card"><div class="thumb"></div><div class="lines"><div class="wf-line short"></div><div class="wf-line med" style="height:6px;"></div><span class="wf-chip">Under Review</span></div></div>
+            <div class="wf-card"><div class="thumb"></div><div class="lines"><div class="wf-line short"></div><div class="wf-line med" style="height:6px;"></div><span class="wf-chip">Resolved</span></div></div>
+            <div class="wf-card"><div class="thumb"></div><div class="lines"><div class="wf-line short"></div><div class="wf-line med" style="height:6px;"></div><span class="wf-chip">Rejected</span></div></div>
+            <div class="wf-card"><div class="thumb"></div><div class="lines"><div class="wf-line short"></div><div class="wf-line med" style="height:6px;"></div><span class="wf-chip">Pending</span></div></div>
+          </div>
+          <div class="wf-tabbar"><div>Home</div><div>New</div><div class="active">History</div><div>Profile</div></div>
+        </div>
+      </div>
+      <ul class="annot">
+        <li>Filter row is horizontally scrollable on narrow screens if needed</li>
+      </ul>
+    </div>
+
+    <!-- 10 Detail -->
+    <div class="screen-block" id="s10">
+      <div class="screen-label"><span><span class="num">10</span>Complaint Detail / Tracking</span></div>
+      <div class="phone"><div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+          <div class="appbar"><span class="back">‹</span><span>#WM-00123</span></div>
+          <div class="body-pad">
+            <div class="wf-imgbox sm">complaint photo</div>
+            <div class="wf-line short"></div>
+            <div class="wf-line med" style="height:6px;"></div>
+            <div style="display:flex; gap:6px; margin:8px 0;">
+              <span class="wf-chip">Pending</span><span class="wf-chip active">Under Review</span><span class="wf-chip">In Progress</span><span class="wf-chip">Resolved</span>
+            </div>
+            <div class="wf-h">Admin Remarks</div>
+            <div class="wf-line full" style="height:6px;"></div>
+            <div class="wf-h">Resolution Photo</div>
+            <div class="wf-imgbox sm">verification photo (if resolved)</div>
+          </div>
+        </div>
+      </div>
+      <ul class="annot">
+        <li>Status shown as a horizontal stepper/timeline</li>
+        <li>Resolution photo + date appear only once status = Resolved</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= ADMIN ================= -->
+<section class="role" id="admin">
+  <div class="role-heading"><span class="tag">ROLE</span><h2>Admin</h2></div>
+  <p class="role-desc">Manages complaints within one Corporation only: reviews, updates status, verifies resolution, exports reports.</p>
+  <div class="grid">
+
+    <!-- 11 Admin login -->
+    <div class="screen-block" id="s11">
+      <div class="screen-label"><span><span class="num">11</span>Admin Login</span></div>
+      <div class="phone"><div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+          <div class="body-pad" style="text-align:center; padding-top:60px;">
+            <div class="wf-h" style="margin:0 auto 20px; width:60%;">ADMIN PORTAL</div>
+            <div class="wf-input">Email</div>
+            <div class="wf-input">Password</div>
+            <div class="wf-btn" style="margin-top:10px;">LOG IN</div>
+          </div>
+        </div>
+      </div>
+      <ul class="annot">
+        <li>Same route/UI serves Admin &amp; Super Admin; role + jurisdiction resolved after auth</li>
+      </ul>
+    </div>
+
+    <!-- 12 Admin dashboard -->
+    <div class="screen-block" id="s12">
+      <div class="screen-label"><span><span class="num">12</span>Admin Dashboard</span></div>
+      <div class="phone"><div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+          <div class="appbar"><span>☰</span><span>Dashboard — Ward Corp.</span></div>
+          <div class="body-pad">
+            <div class="wf-kpi-row">
+              <div class="wf-kpi"><div class="num">128</div><div class="lbl">TOTAL</div></div>
+              <div class="wf-kpi"><div class="num">22</div><div class="lbl">PENDING</div></div>
+              <div class="wf-kpi"><div class="num">14</div><div class="lbl">REVIEW</div></div>
+              <div class="wf-kpi"><div class="num">9</div><div class="lbl">IN PROGRESS</div></div>
+              <div class="wf-kpi"><div class="num">78</div><div class="lbl">RESOLVED</div></div>
+              <div class="wf-kpi"><div class="num">5</div><div class="lbl">REJECTED</div></div>
+            </div>
+            <div class="wf-mapbox"><span class="pin" style="left:30%; top:30%;">📍</span><span class="pin" style="left:60%; top:55%;">📍</span><span class="pin" style="left:45%; top:70%;">📍</span><span class="lbl">Jurisdiction map</span></div>
+            <div class="wf-btn small">VIEW ALL COMPLAINTS</div>
+          </div>
+        </div>
+      </div>
+      <ul class="annot">
+        <li>KPI cards per PRD §11 Overview Cards</li>
+        <li>Hamburger (☰) opens side nav: Dashboard / Complaints / Reports / Profile</li>
+      </ul>
+    </div>
+
+    <!-- 13 Complaint list -->
+    <div class="screen-block" id="s13">
+      <div class="screen-label"><span><span class="num">13</span>Complaint List</span><span class="flow">filters/search</span></div>
+      <div class="phone"><div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+          <div class="appbar"><span class="back">‹</span><span>Complaints</span></div>
+          <div class="body-pad">
+            <div class="wf-input">🔍 Search ID / Name / Ward / Address</div>
+            <div style="display:flex; gap:6px; overflow:hidden; margin-bottom:8px;">
+              <span class="wf-chip active">Ward</span><span class="wf-chip">Type</span><span class="wf-chip">Status</span><span class="wf-chip">Date</span>
+            </div>
+            <div class="wf-card"><div class="thumb"></div><div class="lines"><div class="wf-line short"></div><div class="wf-line med" style="height:6px;"></div><span class="wf-chip">Pending</span></div></div>
+            <div class="wf-card"><div class="thumb"></div><div class="lines"><div class="wf-line short"></div><div class="wf-line med" style="height:6px;"></div><span class="wf-chip">Under Review</span></div></div>
+            <div class="wf-card"><div class="thumb"></div><div class="lines"><div class="wf-line short"></div><div class="wf-line med" style="height:6px;"></div><span class="wf-chip">Resolved</span></div></div>
+          </div>
+        </div>
+      </div>
+      <ul class="annot">
+        <li>Mobile: card list. On desktop breakpoint, same data becomes the table from PRD §11 (columns: ID, Citizen, Type, Ward, Corp, Address, Date, Status, Priority, Verification Photo)</li>
+        <li>Filter chips open bottom-sheet pickers on mobile</li>
+      </ul>
+    </div>
+
+    <!-- 14 Admin complaint detail -->
+    <div class="screen-block" id="s14">
+      <div class="screen-label"><span><span class="num">14</span>Complaint Detail</span><span class="flow">admin actions</span></div>
+      <div class="phone"><div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+          <div class="appbar"><span class="back">‹</span><span>#WM-00123</span></div>
+          <div class="body-pad">
+            <div class="wf-imgbox sm">complaint photo</div>
+            <div class="wf-mapbox" style="height:70px;"><span class="pin" style="left:50%; top:40%;">📍</span></div>
+            <div class="wf-line short"></div><div class="wf-line med" style="height:6px;"></div>
+            <div class="wf-input">Update Status ▾</div>
+            <div class="wf-textarea">Add remarks…</div>
+            <div class="wf-imgbox sm">upload verification photo</div>
+            <div class="wf-btn small">MARK RESOLVED</div>
+            <div class="wf-btn outline small">REJECT (DUPLICATE)</div>
+          </div>
+        </div>
+      </div>
+      <ul class="annot">
+        <li>All fields from PRD §9.2 Complaint Management / Verification</li>
+      </ul>
+    </div>
+
+    <!-- 15 Reports -->
+    <div class="screen-block" id="s15">
+      <div class="screen-label"><span><span class="num">15</span>Reports / Export</span></div>
+      <div class="phone"><div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+          <div class="appbar"><span class="back">‹</span><span>Reports</span></div>
+          <div class="body-pad">
+            <div class="wf-input">Date Range ▾</div>
+            <div class="wf-input">Ward ▾</div>
+            <div class="wf-input">Category ▾</div>
+            <div class="wf-btn small">GENERATE</div>
+            <div class="wf-chart">
+              <div class="bar" style="height:40%;"></div><div class="bar" style="height:70%;"></div><div class="bar" style="height:30%;"></div><div class="bar" style="height:55%;"></div>
+            </div>
+            <div class="wf-btn outline">EXPORT CSV / PDF</div>
+          </div>
+        </div>
+      </div>
+      <ul class="annot">
+        <li>Export = "view and export reports" per PRD Admin capability list</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= SUPER ADMIN ================= -->
+<section class="role" id="superadmin">
+  <div class="role-heading"><span class="tag">ROLE</span><h2>Super Admin</h2></div>
+  <p class="role-desc">Unrestricted, cross-corporation access: manages corporations, admin &amp; citizen accounts, global settings, audit logs, and global analytics.</p>
+  <div class="grid">
+
+    <!-- 16 Super admin dashboard -->
+    <div class="screen-block" id="s16">
+      <div class="screen-label"><span><span class="num">16</span>Super Admin Dashboard</span></div>
+      <div class="phone"><div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+          <div class="appbar"><span>☰</span><span>Global Overview</span></div>
+          <div class="body-pad">
+            <div class="wf-kpi-row">
+              <div class="wf-kpi"><div class="num">14</div><div class="lbl">CORPORATIONS</div></div>
+              <div class="wf-kpi"><div class="num">1,204</div><div class="lbl">COMPLAINTS</div></div>
+              <div class="wf-kpi"><div class="num">3.2d</div><div class="lbl">AVG RESOLUTION</div></div>
+            </div>
+            <div class="wf-chart"><div class="bar" style="height:60%;"></div><div class="bar" style="height:80%;"></div><div class="bar" style="height:40%;"></div><div class="bar" style="height:65%;"></div><div class="bar" style="height:30%;"></div></div>
+            <div class="wf-btn small">MANAGE CORPORATIONS</div>
+            <div class="wf-btn outline small">MANAGE ADMINS</div>
+          </div>
+        </div>
+      </div>
+      <ul class="annot">
+        <li>Side nav (☰): Overview / Corporations / Admins / Citizens / Complaints / Settings / Audit Logs / Reports</li>
+      </ul>
+    </div>
+
+    <!-- 17 Corporations mgmt -->
+    <div class="screen-block" id="s17">
+      <div class="screen-label"><span><span class="num">17</span>Corporations Management</span></div>
+      <div class="phone"><div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+          <div class="appbar"><span class="back">‹</span><span>Corporations</span></div>
+          <div class="body-pad">
+            <div class="wf-btn small">+ ADD CORPORATION</div>
+            <div class="wf-card"><div class="thumb"></div><div class="lines"><div class="wf-line short"></div><div class="wf-line med" style="height:6px;"></div><span class="wf-chip active">Active</span></div></div>
+            <div class="wf-card"><div class="thumb"></div><div class="lines"><div class="wf-line short"></div><div class="wf-line med" style="height:6px;"></div><span class="wf-chip">Active</span></div></div>
+            <div class="wf-card"><div class="thumb"></div><div class="lines"><div class="wf-line short"></div><div class="wf-line med" style="height:6px;"></div><span class="wf-chip">Deactivated</span></div></div>
+          </div>
+        </div>
+      </div>
+      <ul class="annot">
+        <li>Tap card → edit form (Name, State, District) + Deactivate toggle</li>
+      </ul>
+    </div>
+
+    <!-- 18 Admin accounts mgmt -->
+    <div class="screen-block" id="s18">
+      <div class="screen-label"><span><span class="num">18</span>Admin Accounts Management</span></div>
+      <div class="phone"><div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+          <div class="appbar"><span class="back">‹</span><span>Administrators</span></div>
+          <div class="body-pad">
+            <div class="wf-btn small">+ ADD ADMIN</div>
+            <div class="wf-card"><div class="thumb"></div><div class="lines"><div class="wf-line short"></div><div class="wf-line med" style="height:6px;"></div><span class="wf-chip">Assigned: Corp A</span></div></div>
+            <div class="wf-card"><div class="thumb"></div><div class="lines"><div class="wf-line short"></div><div class="wf-line med" style="height:6px;"></div><span class="wf-chip">Assigned: Corp B</span></div></div>
+            <div class="wf-input" style="margin-top:6px;">Reassign to Corporation ▾</div>
+          </div>
+        </div>
+      </div>
+      <ul class="annot">
+        <li>Create/Edit/Deactivate/Delete + Assign/Reassign per PRD Super Admin capabilities</li>
+      </ul>
+    </div>
+
+    <!-- 19 Citizen accounts mgmt -->
+    <div class="screen-block" id="s19">
+      <div class="screen-label"><span><span class="num">19</span>Citizen Accounts Management</span></div>
+      <div class="phone"><div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+          <div class="appbar"><span class="back">‹</span><span>Citizens</span></div>
+          <div class="body-pad">
+            <div class="wf-input">🔍 Search citizen</div>
+            <div class="wf-card"><div class="thumb"></div><div class="lines"><div class="wf-line short"></div><div class="wf-line med" style="height:6px;"></div></div></div>
+            <div class="wf-card"><div class="thumb"></div><div class="lines"><div class="wf-line short"></div><div class="wf-line med" style="height:6px;"></div></div></div>
+            <div style="display:flex; gap:6px;">
+              <div class="wf-btn outline small">DEACTIVATE</div>
+              <div class="wf-btn outline small">RESET PASSWORD</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ul class="annot">
+        <li>View / Deactivate / Reset Password only — no create/delete (citizens self-register)</li>
+      </ul>
+    </div>
+
+    <!-- 20 System settings -->
+    <div class="screen-block" id="s20">
+      <div class="screen-label"><span><span class="num">20</span>System Settings</span></div>
+      <div class="phone"><div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+          <div class="appbar"><span class="back">‹</span><span>Settings</span></div>
+          <div class="body-pad">
+            <div class="wf-h">Complaint Categories</div>
+            <span class="wf-chip active">Overflowing</span><span class="wf-chip active">Dumping</span><span class="wf-chip active">Damaged</span><span class="wf-chip active">Missing</span>
+            <div class="wf-btn small" style="margin-top:6px;">+ ADD CATEGORY</div>
+            <div class="wf-h" style="margin-top:14px;">SLA / Resolution Targets</div>
+            <div class="wf-input">Target resolution time (days)</div>
+            <div class="wf-h">Ward / Jurisdiction Mapping</div>
+            <div class="wf-btn outline small">MANAGE MAPPING</div>
+          </div>
+        </div>
+      </div>
+      <ul class="annot">
+        <li>Configures categories, SLA targets, ward/jurisdiction mapping per PRD §6 Super Admin</li>
+      </ul>
+    </div>
+
+    <!-- 21 Audit logs -->
+    <div class="screen-block" id="s21">
+      <div class="screen-label"><span><span class="num">21</span>Audit Logs</span></div>
+      <div class="phone"><div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+          <div class="appbar"><span class="back">‹</span><span>Audit Logs</span></div>
+          <div class="body-pad">
+            <div class="wf-input">Filter: User / Action / Date ▾</div>
+            <table class="table-mini">
+              <tr><th>Time</th><th>User</th><th>Action</th></tr>
+              <tr><td>10:32</td><td>Admin B</td><td>Status→Resolved</td></tr>
+              <tr><td>09:15</td><td>SuperAdmin</td><td>Reassigned Admin</td></tr>
+              <tr><td>08:50</td><td>Citizen X</td><td>Submitted complaint</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+      <ul class="annot">
+        <li>Read-only, exportable; logs every admin/super-admin/citizen action per PRD §15 Security</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= SHARED ================= -->
+<section class="role" id="shared">
+  <div class="role-heading"><span class="tag">SHARED</span><h2>Shared Modules</h2></div>
+  <p class="role-desc">Used by Admin and Super Admin (Super Admin sees global/unfiltered data; Admin sees jurisdiction-scoped data).</p>
+  <div class="grid">
+
+    <!-- 22 GIS Map full -->
+    <div class="screen-block" id="s22">
+      <div class="screen-label"><span><span class="num">22</span>GIS Map (Full Screen)</span></div>
+      <div class="phone"><div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+          <div class="appbar"><span class="back">‹</span><span>Complaint Map</span></div>
+          <div class="wf-mapbox" style="height:300px; margin:8px; border-radius:4px;">
+            <span class="pin" style="left:20%; top:20%;">📍</span>
+            <span class="pin" style="left:55%; top:35%;">📍</span>
+            <span class="pin" style="left:70%; top:60%;">📍</span>
+            <span class="pin" style="left:35%; top:70%;">📍</span>
+            <span class="lbl">Leaflet.js + OpenStreetMap</span>
+          </div>
+          <div class="wf-card" style="margin:0 8px;"><div class="thumb"></div><div class="lines">
+            <div class="wf-line short"></div><div class="wf-line med" style="height:6px;"></div>
+            <span class="wf-chip">Tapped marker → popup card</span></div></div>
+        </div>
+      </div>
+      <ul class="annot">
+        <li>Tapping a marker opens the popup shown below the map: photo, ID, address, ward, corp, type, date, status</li>
+      </ul>
+    </div>
+
+    <!-- 23 Analytics -->
+    <div class="screen-block" id="s23">
+      <div class="screen-label"><span><span class="num">23</span>Analytics Dashboard</span></div>
+      <div class="phone"><div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+          <div class="appbar"><span class="back">‹</span><span>Analytics</span></div>
+          <div class="body-pad">
+            <div class="wf-h">By Corporation</div>
+            <div class="wf-chart"><div class="bar" style="height:70%;"></div><div class="bar" style="height:40%;"></div><div class="bar" style="height:55%;"></div></div>
+            <div class="wf-h">By Category</div>
+            <div class="wf-chart"><div class="bar" style="height:30%;"></div><div class="bar" style="height:80%;"></div><div class="bar" style="height:45%;"></div><div class="bar" style="height:60%;"></div></div>
+            <div class="wf-h">Trend (Daily / Weekly / Monthly)</div>
+            <div class="wf-chart" style="align-items:center;"><div style="width:90%; height:2px; background:var(--line-dark);"></div></div>
+          </div>
+        </div>
+      </div>
+      <ul class="annot">
+        <li>Toggle chips (Daily/Weekly/Monthly) above trend chart</li>
+        <li>Ward-level breakdown accessible via drill-down/tab</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<div class="legend">
+  <h3>Wireframe Key</h3>
+  <div class="row"><div class="wf-btn small" style="margin:0;">LABEL</div> Primary action button</div>
+  <div class="row"><div class="wf-btn outline small" style="margin:0;">LABEL</div> Secondary / outline action</div>
+  <div class="row"><div class="wf-input" style="width:120px; margin:0;">Field</div> Text input / dropdown</div>
+  <div class="row"><div class="wf-imgbox sm" style="width:60px; margin:0;"></div> Photo / image placeholder</div>
+  <div class="row"><div class="wf-chip active" style="margin:0;">Chip</div><div class="wf-chip" style="margin:0;">Chip</div> Selected vs. unselected chip/status tag</div>
+  <div class="row"><div class="wf-line med" style="margin:0; width:80px;"></div> Text placeholder line</div>
+</div>
+
+</body>
+</html>

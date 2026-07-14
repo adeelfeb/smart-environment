@@ -37,6 +37,9 @@ const UserSchema = new mongoose.Schema(
     valentineCredits: { type: Number, default: 1, min: 0 },
     // Valentine email resends: base users get 1 free resend per link, then use these credits
     valentineEmailCredits: { type: Number, default: 0, min: 0 },
+    // Corporation assignment for admin users
+    corporation: { type: mongoose.Schema.Types.ObjectId, ref: 'Corporation', default: null },
+    phone: { type: String, default: null, trim: true },
   },
   {
     timestamps: true,

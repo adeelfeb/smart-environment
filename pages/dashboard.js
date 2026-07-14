@@ -12,6 +12,17 @@ import HelpPanel from '../components/dashboard/HelpPanel';
 import PrivacyPanel from '../components/dashboard/PrivacyPanel';
 import RequestsPanel from '../components/dashboard/RequestsPanel';
 import ChatNow from '../components/dashboard/ChatNow';
+import ComplaintSubmitForm from '../components/dashboard/ComplaintSubmitForm';
+import ComplaintHistory from '../components/dashboard/ComplaintHistory';
+import ComplaintDetail from '../components/dashboard/ComplaintDetail';
+import AdminDashboardPanel from '../components/dashboard/AdminDashboardPanel';
+import AdminComplaintList from '../components/dashboard/AdminComplaintList';
+import CorporationsPanel from '../components/dashboard/CorporationsPanel';
+import CitizensManagement from '../components/dashboard/CitizensManagement';
+import SystemSettingsPanel from '../components/dashboard/SystemSettingsPanel';
+import AuditLogsPanel from '../components/dashboard/AuditLogsPanel';
+import AnalyticsPanel from '../components/dashboard/AnalyticsPanel';
+import GisMapPanel from '../components/dashboard/GisMapPanel';
 import { getUserFromRequest } from '../lib/auth';
 
 function serializeUser(user) {
@@ -49,57 +60,49 @@ export async function getServerSideProps(context) {
 
 const NAVIGATION_BY_ROLE = {
   superadmin: [
-    { key: 'overview', label: 'Overview' },
+    { key: 'admin-dashboard', label: 'Dashboard' },
+    { key: 'complaints', label: 'Complaints' },
+    { key: 'gis-map', label: 'GIS Map' },
+    { key: 'analytics', label: 'Analytics' },
+    { key: 'corporations', label: 'Corporations' },
+    { key: 'citizen-management', label: 'Citizens' },
+    { key: 'audit-logs', label: 'Audit Logs' },
+    { key: 'system-settings', label: 'Settings' },
     { key: 'messages', label: 'Messages' },
     { key: 'user-management', label: 'Users' },
-    { key: 'requests', label: 'Requests' },
     { key: 'backup', label: 'Backup' },
-    { key: 'add-origin', label: 'Origins' },
-    { key: 'api-endpoints', label: 'API' },
     { key: 'help', label: 'Help' },
-    { key: 'privacy', label: 'Privacy' },
   ],
   developer: [
-    { key: 'overview', label: 'Overview' },
-    { key: 'messages', label: 'Messages' },
+    { key: 'admin-dashboard', label: 'Dashboard' },
+    { key: 'complaints', label: 'Complaints' },
+    { key: 'corporations', label: 'Corporations' },
     { key: 'user-management', label: 'Users' },
-    { key: 'requests', label: 'Requests' },
+    { key: 'messages', label: 'Messages' },
     { key: 'backup', label: 'Backup' },
-    { key: 'add-origin', label: 'Origins' },
-    { key: 'api-endpoints', label: 'API' },
     { key: 'help', label: 'Help' },
-    { key: 'privacy', label: 'Privacy' },
   ],
   admin: [
-    { key: 'overview', label: 'Overview' },
-    { key: 'requests', label: 'Requests' },
-    { key: 'add-origin', label: 'Origins' },
-    { key: 'api-endpoints', label: 'API' },
+    { key: 'admin-dashboard', label: 'Dashboard' },
+    { key: 'complaints', label: 'Complaints' },
+    { key: 'gis-map', label: 'GIS Map' },
+    { key: 'analytics', label: 'Analytics' },
     { key: 'help', label: 'Help' },
-    { key: 'privacy', label: 'Privacy' },
+  ],
+  base_user: [
+    { key: 'submit-complaint', label: 'New Complaint' },
+    { key: 'complaint-history', label: 'My Complaints' },
+    { key: 'help', label: 'Help' },
   ],
   hr: [
     { key: 'overview', label: 'Overview' },
     { key: 'messages', label: 'Messages' },
-    { key: 'requests', label: 'Requests' },
-    { key: 'add-origin', label: 'Origins' },
-    { key: 'api-endpoints', label: 'API' },
     { key: 'help', label: 'Help' },
-    { key: 'privacy', label: 'Privacy' },
   ],
   hr_admin: [
     { key: 'overview', label: 'Overview' },
     { key: 'messages', label: 'Messages' },
-    { key: 'requests', label: 'Requests' },
-    { key: 'add-origin', label: 'Origins' },
-    { key: 'api-endpoints', label: 'API' },
     { key: 'help', label: 'Help' },
-    { key: 'privacy', label: 'Privacy' },
-  ],
-  base_user: [
-    { key: 'overview', label: 'Overview' },
-    { key: 'help', label: 'Help' },
-    { key: 'privacy', label: 'Privacy' },
   ],
 };
 
@@ -110,43 +113,49 @@ const FALLBACK_NAV = [
 ];
 
 const SECTION_DESCRIPTORS = {
-  overview: {
-    subtitle: (user) => {
-      const normalizedRole = (user?.role || '').toLowerCase();
-      if (normalizedRole === 'base_user') return null;
-      return 'View, manage, and monitor all users. Create accounts, mark verification status, pause or resume access.';
-    },
-    body: (user) => {
-      const normalizedRole = (user?.role || '').toLowerCase();
-      if (normalizedRole === 'base_user') {
-        const name = user?.name || 'there';
-        return (
-          <div className="applications-overview">
-            <div className="applications-hero">
-              <span className="applications-hero-pill">Welcome</span>
-              <p>
-                Hi <strong>{name}</strong>, welcome to your EcoWatch dashboard. Here you can manage your account and get support.
-              </p>
-            </div>
-            <div className="applications-basic-grid">
-              <div className="applications-basic-card applications-basic-card--focus">
-                <div className="applications-basic-icon"></div>
-                <span className="applications-basic-label">Account</span>
-                <span className="applications-basic-value">{user?.email || 'Not set'}</span>
-                <p className="applications-basic-note">Your registered email address.</p>
-              </div>
-              <div className="applications-basic-card applications-basic-card--upcoming">
-                <div className="applications-basic-icon"></div>
-                <span className="applications-basic-label">Status</span>
-                <span className="applications-basic-value">Active</span>
-                <p className="applications-basic-note">Your account is in good standing.</p>
-              </div>
-            </div>
-          </div>
-        );
-      }
-      return <UserOverviewTable currentUser={user} />;
-    },
+  'submit-complaint': {
+    hideHeader: true,
+    body: (user) => <ComplaintSubmitForm user={user} />,
+  },
+  'complaint-history': {
+    hideHeader: true,
+    body: (user) => <ComplaintHistoryWrapper user={user} />,
+  },
+  'complaint-detail': {
+    hideHeader: true,
+    body: () => null,
+  },
+  'admin-dashboard': {
+    hideHeader: true,
+    body: (user, onNavigate) => <AdminDashboardPanel user={user} onNavigate={onNavigate} />,
+  },
+  'complaints': {
+    hideHeader: true,
+    body: (user) => <ComplaintListWrapper user={user} />,
+  },
+  'corporations': {
+    hideHeader: true,
+    body: (user) => <CorporationsPanel user={user} />,
+  },
+  'citizen-management': {
+    hideHeader: true,
+    body: (user) => <CitizensManagement user={user} />,
+  },
+  'system-settings': {
+    hideHeader: true,
+    body: (user, onNavigate) => <SystemSettingsPanel user={user} onNavigate={onNavigate} />,
+  },
+  'audit-logs': {
+    hideHeader: true,
+    body: (user) => <AuditLogsPanel user={user} />,
+  },
+  'analytics': {
+    hideHeader: true,
+    body: (user) => <AnalyticsPanel user={user} />,
+  },
+  'gis-map': {
+    hideHeader: true,
+    body: (user) => <GisMapPanel user={user} />,
   },
   backup: {
     subtitle: 'Export all database collections to JSON or Excel. Import a backup file to add entries (invalid or duplicate rows are skipped).',
@@ -175,22 +184,8 @@ const SECTION_DESCRIPTORS = {
   },
   'user-management': {
     subtitle: 'Manage access, roles, and permissions across your organization.',
-    panels: [
-      {
-        title: 'Team roster',
-        description: 'View who is active, pending, or requires action.',
-      },
-      {
-        title: 'Role controls',
-        description: 'Assign, update, or revoke roles in a few clicks.',
-      },
-    ],
-    listTitle: 'Administrative shortcuts',
-    list: [
-      { title: 'Invite a new teammate' },
-      { title: 'Review access requests' },
-      { title: 'Audit recent changes' },
-    ],
+    hideHeader: true,
+    body: (user) => <UserOverviewTable currentUser={user} />,
   },
   'add-origin': {
     hideHeader: true,
@@ -201,6 +196,39 @@ const SECTION_DESCRIPTORS = {
     body: () => <ApiEndpointsPanel />,
   },
 };
+
+function ComplaintHistoryWrapper({ user }) {
+  const [selectedComplaint, setSelectedComplaint] = useState(null);
+  if (selectedComplaint) {
+    return (
+      <ComplaintDetail
+        complaint={selectedComplaint}
+        user={user}
+        onBack={() => setSelectedComplaint(null)}
+        onUpdated={() => setSelectedComplaint(null)}
+      />
+    );
+  }
+  return <ComplaintHistory user={user} onSelectComplaint={setSelectedComplaint} />;
+}
+
+function ComplaintListWrapper({ user }) {
+  const [selectedComplaint, setSelectedComplaint] = useState(null);
+  if (selectedComplaint) {
+    return (
+      <ComplaintDetail
+        complaint={selectedComplaint}
+        user={user}
+        onBack={() => setSelectedComplaint(null)}
+        onUpdated={(updated) => {
+          if (updated) setSelectedComplaint(updated);
+          else setSelectedComplaint(null);
+        }}
+      />
+    );
+  }
+  return <AdminComplaintList user={user} onSelectComplaint={setSelectedComplaint} />;
+}
 
 export default function Dashboard({ user }) {
   const [sessionUser, setSessionUser] = useState(user);
@@ -346,20 +374,6 @@ export default function Dashboard({ user }) {
     };
   }, [resolveSectionKey, updateUrlHash, navItems]);
 
-  const isOverviewSection = activeSection === 'overview';
-
-  useEffect(() => {
-    if (!primaryNav.length) return;
-    const hasActive = primaryNav.some((item) => item.key === activeSection);
-    const isSettings = activeSection === 'settings';
-    if (!hasActive && !isSettings) {
-      const fallbackKey = primaryNav[0].key;
-      setActiveSection(fallbackKey);
-      updateUrlHash(fallbackKey);
-    }
-  }, [primaryNav, activeSection, updateUrlHash]);
-
-  const canAccessChat = ['developer', 'hr', 'hr_admin', 'superadmin'].includes(normalizedRole);
   /* Unread count: only poll when NOT on Messages (ChatNow calls onUnreadChange when on Messages) */
   useEffect(() => {
     if (!canAccessChat) return;
@@ -420,13 +434,8 @@ export default function Dashboard({ user }) {
     }
   }, [isLoggingOut, router]);
 
-  const resolvedSectionKey =
-    normalizedRole === 'base_user' && activeSection === 'overview'
-      ? 'applications'
-      : activeSection;
-
   const activeNavItem = primaryNav.find((item) => item.key === activeSection);
-  const sectionDescriptor = SECTION_DESCRIPTORS[resolvedSectionKey] || {
+  const sectionDescriptor = SECTION_DESCRIPTORS[activeSection] || {
     subtitle: 'This area will be available soon.',
     panels: [
       {
@@ -435,6 +444,8 @@ export default function Dashboard({ user }) {
       },
     ],
   };
+
+  const hideHeader = Boolean(sectionDescriptor.hideHeader);
 
   const panels = sectionDescriptor.panels || [];
   const list = sectionDescriptor.list || [];
@@ -446,7 +457,19 @@ export default function Dashboard({ user }) {
       : typeof sectionDescriptor.subtitle === 'function'
         ? sectionDescriptor.subtitle(sessionUser)
         : sectionDescriptor.subtitle;
-  const hideHeader = Boolean(sectionDescriptor.hideHeader);
+
+  useEffect(() => {
+    if (!primaryNav.length) return;
+    const hasActive = primaryNav.some((item) => item.key === activeSection);
+    const isSettings = activeSection === 'settings';
+    if (!hasActive && !isSettings) {
+      const fallbackKey = primaryNav[0].key;
+      setActiveSection(fallbackKey);
+      updateUrlHash(fallbackKey);
+    }
+  }, [primaryNav, activeSection, updateUrlHash]);
+
+  const canAccessChat = ['developer', 'hr', 'hr_admin', 'superadmin'].includes(normalizedRole);
 
   // Ensure sectionTitle is always a string to prevent React warnings
   const safeSectionTitle = typeof sectionTitle === 'string' ? sectionTitle : (Array.isArray(sectionTitle) ? sectionTitle.join(' ') : String(sectionTitle || 'Dashboard'));
@@ -467,14 +490,14 @@ export default function Dashboard({ user }) {
         isLoggingOut={isLoggingOut}
         chatUnreadCount={chatUnreadCount}
       >
-        <section className={`section ${isOverviewSection ? 'section--compact' : ''}`}>
-          {!isOverviewSection && !hideHeader && (
+        <section className="section">
+          {!hideHeader && (
             <header className="section-header">
               <h1 className="section-title">{sectionTitle}</h1>
               {sectionSubtitle && <p className="section-subtitle">{sectionSubtitle}</p>}
             </header>
           )}
-          <div className={`section-body ${isOverviewSection ? 'section-body--compact' : ''} ${activeSection === 'messages' ? 'section-body--chat' : ''}`}>
+          <div className={`section-body ${activeSection === 'messages' ? 'section-body--chat' : ''}`}>
             {activeSection === 'settings' ? (
               <SettingsPanel
                 user={sessionUser}
@@ -520,7 +543,7 @@ export default function Dashboard({ user }) {
                   </div>
                 )}
                 {hasCustomBody && activeSection !== 'messages' && (
-                  <div className="section-custom">{sectionDescriptor.body(sessionUser)}</div>
+                  <div className="section-custom">{sectionDescriptor.body(sessionUser, handleSelectNav)}</div>
                 )}
 
                 {panels.length === 0 && list.length === 0 && !hasCustomBody && (
@@ -572,22 +595,6 @@ export default function Dashboard({ user }) {
             display: grid;
             gap: 1.2rem;
             padding-bottom: 0.35rem;
-          }
-
-          .section--compact {
-            gap: 0;
-          }
-
-          .section-body--compact {
-            display: flex;
-            gap: 0;
-            padding-bottom: 0;
-            margin-top: 0;
-          }
-
-          .section-body--compact > * {
-            flex: 1 1 100%;
-            min-width: 0;
           }
 
           .section-panels {
@@ -681,270 +688,6 @@ export default function Dashboard({ user }) {
             padding: 1.6rem;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.04);
             border: 1px solid #f3f4f6;
-          }
-
-          .applications-overview {
-            position: relative;
-            display: grid;
-            gap: 1.75rem;
-            padding: 2rem;
-            border-radius: 1.25rem;
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(5, 150, 105, 0.05));
-            border: 1px solid rgba(16, 185, 129, 0.15);
-            overflow: hidden;
-          }
-
-          .applications-overview::before {
-            content: '';
-            position: absolute;
-            inset: -40% -20% auto -20%;
-            height: 240px;
-            background: radial-gradient(circle at top, rgba(16, 185, 129, 0.12), transparent 70%);
-            opacity: 0.65;
-            pointer-events: none;
-          }
-
-          .applications-overview::after {
-            content: '';
-            position: absolute;
-            inset: auto -25% -60% -25%;
-            height: 320px;
-            background: radial-gradient(circle at bottom, rgba(5, 150, 105, 0.1), transparent 70%);
-            opacity: 0.6;
-            pointer-events: none;
-          }
-
-          .applications-overview > * {
-            position: relative;
-            z-index: 1;
-          }
-
-          .applications-hero {
-            display: grid;
-            gap: 0.75rem;
-            padding: 1.35rem 1.6rem;
-            border-radius: 1rem;
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(16, 185, 129, 0.15);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-          }
-
-          .applications-hero-pill {
-            justify-self: flex-start;
-            padding: 0.35rem 0.9rem;
-            border-radius: 999px;
-            background: rgba(16, 185, 129, 0.1);
-            color: #047857;
-            font-weight: 600;
-            font-size: 0.85rem;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-          }
-
-          .applications-hero p {
-            margin: 0;
-            color: #02201a;
-            line-height: 1.65;
-            font-size: 1.05rem;
-          }
-
-          .applications-hero strong {
-            color: #059669;
-          }
-
-          .applications-metrics {
-            display: grid;
-            gap: 1rem;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          }
-
-          .applications-metric {
-            display: grid;
-            gap: 0.4rem;
-            padding: 0.95rem 1.1rem;
-            border-radius: 1rem;
-            background: #02201a;
-            color: #d1fae5;
-            box-shadow: 0 4px 16px rgba(2, 32, 26, 0.2);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-          }
-
-          .applications-metric-label {
-            font-size: 0.82rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            font-weight: 600;
-            color: rgba(209, 250, 229, 0.7);
-          }
-
-          .applications-metric-value {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #ffffff;
-          }
-
-          .applications-metric-note {
-            font-size: 0.9rem;
-            opacity: 0.76;
-            margin: 0;
-          }
-
-          .applications-basic-grid {
-            display: grid;
-            gap: 1.1rem;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-          }
-
-          .applications-basic-card {
-            position: relative;
-            display: grid;
-            gap: 0.65rem;
-            padding: 1.35rem 1.2rem 1.4rem;
-            border-radius: 1rem;
-            background: rgba(255, 255, 255, 0.96);
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.03);
-            overflow: hidden;
-          }
-
-          .applications-basic-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            opacity: 0.6;
-            pointer-events: none;
-          }
-
-          .applications-basic-card--focus::before {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), transparent 70%);
-          }
-
-          .applications-basic-card--upcoming::before {
-            background: linear-gradient(135deg, rgba(5, 150, 105, 0.15), transparent 70%);
-          }
-
-          .applications-basic-card--support::before {
-            background: linear-gradient(135deg, rgba(20, 184, 166, 0.15), transparent 70%);
-          }
-
-          .applications-basic-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 14px;
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.4));
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
-          }
-
-          .applications-basic-card--upcoming .applications-basic-icon {
-            background: linear-gradient(135deg, rgba(5, 150, 105, 0.2), rgba(4, 120, 87, 0.4));
-            border-color: rgba(5, 150, 105, 0.3);
-            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.15);
-          }
-
-          .applications-basic-card--support .applications-basic-icon {
-            background: linear-gradient(135deg, rgba(20, 184, 166, 0.2), rgba(13, 148, 136, 0.4));
-            border-color: rgba(20, 184, 166, 0.3);
-            box-shadow: 0 4px 12px rgba(20, 184, 166, 0.15);
-          }
-
-          .applications-basic-label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: #6b7280;
-          }
-
-          .applications-basic-value {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #02201a;
-          }
-
-          .applications-basic-note {
-            margin: 0;
-            color: #6b7280;
-            line-height: 1.65;
-            font-size: 0.95rem;
-          }
-
-          .applications-actions {
-            display: grid;
-            gap: 0.85rem;
-            padding: 1.2rem 1.4rem 1.5rem;
-            border-radius: 1rem;
-            background: #02201a;
-            box-shadow: 0 4px 16px rgba(2, 32, 26, 0.2);
-          }
-
-          .applications-actions h2 {
-            margin: 0;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #d1fae5;
-          }
-
-          .applications-actions-list {
-            margin: 0;
-            padding: 0;
-            display: grid;
-            gap: 0.6rem;
-            list-style: none;
-          }
-
-          .applications-actions-list li {
-            position: relative;
-            display: flex;
-            gap: 0.75rem;
-            align-items: flex-start;
-            padding: 0.85rem 1rem;
-            border-radius: 0.85rem;
-            background: rgba(16, 185, 129, 0.08);
-            border: 1px solid rgba(16, 185, 129, 0.15);
-            color: #d1fae5;
-          }
-
-          .applications-actions-list li::before {
-            content: '';
-            width: 10px;
-            height: 10px;
-            border-radius: 999px;
-            background: linear-gradient(135deg, #34d399, #10b981);
-            margin-top: 0.4rem;
-            flex-shrink: 0;
-          }
-
-          .applications-actions-list span {
-            line-height: 1.55;
-          }
-
-          @media (max-width: 720px) {
-            .applications-overview {
-              padding: 1.4rem;
-            }
-            .applications-hero {
-              padding: 1.1rem 1.2rem;
-            }
-            .applications-metrics {
-              grid-template-columns: 1fr;
-            }
-            .applications-basic-grid {
-              grid-template-columns: 1fr;
-            }
-          }
-
-          @media (max-width: 480px) {
-            .applications-overview {
-              padding: 1.1rem;
-              border-radius: 1rem;
-            }
-            .applications-basic-card {
-              padding: 1rem 1rem 1.1rem;
-            }
-            .applications-actions {
-              padding: 1rem 1.1rem 1.2rem;
-            }
           }
 
           .empty-state {
