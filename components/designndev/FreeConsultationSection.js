@@ -3,25 +3,21 @@
 import { motion } from 'framer-motion'
 import LetsChatForm from './LetsChatForm'
 
-/**
- * Reusable Free Consultation block: left column (heading + copy) + right column (contact form).
- * Used on the home page (inside PartnershipFormSection) and on the contact page.
- */
 export default function FreeConsultationSection({ animated = true }) {
   const content = (
     <>
       <div className="text-left flex flex-col justify-center min-h-0">
-        <p className="text-gold-200/80 text-sm md:text-base uppercase tracking-wider font-subheading mb-4">
-          We would love to hear from you
+        <p className="text-emerald-600 text-sm md:text-base uppercase tracking-wider font-subheading mb-4">
+          Help keep our communities clean
         </p>
-        <h2 className="section-heading font-heading text-4xl md:text-6xl lg:text-7xl font-medium text-gold-500 mb-6 text-left normal-case leading-tight">
-          <span className="text-white">Get in</span> touch
+        <h2 className="section-heading font-heading text-3xl md:text-5xl lg:text-6xl font-medium text-gray-900 mb-6 text-left normal-case leading-tight">
+          Report a <span className="text-emerald-600">waste issue</span>
         </h2>
-        <p className="text-gold-100/85 text-xl md:text-2xl leading-relaxed font-subheading max-w-lg">
-          Send a message using the form. Replace this paragraph with how and when you typically respond (e.g. within one business day).
+        <p className="text-gray-600 text-lg md:text-xl leading-relaxed font-subheading max-w-lg">
+          Upload a geotagged photo and our system will automatically route your complaint to the correct administrator for review and resolution.
         </p>
       </div>
-      <div className="rounded-2xl border border-forest-600 p-6 md:p-8 fc-card flex flex-col min-h-0">
+      <div className="rounded-2xl border border-gray-200 p-6 md:p-8 bg-white shadow-xl flex flex-col min-h-0">
         <LetsChatForm />
       </div>
     </>
@@ -29,9 +25,9 @@ export default function FreeConsultationSection({ animated = true }) {
 
   if (!animated) {
     return (
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-stretch">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-stretch">
         {content}
-      </section>
+      </div>
     )
   }
 
@@ -43,14 +39,14 @@ export default function FreeConsultationSection({ animated = true }) {
         viewport={{ once: true }}
         className="text-left flex flex-col justify-center min-h-0"
       >
-        <p className="text-gold-200/80 text-sm md:text-base uppercase tracking-wider font-subheading mb-4">
-          We would love to hear from you
+        <p className="text-emerald-600 text-sm md:text-base uppercase tracking-wider font-subheading mb-4">
+          Help keep our communities clean
         </p>
-        <h2 className="section-heading font-heading text-4xl md:text-6xl lg:text-7xl font-medium text-gold-500 mb-6 text-left normal-case leading-tight">
-          <span className="text-white">Get in</span> touch
+        <h2 className="section-heading font-heading text-3xl md:text-5xl lg:text-6xl font-medium text-gray-900 mb-6 text-left normal-case leading-tight">
+          Report a <span className="text-emerald-600">waste issue</span>
         </h2>
-        <p className="text-gold-100/85 text-xl md:text-2xl leading-relaxed font-subheading max-w-lg">
-          Send a message using the form. Replace this paragraph with how and when you typically respond (e.g. within one business day).
+        <p className="text-gray-600 text-lg md:text-xl leading-relaxed font-subheading max-w-lg">
+          Upload a geotagged photo and our system will automatically route your complaint to the correct administrator for review and resolution.
         </p>
       </motion.div>
       <motion.div
@@ -58,7 +54,7 @@ export default function FreeConsultationSection({ animated = true }) {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ delay: 0.1 }}
-        className="rounded-2xl border border-forest-600 p-6 md:p-8 fc-card flex flex-col min-h-0"
+        className="rounded-2xl border border-gray-200 p-6 md:p-8 bg-white shadow-xl flex flex-col min-h-0"
       >
         <LetsChatForm />
       </motion.div>

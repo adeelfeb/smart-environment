@@ -7,10 +7,7 @@ import SettingsPanel from '../components/dashboard/SettingsPanel';
 import AddOrigin from '../components/dashboard/AddOrigin';
 import UserOverviewTable from '../components/dashboard/UserOverviewTable';
 import ApiEndpointsPanel from '../components/dashboard/ApiEndpointsPanel';
-import BlogManager from '../components/dashboard/BlogManager';
 import BackupPanel from '../components/dashboard/BackupPanel';
-import SupportPanel from '../components/dashboard/SupportPanel';
-import ResourcesPanel from '../components/dashboard/ResourcesPanel';
 import HelpPanel from '../components/dashboard/HelpPanel';
 import PrivacyPanel from '../components/dashboard/PrivacyPanel';
 import RequestsPanel from '../components/dashboard/RequestsPanel';
@@ -54,60 +51,53 @@ const NAVIGATION_BY_ROLE = {
   superadmin: [
     { key: 'overview', label: 'Overview' },
     { key: 'messages', label: 'Messages' },
-    { key: 'user-management', label: 'User Management' },
-    { key: 'blogs', label: 'Blogs' },
+    { key: 'user-management', label: 'Users' },
     { key: 'requests', label: 'Requests' },
     { key: 'backup', label: 'Backup' },
-    { key: 'add-origin', label: 'Add Origin' },
-    { key: 'api-endpoints', label: 'API Endpoints' },
+    { key: 'add-origin', label: 'Origins' },
+    { key: 'api-endpoints', label: 'API' },
     { key: 'help', label: 'Help' },
     { key: 'privacy', label: 'Privacy' },
   ],
   developer: [
     { key: 'overview', label: 'Overview' },
     { key: 'messages', label: 'Messages' },
-    { key: 'user-management', label: 'User Management' },
-    { key: 'blogs', label: 'Blogs' },
+    { key: 'user-management', label: 'Users' },
     { key: 'requests', label: 'Requests' },
     { key: 'backup', label: 'Backup' },
-    { key: 'add-origin', label: 'Add Origin' },
-    { key: 'api-endpoints', label: 'API Endpoints' },
+    { key: 'add-origin', label: 'Origins' },
+    { key: 'api-endpoints', label: 'API' },
     { key: 'help', label: 'Help' },
     { key: 'privacy', label: 'Privacy' },
   ],
   admin: [
     { key: 'overview', label: 'Overview' },
-    { key: 'blogs', label: 'Blogs' },
     { key: 'requests', label: 'Requests' },
-    { key: 'add-origin', label: 'Add Origin' },
-    { key: 'api-endpoints', label: 'API Endpoints' },
+    { key: 'add-origin', label: 'Origins' },
+    { key: 'api-endpoints', label: 'API' },
     { key: 'help', label: 'Help' },
     { key: 'privacy', label: 'Privacy' },
   ],
   hr: [
     { key: 'overview', label: 'Overview' },
     { key: 'messages', label: 'Messages' },
-    { key: 'blogs', label: 'Blogs' },
     { key: 'requests', label: 'Requests' },
-    { key: 'add-origin', label: 'Add Origin' },
-    { key: 'api-endpoints', label: 'API Endpoints' },
+    { key: 'add-origin', label: 'Origins' },
+    { key: 'api-endpoints', label: 'API' },
     { key: 'help', label: 'Help' },
     { key: 'privacy', label: 'Privacy' },
   ],
   hr_admin: [
     { key: 'overview', label: 'Overview' },
     { key: 'messages', label: 'Messages' },
-    { key: 'blogs', label: 'Blogs' },
     { key: 'requests', label: 'Requests' },
-    { key: 'add-origin', label: 'Add Origin' },
-    { key: 'api-endpoints', label: 'API Endpoints' },
+    { key: 'add-origin', label: 'Origins' },
+    { key: 'api-endpoints', label: 'API' },
     { key: 'help', label: 'Help' },
     { key: 'privacy', label: 'Privacy' },
   ],
   base_user: [
-    { key: 'blogs', label: 'Blogs' },
-    { key: 'resources', label: 'Resources' },
-    { key: 'support', label: 'Support' },
+    { key: 'overview', label: 'Overview' },
     { key: 'help', label: 'Help' },
     { key: 'privacy', label: 'Privacy' },
   ],
@@ -129,25 +119,39 @@ const SECTION_DESCRIPTORS = {
     body: (user) => {
       const normalizedRole = (user?.role || '').toLowerCase();
       if (normalizedRole === 'base_user') {
-        return null;
+        const name = user?.name || 'there';
+        return (
+          <div className="applications-overview">
+            <div className="applications-hero">
+              <span className="applications-hero-pill">Welcome</span>
+              <p>
+                Hi <strong>{name}</strong>, welcome to your EcoWatch dashboard. Here you can manage your account and get support.
+              </p>
+            </div>
+            <div className="applications-basic-grid">
+              <div className="applications-basic-card applications-basic-card--focus">
+                <div className="applications-basic-icon"></div>
+                <span className="applications-basic-label">Account</span>
+                <span className="applications-basic-value">{user?.email || 'Not set'}</span>
+                <p className="applications-basic-note">Your registered email address.</p>
+              </div>
+              <div className="applications-basic-card applications-basic-card--upcoming">
+                <div className="applications-basic-icon"></div>
+                <span className="applications-basic-label">Status</span>
+                <span className="applications-basic-value">Active</span>
+                <p className="applications-basic-note">Your account is in good standing.</p>
+              </div>
+            </div>
+          </div>
+        );
       }
       return <UserOverviewTable currentUser={user} />;
     },
   },
   backup: {
-    subtitle: 'Export all database collections to JSON or Excel. Import a backup file to add entries (invalid or duplicate rows are skipped). Developer and super admin only.',
+    subtitle: 'Export all database collections to JSON or Excel. Import a backup file to add entries (invalid or duplicate rows are skipped).',
     hideHeader: true,
     body: (user) => <BackupPanel user={user} />,
-  },
-  resources: {
-    subtitle: 'Centralize guidelines, FAQs, and documentation.',
-    hideHeader: true,
-    body: () => <ResourcesPanel />,
-  },
-  support: {
-    subtitle: 'Get help and contact support.',
-    hideHeader: true,
-    body: () => <SupportPanel />,
   },
   help: {
     subtitle: 'Professional development services and support.',
@@ -155,7 +159,7 @@ const SECTION_DESCRIPTORS = {
     body: () => <HelpPanel />,
   },
   messages: {
-    subtitle: 'Chat with developers or HR. Messages are stored securely and push notifications can be enabled.',
+    subtitle: 'Chat with administrators. Messages are stored securely and push notifications can be enabled.',
     hideHeader: true,
     body: (user) => <ChatNow user={user} />,
   },
@@ -195,64 +199,6 @@ const SECTION_DESCRIPTORS = {
   'api-endpoints': {
     hideHeader: true,
     body: () => <ApiEndpointsPanel />,
-  },
-  blogs: {
-    subtitle: 'Create, manage, and publish SEO-optimized blog posts.',
-    hideHeader: true,
-    body: (user) => <BlogManager user={user} />,
-  },
-  submissions: {
-    subtitle: 'Oversee incoming submissions and coordinate reviews.',
-    panels: [
-      {
-        title: 'Awaiting review',
-        description: 'Assign reviewers and keep momentum on pending submissions.',
-        meta: '4 pending',
-      },
-      {
-        title: 'Completed this week',
-        description: 'Celebrate wins and communicate next steps.',
-      },
-    ],
-  },
-  team: {
-    subtitle: 'Understand how your team is collaborating and contributing.',
-    panels: [
-      {
-        title: 'Engagement',
-        description: 'Spot activity spikes and identify opportunities to support.',
-      },
-      {
-        title: 'Highlights',
-        description: 'Recognize key contributions and share kudos.',
-      },
-    ],
-  },
-  updates: {
-    subtitle: 'Catch up on new announcements, releases, and reminders.',
-    panels: [
-      {
-        title: 'Announcements',
-        description: 'Organization-wide updates will appear here.',
-      },
-      {
-        title: 'Changelog',
-        description: 'Review what changed since you last signed in.',
-      },
-    ],
-  },
-  activity: {
-    subtitle: 'Follow recent actions taken across your workspace.',
-    panels: [
-      {
-        title: 'Team activity',
-        description: 'See who updated records, approved requests, or left notes.',
-      },
-      {
-        title: 'Audit trail',
-        description: 'Keep everything compliant with full transparency.',
-      },
-    ],
   },
 };
 
@@ -400,7 +346,7 @@ export default function Dashboard({ user }) {
     };
   }, [resolveSectionKey, updateUrlHash, navItems]);
 
-  const isOverviewSection = activeSection === 'overview' && normalizedRole !== 'base_user';
+  const isOverviewSection = activeSection === 'overview';
 
   useEffect(() => {
     if (!primaryNav.length) return;
@@ -504,7 +450,7 @@ export default function Dashboard({ user }) {
 
   // Ensure sectionTitle is always a string to prevent React warnings
   const safeSectionTitle = typeof sectionTitle === 'string' ? sectionTitle : (Array.isArray(sectionTitle) ? sectionTitle.join(' ') : String(sectionTitle || 'Dashboard'));
-  const pageTitle = `${safeSectionTitle} | NBA Dashboard`;
+  const pageTitle = `${safeSectionTitle} | EcoWatch Dashboard`;
 
   return (
     <>
@@ -608,13 +554,13 @@ export default function Dashboard({ user }) {
             font-family: var(--font-heading);
             font-size: clamp(1.9rem, 3.5vw, 2.35rem);
             font-weight: 600;
-            color: #0f172a;
+            color: #02201a;
             margin: 0;
             padding: 0;
           }
 
           .section-subtitle {
-            color: #475569;
+            color: #4b5563;
             font-size: 1rem;
             line-height: 1.6;
             max-width: 60ch;
@@ -651,10 +597,11 @@ export default function Dashboard({ user }) {
           }
 
           .section-card {
-            border-radius: 1.1rem;
+            border-radius: 1rem;
             background: white;
             padding: 1.6rem;
-            box-shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.04);
+            border: 1px solid #f3f4f6;
             display: grid;
             gap: 0.75rem;
           }
@@ -670,19 +617,19 @@ export default function Dashboard({ user }) {
             font-family: var(--font-subheading);
             font-size: 1.1rem;
             font-weight: 600;
-            color: #0f172a;
+            color: #02201a;
           }
 
           .section-card p {
-            color: #607089;
+            color: #6b7280;
             line-height: 1.65;
           }
 
           .section-meta {
             font-size: 0.82rem;
             font-weight: 600;
-            color: #2563eb;
-            background: rgba(37, 99, 235, 0.12);
+            color: #059669;
+            background: rgba(5, 150, 105, 0.08);
             padding: 0.35rem 0.65rem;
             border-radius: 999px;
           }
@@ -691,8 +638,9 @@ export default function Dashboard({ user }) {
             display: grid;
             gap: 0.75rem;
             background: white;
-            border-radius: 1.1rem;
-            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.04);
+            border: 1px solid #f3f4f6;
             padding: 1.6rem;
           }
 
@@ -700,7 +648,7 @@ export default function Dashboard({ user }) {
             font-family: var(--font-subheading);
             font-size: 1rem;
             font-weight: 600;
-            color: #0f172a;
+            color: #02201a;
           }
 
           .section-list {
@@ -719,19 +667,20 @@ export default function Dashboard({ user }) {
 
           .section-list-item-title {
             font-weight: 500;
-            color: #0f172a;
+            color: #02201a;
           }
 
           .section-list-item p {
-            color: #607089;
+            color: #6b7280;
             line-height: 1.6;
           }
 
           .section-custom {
             background: white;
-            border-radius: 1.1rem;
+            border-radius: 1rem;
             padding: 1.6rem;
-            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.04);
+            border: 1px solid #f3f4f6;
           }
 
           .applications-overview {
@@ -740,8 +689,8 @@ export default function Dashboard({ user }) {
             gap: 1.75rem;
             padding: 2rem;
             border-radius: 1.25rem;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(236, 72, 153, 0.1));
-            border: 1px solid rgba(148, 163, 184, 0.18);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(5, 150, 105, 0.05));
+            border: 1px solid rgba(16, 185, 129, 0.15);
             overflow: hidden;
           }
 
@@ -750,7 +699,7 @@ export default function Dashboard({ user }) {
             position: absolute;
             inset: -40% -20% auto -20%;
             height: 240px;
-            background: radial-gradient(circle at top, rgba(37, 99, 235, 0.2), transparent 70%);
+            background: radial-gradient(circle at top, rgba(16, 185, 129, 0.12), transparent 70%);
             opacity: 0.65;
             pointer-events: none;
           }
@@ -760,7 +709,7 @@ export default function Dashboard({ user }) {
             position: absolute;
             inset: auto -25% -60% -25%;
             height: 320px;
-            background: radial-gradient(circle at bottom, rgba(236, 72, 153, 0.18), transparent 70%);
+            background: radial-gradient(circle at bottom, rgba(5, 150, 105, 0.1), transparent 70%);
             opacity: 0.6;
             pointer-events: none;
           }
@@ -774,18 +723,18 @@ export default function Dashboard({ user }) {
             display: grid;
             gap: 0.75rem;
             padding: 1.35rem 1.6rem;
-            border-radius: 1.1rem;
+            border-radius: 1rem;
             background: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(148, 163, 184, 0.26);
-            box-shadow: 0 16px 36px rgba(30, 41, 59, 0.16);
+            border: 1px solid rgba(16, 185, 129, 0.15);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
           }
 
           .applications-hero-pill {
             justify-self: flex-start;
             padding: 0.35rem 0.9rem;
             border-radius: 999px;
-            background: rgba(37, 99, 235, 0.12);
-            color: #1d4ed8;
+            background: rgba(16, 185, 129, 0.1);
+            color: #047857;
             font-weight: 600;
             font-size: 0.85rem;
             letter-spacing: 0.04em;
@@ -794,13 +743,13 @@ export default function Dashboard({ user }) {
 
           .applications-hero p {
             margin: 0;
-            color: #0f172a;
+            color: #02201a;
             line-height: 1.65;
             font-size: 1.05rem;
           }
 
           .applications-hero strong {
-            color: #1d4ed8;
+            color: #059669;
           }
 
           .applications-metrics {
@@ -814,11 +763,10 @@ export default function Dashboard({ user }) {
             gap: 0.4rem;
             padding: 0.95rem 1.1rem;
             border-radius: 1rem;
-            background: rgba(15, 23, 42, 0.72);
-            color: #e2e8f0;
-            box-shadow: 0 20px 42px rgba(15, 23, 42, 0.28);
-            border: 1px solid rgba(148, 163, 184, 0.28);
-            backdrop-filter: blur(6px);
+            background: #02201a;
+            color: #d1fae5;
+            box-shadow: 0 4px 16px rgba(2, 32, 26, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.2);
           }
 
           .applications-metric-label {
@@ -826,13 +774,13 @@ export default function Dashboard({ user }) {
             text-transform: uppercase;
             letter-spacing: 0.08em;
             font-weight: 600;
-            color: rgba(226, 232, 240, 0.75);
+            color: rgba(209, 250, 229, 0.7);
           }
 
           .applications-metric-value {
             font-size: 1.25rem;
             font-weight: 700;
-            color: #f8fafc;
+            color: #ffffff;
           }
 
           .applications-metric-note {
@@ -854,8 +802,8 @@ export default function Dashboard({ user }) {
             padding: 1.35rem 1.2rem 1.4rem;
             border-radius: 1rem;
             background: rgba(255, 255, 255, 0.96);
-            border: 1px solid rgba(203, 213, 225, 0.7);
-            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.03);
             overflow: hidden;
           }
 
@@ -868,36 +816,36 @@ export default function Dashboard({ user }) {
           }
 
           .applications-basic-card--focus::before {
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), transparent 70%);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), transparent 70%);
           }
 
           .applications-basic-card--upcoming::before {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), transparent 70%);
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.15), transparent 70%);
           }
 
           .applications-basic-card--support::before {
-            background: linear-gradient(135deg, rgba(236, 72, 153, 0.2), transparent 70%);
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.15), transparent 70%);
           }
 
           .applications-basic-icon {
             width: 42px;
             height: 42px;
             border-radius: 14px;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(37, 99, 235, 0.6));
-            border: 1px solid rgba(96, 165, 250, 0.6);
-            box-shadow: 0 12px 28px rgba(37, 99, 235, 0.25);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.4));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
           }
 
           .applications-basic-card--upcoming .applications-basic-icon {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(5, 150, 105, 0.6));
-            border-color: rgba(110, 231, 183, 0.6);
-            box-shadow: 0 12px 28px rgba(16, 185, 129, 0.24);
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.2), rgba(4, 120, 87, 0.4));
+            border-color: rgba(5, 150, 105, 0.3);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.15);
           }
 
           .applications-basic-card--support .applications-basic-icon {
-            background: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(219, 39, 119, 0.6));
-            border-color: rgba(251, 191, 185, 0.6);
-            box-shadow: 0 12px 28px rgba(236, 72, 153, 0.25);
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.2), rgba(13, 148, 136, 0.4));
+            border-color: rgba(20, 184, 166, 0.3);
+            box-shadow: 0 4px 12px rgba(20, 184, 166, 0.15);
           }
 
           .applications-basic-label {
@@ -905,18 +853,18 @@ export default function Dashboard({ user }) {
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.06em;
-            color: #475569;
+            color: #6b7280;
           }
 
           .applications-basic-value {
             font-size: 1.1rem;
             font-weight: 600;
-            color: #0f172a;
+            color: #02201a;
           }
 
           .applications-basic-note {
             margin: 0;
-            color: #475569;
+            color: #6b7280;
             line-height: 1.65;
             font-size: 0.95rem;
           }
@@ -926,15 +874,15 @@ export default function Dashboard({ user }) {
             gap: 0.85rem;
             padding: 1.2rem 1.4rem 1.5rem;
             border-radius: 1rem;
-            background: rgba(15, 23, 42, 0.85);
-            box-shadow: 0 18px 42px rgba(15, 23, 42, 0.25);
+            background: #02201a;
+            box-shadow: 0 4px 16px rgba(2, 32, 26, 0.2);
           }
 
           .applications-actions h2 {
             margin: 0;
             font-size: 1.1rem;
             font-weight: 600;
-            color: #e2e8f0;
+            color: #d1fae5;
           }
 
           .applications-actions-list {
@@ -952,9 +900,9 @@ export default function Dashboard({ user }) {
             align-items: flex-start;
             padding: 0.85rem 1rem;
             border-radius: 0.85rem;
-            background: rgba(15, 23, 42, 0.78);
-            border: 1px solid rgba(148, 163, 184, 0.35);
-            color: #cbd5f5;
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.15);
+            color: #d1fae5;
           }
 
           .applications-actions-list li::before {
@@ -962,7 +910,7 @@ export default function Dashboard({ user }) {
             width: 10px;
             height: 10px;
             border-radius: 999px;
-            background: linear-gradient(135deg, #60a5fa, #a855f7);
+            background: linear-gradient(135deg, #34d399, #10b981);
             margin-top: 0.4rem;
             flex-shrink: 0;
           }
@@ -1004,24 +952,22 @@ export default function Dashboard({ user }) {
             gap: 0.5rem;
             text-align: center;
             background: white;
-            border-radius: 1.1rem;
+            border-radius: 1rem;
             padding: 2rem;
-            box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.14);
+            border: 1px solid #f3f4f6;
           }
 
           .empty-state h2 {
             font-size: 1.1rem;
             font-weight: 600;
-            color: #0f172a;
+            color: #02201a;
           }
 
           .empty-state p {
-            color: #64748b;
+            color: #6b7280;
           }
 
           @media (max-width: 960px) {
-
-
             .section-title {
               font-size: clamp(1.5rem, 4vw, 1.9rem);
             }
@@ -1091,8 +1037,6 @@ export default function Dashboard({ user }) {
           }
 
           @media (max-width: 480px) {
-
-
             .section-header {
               gap: 0.4rem;
             }

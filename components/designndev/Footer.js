@@ -4,13 +4,13 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { siteAssets } from '../../lib/siteAssets'
-import { siteName, contact } from '../../lib/siteConfig'
+import { siteName } from '../../lib/siteConfig'
 
 const services = [
-  { label: 'Service area one', href: '/practice-areas' },
-  { label: 'Service area two', href: '/practice-areas' },
-  { label: 'Service area three', href: '/practice-areas' },
-  { label: 'Service area four', href: '/practice-areas' },
+  { label: 'Image-Based Reporting', href: '/about-us' },
+  { label: 'GPS Auto-Location', href: '/about-us' },
+  { label: 'Smart Complaint Routing', href: '/about-us' },
+  { label: 'Analytics Dashboard', href: '/about-us' },
 ]
 
 /** Matches pre–slim-header navbar logo scale (footer stays slightly more prominent than header) */
@@ -51,7 +51,7 @@ function FooterNewsletter() {
 
   return (
     <div className="mt-5 max-w-sm">
-      <p className="font-subheading text-xs tracking-wide text-gold-200/90 uppercase mb-2">
+      <p className="font-subheading text-xs tracking-wide text-gray-400 uppercase mb-2">
         Email updates
       </p>
       <form onSubmit={handleSubmit} className="relative flex flex-col gap-2 sm:flex-row sm:items-stretch">
@@ -74,7 +74,7 @@ function FooterNewsletter() {
           }}
           placeholder="Your email"
           disabled={status === 'loading'}
-          className="flex-1 min-w-0 rounded-lg border border-forest-600 bg-forest-900/80 px-3 py-2.5 text-sm text-gold-50 placeholder:text-gold-200/40 focus:border-gold-400/50 focus:outline-none focus:ring-1 focus:ring-gold-400/30 font-subheading"
+          className="flex-1 min-w-0 rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500/30 font-subheading"
         />
         <input
           type="text"
@@ -89,14 +89,14 @@ function FooterNewsletter() {
         <button
           type="submit"
           disabled={status === 'loading'}
-          className="shrink-0 rounded-lg bg-gold-500/90 px-4 py-2.5 text-sm font-heading text-forest-950 hover:bg-gold-400 transition-colors disabled:opacity-60"
+          className="shrink-0 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-heading text-white hover:bg-emerald-500 transition-colors disabled:opacity-60"
         >
           {status === 'loading' ? '…' : 'Subscribe'}
         </button>
       </form>
       {message && (
         <p
-          className={`mt-2 text-xs font-subheading ${status === 'error' ? 'text-red-300/90' : 'text-gold-300/90'}`}
+          className={`mt-2 text-xs font-subheading ${status === 'error' ? 'text-red-400' : 'text-emerald-400'}`}
           role="status"
         >
           {message}
@@ -110,7 +110,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="bg-forest-950 text-gold-100/90 border-t border-forest-800">
+    <footer className="bg-gray-900 text-gray-300 border-t border-gray-800">
       <section className="py-8 md:py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-10 lg:flex-row lg:gap-12 lg:justify-between lg:items-start">
@@ -131,21 +131,20 @@ export default function Footer() {
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 md:gap-10 flex-1 lg:max-w-3xl">
               {/* Menu */}
               <div>
-                <h4 className="font-subheading font-medium text-gold-200 text-xs tracking-wide uppercase mb-3">Menu</h4>
+                <h4 className="font-subheading font-medium text-gray-400 text-xs tracking-wide uppercase mb-3">Menu</h4>
                 <ul className="space-y-2 text-sm font-subheading">
-                  <li><Link href="/about-us" className="text-gold-100/80 hover:text-gold-300 transition-colors no-underline">About Us</Link></li>
-                  <li><Link href="/our-team" className="text-gold-100/80 hover:text-gold-300 transition-colors no-underline">Team</Link></li>
-                  <li><Link href="/contact" className="text-gold-100/80 hover:text-gold-300 transition-colors no-underline">Contact Us</Link></li>
+                  <li><Link href="/about-us" className="text-gray-400 hover:text-emerald-400 transition-colors no-underline">About Us</Link></li>
+                  <li><Link href="/faq" className="text-gray-400 hover:text-emerald-400 transition-colors no-underline">FAQ</Link></li>
                 </ul>
               </div>
 
               {/* Services */}
               <div>
-                <h4 className="font-subheading font-medium text-gold-200 text-xs tracking-wide uppercase mb-3">Services</h4>
+                <h4 className="font-subheading font-medium text-gray-400 text-xs tracking-wide uppercase mb-3">Features</h4>
                 <ul className="space-y-2 text-sm font-subheading">
                   {services.map((s) => (
                     <li key={s.label}>
-                      <Link href={s.href} className="text-gold-100/80 hover:text-gold-300 transition-colors no-underline">
+                      <Link href={s.href} className="text-gray-400 hover:text-emerald-400 transition-colors no-underline">
                         {s.label}
                       </Link>
                     </li>
@@ -153,21 +152,13 @@ export default function Footer() {
                 </ul>
               </div>
 
-              {/* Get in touch */}
+              {/* Quick Links */}
               <div className="col-span-2 sm:col-span-1">
-                <h4 className="font-subheading font-medium text-gold-200 text-xs tracking-wide uppercase mb-3">Get in touch</h4>
+                <h4 className="font-subheading font-medium text-gray-400 text-xs tracking-wide uppercase mb-3">Quick Links</h4>
                 <ul className="space-y-2 text-sm font-subheading">
-                  <li>
-                    <a href={`mailto:${contact.email}`} className="text-gold-100/80 hover:text-gold-300 transition-colors no-underline">
-                      {contact.email}
-                    </a>
-                  </li>
-                  <li>
-                    <a href={`tel:${contact.phoneTel}`} className="text-gold-100/80 hover:text-gold-300 transition-colors no-underline">
-                      {contact.phoneDisplay}
-                    </a>
-                  </li>
-                  <li className="text-gold-100/70">{contact.location}</li>
+                  <li><Link href="/signup" className="text-gray-400 hover:text-emerald-400 transition-colors no-underline">Sign Up</Link></li>
+                  <li><Link href="/login" className="text-gray-400 hover:text-emerald-400 transition-colors no-underline">Sign In</Link></li>
+                  <li><Link href="/dashboard" className="text-gray-400 hover:text-emerald-400 transition-colors no-underline">Dashboard</Link></li>
                 </ul>
               </div>
             </div>
@@ -175,9 +166,9 @@ export default function Footer() {
         </div>
       </section>
 
-      <section className="py-3 md:py-4 border-t border-forest-800/80">
+      <section className="py-3 md:py-4 border-t border-gray-800/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-gold-200/60 text-xs font-subheading">
+          <p className="text-center text-gray-500 text-xs font-subheading">
             © {currentYear} {siteName}. All rights reserved.
           </p>
         </div>

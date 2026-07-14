@@ -1,6 +1,9 @@
 import Navbar from '../components/designndev/Navbar'
 import SiteHero from '../components/designndev/SiteHero'
-import PracticeAreasSection from '../components/designndev/PracticeAreasSection'
+import ProblemSection from '../components/designndev/ProblemSection'
+import HowItWorksSection from '../components/designndev/HowItWorksSection'
+import GoalsSection from '../components/designndev/GoalsSection'
+import TargetUsersSection from '../components/designndev/TargetUsersSection'
 import PartnershipFormSection from '../components/designndev/PartnershipFormSection'
 import Footer from '../components/designndev/Footer'
 import TextureOverlay from '../components/designndev/TextureOverlay'
@@ -9,7 +12,7 @@ import { siteName, siteTagline, siteUrl } from '../lib/siteConfig'
 export const metadata = {
   title: `${siteName} | Home`,
   description: siteTagline,
-  keywords: 'draft template, next.js, login, dashboard',
+  keywords: 'waste complaint, environment activists, GPS geotag, waste management, report waste',
   openGraph: {
     title: `${siteName} | Home`,
     description: siteTagline,
@@ -26,7 +29,10 @@ export default function Home() {
       <Navbar />
       <div className="relative w-full mx-auto">
         <SiteHero />
-        <PracticeAreasSection />
+        <ProblemSection />
+        <HowItWorksSection />
+        <GoalsSection />
+        <TargetUsersSection />
         <PartnershipFormSection />
       </div>
       <Footer />

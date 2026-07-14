@@ -1,14 +1,5 @@
 import { useState, useEffect } from 'react';
 
-// Category mapping for navigation items
-const getNavCategory = (key) => {
-  const hr = ['overview', 'blogs', 'add-origin'];
-  const all = ['api-endpoints', 'user-management', 'resources', 'support', 'help', 'requests', 'privacy', 'updates', 'activity', 'messages'];
-  if (hr.includes(key)) return 'hr';
-  return 'all';
-};
-
-// Icon mapping for navigation items
 const getNavIcon = (key) => {
   const icons = {
     'overview': (
@@ -42,25 +33,6 @@ const getNavIcon = (key) => {
         <circle cx="8" cy="17" r="1"></circle>
       </svg>
     ),
-    'blogs': (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-      </svg>
-    ),
-    'resources': (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-      </svg>
-    ),
-    'support': (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10"></circle>
-        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-        <line x1="12" y1="17" x2="12.01" y2="17"></line>
-      </svg>
-    ),
     'help': (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="10"></circle>
@@ -74,17 +46,6 @@ const getNavIcon = (key) => {
         <path d="M9 12l2 2 4-4"></path>
       </svg>
     ),
-    'updates': (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-      </svg>
-    ),
-    'activity': (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-      </svg>
-    ),
     'requests': (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
@@ -93,6 +54,13 @@ const getNavIcon = (key) => {
     'messages': (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      </svg>
+    ),
+    'backup': (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
       </svg>
     ),
   };
@@ -117,7 +85,7 @@ export default function DashboardLayout({
   children,
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const roleLabel = user?.role ? user.role.replace(/_/g, ' ') : 'User';
+  const displayName = user?.name || 'User';
   const items = Array.isArray(navItems) ? navItems : [];
   const messagesUnread = typeof chatUnreadCount === 'number' ? chatUnreadCount : 0;
 
@@ -125,7 +93,6 @@ export default function DashboardLayout({
     setSidebarOpen(!sidebarOpen);
   };
 
-  // Close sidebar when clicking outside on mobile
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth > 960) {
@@ -153,8 +120,8 @@ export default function DashboardLayout({
 
   return (
     <div className="dashboard-shell">
-      <button 
-        className="sidebar-toggle" 
+      <button
+        className="sidebar-toggle"
         onClick={toggleSidebar}
         aria-label="Toggle sidebar"
         aria-expanded={sidebarOpen}
@@ -168,22 +135,20 @@ export default function DashboardLayout({
       {sidebarOpen && <div className="sidebar-overlay" onClick={toggleSidebar}></div>}
       <aside className={`sidebar ${sidebarOpen ? 'is-open' : ''}`}>
         <div className="sidebar-top">
-          <div className="brand" aria-label="Application" style={{ padding: '0.8rem 0.85rem 0.6rem' }}>
+          <div className="brand" aria-label="EcoWatch" style={{ padding: '0.8rem 0.85rem 0.6rem' }}>
             <div className="brand-mark">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="3" y="3" width="8" height="8" rx="1.5" fill="#3B82F6"/>
-                <rect x="13" y="3" width="8" height="8" rx="1.5" fill="#9333EA"/>
-                <rect x="3" y="13" width="8" height="8" rx="1.5" fill="#9333EA"/>
-                <rect x="13" y="13" width="8" height="8" rx="1.5" fill="#3B82F6"/>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 38C8 38 6 14 24 8C24 8 26 32 8 38Z" fill="#10b981" opacity="0.9" transform="translate(0,-12) scale(0.85)"/>
+                <circle cx="17" cy="15" r="4" stroke="#047857" strokeWidth="1.5" fill="white" fillOpacity="0.4"/>
+                <line x1="20" y1="18" x2="22" y2="20" stroke="#047857" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
             </div>
             <div className="brand-text">
               <span className="brand-title">
-                <span className="brand-title-blue">NBA</span>
-                <span className="brand-title-separator"> </span>
-                <span className="brand-title-purple">Dashboard</span>
+                <span className="brand-title-eco">Eco</span>
+                <span className="brand-title-watch">Watch</span>
               </span>
-              <span className="brand-subtitle">{roleLabel}</span>
+              <span className="brand-subtitle">{displayName}</span>
             </div>
           </div>
 
@@ -191,12 +156,11 @@ export default function DashboardLayout({
             <ul className="nav-list">
               {items.map((item) => {
                 const isActive = item.key === activeNav;
-                const category = getNavCategory(item.key);
                 return (
                   <li key={item.key} className="nav-list-item">
                     <button
                       type="button"
-                      className={`nav-button nav-button--${category}${isActive ? ' is-active' : ''}`}
+                      className={`nav-button${isActive ? ' is-active' : ''}`}
                       aria-current={isActive ? 'page' : undefined}
                       onClick={() => {
                         onNavSelect?.(item.key);
@@ -252,7 +216,7 @@ export default function DashboardLayout({
                 <line x1="21" y1="12" x2="9" y2="12"></line>
               </svg>
             </span>
-            <span className="nav-label">{isLoggingOut ? 'LOGGING OUT…' : 'LOGOUT'}</span>
+            <span className="nav-label">{isLoggingOut ? 'LOGGING OUT...' : 'LOGOUT'}</span>
           </button>
         </div>
       </aside>
@@ -265,8 +229,8 @@ export default function DashboardLayout({
         .dashboard-shell {
           height: 100vh;
           display: flex;
-          background: var(--dashboard-surface, #f8fafc);
-          color: var(--dashboard-foreground, #0f172a);
+          background: #f8fafc;
+          color: #0f172a;
           overflow: hidden;
           position: relative;
         }
@@ -279,11 +243,11 @@ export default function DashboardLayout({
           z-index: 1001;
           background: #ffffff;
           color: #0f172a;
-          border: 1px solid rgba(148, 163, 184, 0.2);
+          border: 1px solid #e5e7eb;
           border-radius: 12px;
           padding: 0.75rem;
           cursor: pointer;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
           transition: transform 0.2s ease, box-shadow 0.2s ease;
           width: 48px;
           height: 48px;
@@ -293,7 +257,7 @@ export default function DashboardLayout({
 
         .sidebar-toggle:hover {
           transform: scale(1.05);
-          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
         }
 
         .sidebar-toggle:active {
@@ -319,15 +283,15 @@ export default function DashboardLayout({
 
         .sidebar {
           width: min(236px, 21vw);
-          background: linear-gradient(180deg, #1a0a10 0%, #1e0f18 35%, #1a1324 70%, #132344 100%);
-          color: #e2e8f0;
+          background: linear-gradient(180deg, #02201a 0%, #064e3b 40%, #065f46 70%, #047857 100%);
+          color: #d1fae5;
           display: flex;
           flex-direction: column;
           flex-shrink: 0;
           height: 100%;
           padding: 0;
-          border-right: 1px solid rgba(225, 29, 72, 0.18);
-          box-shadow: 16px 0 42px rgba(30, 10, 18, 0.45);
+          border-right: 1px solid rgba(16, 185, 129, 0.15);
+          box-shadow: 16px 0 42px rgba(2, 32, 26, 0.35);
           transition: transform 0.3s ease;
           position: relative;
           overflow: hidden;
@@ -339,10 +303,8 @@ export default function DashboardLayout({
           position: absolute;
           inset: 0;
           background:
-            radial-gradient(circle at 20% 10%, rgba(225, 29, 72, 0.2), transparent 55%),
-            radial-gradient(circle at 25% -10%, rgba(59, 130, 246, 0.28), transparent 60%),
-            radial-gradient(circle at 85% 0%, rgba(244, 63, 94, 0.12), transparent 65%),
-            linear-gradient(180deg, rgba(225, 29, 72, 0.06), transparent 50%);
+            radial-gradient(circle at 20% 10%, rgba(16, 185, 129, 0.15), transparent 55%),
+            radial-gradient(circle at 80% 90%, rgba(5, 150, 105, 0.12), transparent 60%);
           opacity: 0.98;
           pointer-events: none;
           z-index: 0;
@@ -368,16 +330,12 @@ export default function DashboardLayout({
           width: 2.75rem;
           height: 2.75rem;
           border-radius: 12px;
-          background: rgba(15, 23, 42, 0.4);
+          background: rgba(16, 185, 129, 0.15);
           display: grid;
           place-items: center;
-          border: 1px solid rgba(148, 197, 253, 0.2);
-          box-shadow: 0 8px 16px rgba(15, 23, 42, 0.3);
+          border: 1px solid rgba(16, 185, 129, 0.25);
+          box-shadow: 0 8px 16px rgba(2, 32, 26, 0.3);
           flex-shrink: 0;
-        }
-        .brand-mark svg {
-          width: 20px;
-          height: 20px;
         }
 
         .brand-text {
@@ -388,34 +346,33 @@ export default function DashboardLayout({
 
         .brand-title {
           font-weight: 700;
-          font-size: 0.85rem;
+          font-size: 0.9rem;
           letter-spacing: 0.02em;
           display: flex;
           align-items: center;
           line-height: 1.2;
         }
-        .brand-title-blue {
-          color: #60a5fa;
+        .brand-title-eco {
+          color: #34d399;
         }
-        .brand-title-separator {
-          color: rgba(226, 232, 240, 0.6);
-          margin: 0 0.15rem;
-        }
-        .brand-title-purple {
-          color: #a78bfa;
+        .brand-title-watch {
+          color: #ffffff;
         }
 
         .brand-subtitle {
           font-size: 0.72rem;
-          color: rgba(226, 232, 240, 0.75);
-          text-transform: capitalize;
+          color: rgba(209, 250, 229, 0.75);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 140px;
         }
 
         .nav-list {
           list-style: none;
           display: flex;
           flex-direction: column;
-          gap: 0.5rem;
+          gap: 0.4rem;
           padding: 0;
           margin: 0;
         }
@@ -423,37 +380,34 @@ export default function DashboardLayout({
         .nav-button {
           width: 100%;
           text-align: left;
-          padding: 0.85rem 1rem;
-          border-radius: 18px;
-          border: 1px solid rgba(148, 163, 184, 0.2);
-          background: linear-gradient(135deg, rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.45));
-          color: #eef2ff;
-          font-size: 0.9rem;
+          padding: 0.75rem 0.9rem;
+          border-radius: 10px;
+          border: 1px solid rgba(16, 185, 129, 0.12);
+          background: rgba(255, 255, 255, 0.06);
+          color: #d1fae5;
+          font-size: 0.875rem;
           font-weight: 500;
-          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: all 0.2s ease;
           cursor: pointer;
           display: flex;
           align-items: center;
-          gap: 0.75rem;
+          gap: 0.7rem;
           position: relative;
-          box-shadow: 0 18px 32px rgba(2, 6, 23, 0.35);
-          backdrop-filter: blur(8px);
         }
 
         .nav-button:hover,
         .nav-button:focus-visible {
           outline: none;
-          background: linear-gradient(135deg, rgba(37, 99, 235, 0.35), rgba(15, 23, 42, 0.6));
-          border-color: rgba(96, 165, 250, 0.5);
-          transform: translateX(4px);
-          box-shadow: 0 24px 40px rgba(2, 6, 23, 0.5);
-          color: #fff;
+          background: rgba(16, 185, 129, 0.15);
+          border-color: rgba(16, 185, 129, 0.3);
+          transform: translateX(3px);
+          color: #ffffff;
         }
 
         .nav-button.is-active {
-          background: linear-gradient(135deg, rgba(59, 130, 246, 0.45), rgba(30, 64, 175, 0.55));
-          border-color: rgba(147, 197, 253, 0.6);
-          color: #fff;
+          background: rgba(16, 185, 129, 0.25);
+          border-color: rgba(52, 211, 153, 0.5);
+          color: #ffffff;
         }
 
         .nav-button.is-active::before {
@@ -462,124 +416,10 @@ export default function DashboardLayout({
           left: 0;
           top: 50%;
           transform: translateY(-50%);
-          width: 4px;
-          height: 60%;
-          background: #60a5fa;
-          border-radius: 0 4px 4px 0;
-        }
-
-        /* Marketing team - Purple/Pink theme */
-        .nav-button--marketing {
-          background: linear-gradient(135deg, rgba(147, 51, 234, 0.32), rgba(129, 140, 248, 0.18));
-          color: #f5e8ff;
-          border-color: rgba(216, 180, 254, 0.45);
-        }
-
-        .nav-button--marketing:hover,
-        .nav-button--marketing:focus-visible {
-          outline: none;
-          background: linear-gradient(135deg, rgba(168, 85, 247, 0.5), rgba(129, 140, 248, 0.28));
-          transform: translateX(4px);
-          box-shadow: 0 20px 38px rgba(147, 51, 234, 0.35);
-          color: #fff;
-        }
-
-        .nav-button--marketing.is-active {
-          background: linear-gradient(135deg, rgba(192, 132, 252, 0.55), rgba(168, 85, 247, 0.4));
-          box-shadow: inset 0 0 0 1px rgba(216, 180, 254, 0.7), 0 6px 20px rgba(168, 85, 247, 0.3);
-          color: #fff;
-        }
-
-        .nav-button--marketing.is-active::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 4px;
-          height: 60%;
-          background: #7c3aed;
-          border-radius: 0 4px 4px 0;
-        }
-        
-        .nav-button--marketing.is-active .nav-icon {
-          filter: drop-shadow(0 0 4px rgba(192, 132, 252, 0.6));
-        }
-
-        /* HR team - Blue theme */
-        .nav-button--hr {
-          background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(37, 99, 235, 0.18));
-          color: #e0edff;
-          border-color: rgba(147, 197, 253, 0.45);
-        }
-
-        .nav-button--hr:hover,
-        .nav-button--hr:focus-visible {
-          outline: none;
-          background: linear-gradient(135deg, rgba(59, 130, 246, 0.5), rgba(37, 99, 235, 0.3));
-          transform: translateX(4px);
-          box-shadow: 0 20px 38px rgba(37, 99, 235, 0.35);
-          color: #f8fbff;
-        }
-
-        .nav-button--hr.is-active {
-          background: linear-gradient(135deg, rgba(96, 165, 250, 0.55), rgba(37, 99, 235, 0.45));
-          box-shadow: inset 0 0 0 1px rgba(191, 219, 254, 0.7), 0 6px 20px rgba(59, 130, 246, 0.3);
-          color: #fff;
-        }
-
-        .nav-button--hr.is-active::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 4px;
-          height: 60%;
-          background: #2563eb;
-          border-radius: 0 4px 4px 0;
-        }
-        
-        .nav-button--hr.is-active .nav-icon {
-          filter: drop-shadow(0 0 4px rgba(96, 165, 250, 0.6));
-        }
-
-        /* All users - Teal/Green theme */
-        .nav-button--all {
-          background: linear-gradient(135deg, rgba(45, 212, 191, 0.28), rgba(14, 165, 233, 0.18));
-          color: #ecfdf5;
-          border-color: rgba(153, 246, 228, 0.45);
-        }
-
-        .nav-button--all:hover,
-        .nav-button--all:focus-visible {
-          outline: none;
-          background: linear-gradient(135deg, rgba(45, 212, 191, 0.45), rgba(14, 165, 233, 0.28));
-          transform: translateX(4px);
-          box-shadow: 0 20px 38px rgba(13, 148, 136, 0.35);
-          color: #f0fdfa;
-        }
-
-        .nav-button--all.is-active {
-          background: linear-gradient(135deg, rgba(94, 234, 212, 0.55), rgba(45, 212, 191, 0.4));
-          box-shadow: inset 0 0 0 1px rgba(153, 246, 228, 0.7), 0 6px 20px rgba(45, 212, 191, 0.3);
-          color: #042f2e;
-        }
-
-        .nav-button--all.is-active::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 4px;
-          height: 60%;
-          background: #14b8a6;
-          border-radius: 0 4px 4px 0;
-        }
-        
-        .nav-button--all.is-active .nav-icon {
-          filter: drop-shadow(0 0 4px rgba(94, 234, 212, 0.6));
+          width: 3px;
+          height: 55%;
+          background: #34d399;
+          border-radius: 0 3px 3px 0;
         }
 
         .nav-icon {
@@ -589,27 +429,23 @@ export default function DashboardLayout({
           flex-shrink: 0;
           width: 20px;
           height: 20px;
-          opacity: 0.9;
-          transition: opacity 0.25s ease, transform 0.25s ease, color 0.25s ease;
+          opacity: 0.8;
+          transition: opacity 0.2s ease, transform 0.2s ease, color 0.2s ease;
           color: currentColor;
         }
 
         .nav-button:hover .nav-icon,
         .nav-button.is-active .nav-icon {
           opacity: 1;
-          transform: scale(1.15);
-        }
-        
-        .nav-button.is-active .nav-icon {
-          filter: drop-shadow(0 0 4px rgba(96, 165, 250, 0.5));
+          transform: scale(1.1);
         }
 
         .nav-label {
           text-transform: uppercase;
-          letter-spacing: 0.05em;
-          font-size: 0.875rem;
+          letter-spacing: 0.04em;
+          font-size: 0.82rem;
           font-weight: 600;
-          transition: color 0.25s ease;
+          transition: color 0.2s ease;
         }
 
         .nav-button.is-active .nav-label {
@@ -622,7 +458,7 @@ export default function DashboardLayout({
           height: 20px;
           padding: 0 6px;
           border-radius: 999px;
-          background: linear-gradient(135deg, #e11d48, #be123c);
+          background: #ef4444;
           color: #fff;
           font-size: 0.7rem;
           font-weight: 700;
@@ -630,13 +466,13 @@ export default function DashboardLayout({
           align-items: center;
           justify-content: center;
           margin-left: auto;
-          box-shadow: 0 2px 6px rgba(225, 29, 72, 0.4);
+          box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
         }
 
         .sidebar-bottom {
           margin-top: auto;
           display: grid;
-          gap: 0.6rem;
+          gap: 0.5rem;
           padding: 0;
           position: relative;
           z-index: 1;
@@ -645,21 +481,21 @@ export default function DashboardLayout({
         .secondary-button {
           width: 100%;
           text-align: left;
-          padding: 0.8rem 1rem;
-          border-radius: 16px;
-          border: 1px solid rgba(148, 163, 184, 0.18);
-          background: linear-gradient(135deg, rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.4));
-          color: #e2e8f0;
-          font-size: 0.875rem;
-          font-weight: 500;
-          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+          padding: 0.7rem 0.9rem;
+          border-radius: 10px;
+          border: 1px solid rgba(16, 185, 129, 0.12);
+          background: rgba(255, 255, 255, 0.06);
+          color: #d1fae5;
+          font-size: 0.82rem;
+          font-weight: 600;
+          transition: all 0.2s ease;
           cursor: pointer;
           display: flex;
           align-items: center;
-          gap: 0.75rem;
+          gap: 0.7rem;
           position: relative;
-          box-shadow: 0 16px 28px rgba(2, 6, 23, 0.35);
-          backdrop-filter: blur(6px);
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
         }
 
         .secondary-button .nav-icon {
@@ -669,49 +505,43 @@ export default function DashboardLayout({
           flex-shrink: 0;
           width: 20px;
           height: 20px;
-          opacity: 0.9;
-          transition: opacity 0.25s ease, transform 0.25s ease, color 0.25s ease;
+          opacity: 0.8;
+          transition: opacity 0.2s ease, transform 0.2s ease;
           color: currentColor;
         }
 
         .secondary-button .nav-label {
           text-transform: uppercase;
-          letter-spacing: 0.05em;
-          font-size: 0.875rem;
+          letter-spacing: 0.04em;
+          font-size: 0.82rem;
           font-weight: 600;
-          transition: color 0.25s ease;
         }
 
         .secondary-button:hover .nav-icon,
         .secondary-button.is-active .nav-icon {
           opacity: 1;
-          transform: scale(1.15);
-        }
-        
-        .secondary-button.is-active .nav-icon {
-          filter: drop-shadow(0 0 4px rgba(96, 165, 250, 0.5));
+          transform: scale(1.1);
         }
 
         .secondary-button:hover,
         .secondary-button:focus-visible {
           outline: none;
-          transform: translateX(4px);
-          box-shadow: 0 22px 38px rgba(2, 6, 23, 0.45);
-          background: linear-gradient(135deg, rgba(37, 99, 235, 0.35), rgba(15, 23, 42, 0.55));
-          border-color: rgba(96, 165, 250, 0.5);
-          color: #fff;
+          transform: translateX(3px);
+          background: rgba(16, 185, 129, 0.15);
+          border-color: rgba(16, 185, 129, 0.3);
+          color: #ffffff;
         }
 
         .secondary-button--settings:hover,
         .secondary-button--settings:focus-visible {
-          background: linear-gradient(135deg, rgba(59, 130, 246, 0.45), rgba(30, 64, 175, 0.45));
-          color: #f8fbff;
+          background: rgba(16, 185, 129, 0.2);
+          color: #ffffff;
         }
 
         .secondary-button--settings.is-active {
-          background: linear-gradient(135deg, rgba(96, 165, 250, 0.55), rgba(59, 130, 246, 0.4));
-          box-shadow: inset 0 0 0 1px rgba(191, 219, 254, 0.7), 0 6px 20px rgba(59, 130, 246, 0.3);
-          color: #fff;
+          background: rgba(16, 185, 129, 0.25);
+          border-color: rgba(52, 211, 153, 0.5);
+          color: #ffffff;
         }
 
         .secondary-button--settings.is-active::before {
@@ -720,10 +550,10 @@ export default function DashboardLayout({
           left: 0;
           top: 50%;
           transform: translateY(-50%);
-          width: 4px;
-          height: 60%;
-          background: #2563eb;
-          border-radius: 0 4px 4px 0;
+          width: 3px;
+          height: 55%;
+          background: #34d399;
+          border-radius: 0 3px 3px 0;
         }
 
         .secondary-button--settings.is-active .nav-label {
@@ -731,17 +561,16 @@ export default function DashboardLayout({
         }
 
         .secondary-button--logout {
-          background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(248, 113, 113, 0.2));
-          color: #fee2e2;
-          box-shadow: inset 0 0 0 1px rgba(254, 202, 202, 0.4);
-          border-color: rgba(254, 202, 202, 0.4);
+          background: rgba(239, 68, 68, 0.12);
+          color: #fca5a5;
+          border-color: rgba(239, 68, 68, 0.2);
         }
 
         .secondary-button--logout:hover,
         .secondary-button--logout:focus-visible {
-          background: linear-gradient(135deg, rgba(248, 113, 113, 0.45), rgba(239, 68, 68, 0.35));
-          box-shadow: inset 0 0 0 1px rgba(254, 202, 202, 0.55), 0 6px 20px rgba(239, 68, 68, 0.3);
-          color: #fff5f5;
+          background: rgba(239, 68, 68, 0.25);
+          border-color: rgba(239, 68, 68, 0.4);
+          color: #ffffff;
         }
 
         .secondary-button--logout:disabled {
@@ -805,12 +634,12 @@ export default function DashboardLayout({
           .nav-list {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.4rem;
           }
 
           .nav-button {
-            padding: 0.7rem 0.85rem;
-            font-size: 0.875rem;
+            padding: 0.65rem 0.85rem;
+            font-size: 0.85rem;
           }
 
           .nav-icon {
@@ -820,8 +649,8 @@ export default function DashboardLayout({
 
           .secondary-button {
             width: 100%;
-            padding: 0.7rem 0.85rem;
-            font-size: 0.875rem;
+            padding: 0.65rem 0.85rem;
+            font-size: 0.85rem;
           }
 
           .secondary-button .nav-icon {
@@ -854,12 +683,8 @@ export default function DashboardLayout({
         }
 
         @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
 
         @media (max-width: 640px) {
@@ -886,9 +711,9 @@ export default function DashboardLayout({
           }
 
           .nav-button {
-            padding: 0.65rem 0.8rem;
-            font-size: 0.85rem;
-            gap: 0.65rem;
+            padding: 0.6rem 0.75rem;
+            font-size: 0.82rem;
+            gap: 0.6rem;
           }
 
           .nav-icon {
@@ -897,9 +722,9 @@ export default function DashboardLayout({
           }
 
           .secondary-button {
-            padding: 0.65rem 0.8rem;
-            font-size: 0.85rem;
-            gap: 0.65rem;
+            padding: 0.6rem 0.75rem;
+            font-size: 0.82rem;
+            gap: 0.6rem;
           }
 
           .secondary-button .nav-icon {
@@ -921,23 +746,23 @@ export default function DashboardLayout({
 
         @media (max-width: 480px) {
           .nav-button {
-            padding: 0.6rem 0.75rem;
-            font-size: 0.8rem;
-            gap: 0.6rem;
+            padding: 0.55rem 0.7rem;
+            font-size: 0.78rem;
+            gap: 0.55rem;
           }
 
           .nav-label {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
           }
 
           .secondary-button {
-            padding: 0.6rem 0.75rem;
-            font-size: 0.8rem;
-            gap: 0.6rem;
+            padding: 0.55rem 0.7rem;
+            font-size: 0.78rem;
+            gap: 0.55rem;
           }
 
           .secondary-button .nav-label {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
           }
         }
       `}</style>

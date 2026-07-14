@@ -2,13 +2,12 @@ import Head from 'next/head'
 import { useMemo, useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, Leaf } from 'lucide-react'
 import Navbar from '../components/designndev/Navbar'
 import Footer from '../components/designndev/Footer'
 import { AuthCardSkeleton } from '../components/Skeleton'
 import { useRecaptcha } from '../utils/useRecaptcha'
 import { safeParseJsonResponse } from '../utils/safeJsonResponse'
-import { siteAssets } from '../lib/siteAssets'
 import { siteName } from '../lib/siteConfig'
 
 function formatErrorMessage(payload, fallback) {
@@ -92,7 +91,7 @@ export default function SignupPage() {
           incrementRedirectCount()
           router.replace('/dashboard').then(() => {
             if (typeof window !== 'undefined') {
-              window.location.hash = 'blogs'
+              window.location.hash = 'overview'
             }
           })
           return
@@ -184,7 +183,7 @@ export default function SignupPage() {
       if (data.data && data.data.user) {
         router.replace('/dashboard').then(() => {
           if (typeof window !== 'undefined') {
-            window.location.hash = 'blogs'
+            window.location.hash = 'overview'
           }
         })
       }
@@ -200,26 +199,21 @@ export default function SignupPage() {
     }
   }
 
-  const fieldClass = 'block w-full rounded-lg border border-forest-600 bg-forest-800/80 px-4 py-3 text-gold-100 placeholder:text-gold-200/50 focus:border-gold-500/60 focus:outline-none focus:ring-2 focus:ring-gold-500/30 disabled:opacity-60'
-  const labelClass = 'text-sm font-semibold text-gold-300 mb-1.5'
+  const fieldClass = 'block w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all'
+  const labelClass = 'text-sm font-medium text-gray-700 mb-1.5 block'
 
   if (checkingAuth) {
     return (
       <>
         <Head>
-          <title>{`Create account | ${siteName}`}</title>
+          <title>{`Create Account | ${siteName}`}</title>
           <meta name="description" content={`Create your ${siteName} account.`} />
         </Head>
-        <div className="min-h-screen bg-forest-800">
-          <div
-            className="absolute inset-0 w-full h-full bg-no-repeat bg-center opacity-[0.06] pointer-events-none"
-            style={{ backgroundImage: `url(${siteAssets.texture})`, backgroundSize: 'cover' }}
-            aria-hidden
-          />
+        <div className="min-h-screen bg-white">
           <Navbar />
           <main className="relative z-10 pt-20 pb-20 flex items-center justify-center min-h-[50vh]">
             <div className="w-full max-w-md mx-auto px-4">
-              <div className="fc-card rounded-2xl border border-forest-600 bg-forest-700/60 p-6 md:p-8">
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-xl p-6 md:p-8">
                 <AuthCardSkeleton />
               </div>
             </div>
@@ -233,34 +227,32 @@ export default function SignupPage() {
   return (
     <>
       <Head>
-        <title>{`Create account | ${siteName}`}</title>
-        <meta name="description" content={`Create your ${siteName} account to access the member area.`} />
-        <meta name="keywords" content="sign up, create account, registration" />
+        <title>{`Create Account | ${siteName}`}</title>
+        <meta name="description" content={`Create your ${siteName} account to start reporting waste issues.`} />
+        <meta name="keywords" content="sign up, create account, ecowatch, report waste" />
       </Head>
-      <div className="min-h-screen bg-forest-800 relative">
-        <div
-          className="absolute inset-0 w-full h-full bg-no-repeat bg-center opacity-[0.06] pointer-events-none"
-          style={{ backgroundImage: `url(${siteAssets.texture})`, backgroundSize: 'cover' }}
-          aria-hidden
-        />
+      <div className="min-h-screen bg-white relative">
         <Navbar />
-        <main className="relative z-10 pt-20 pb-20">
-          <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-10">
-            <h1 className="font-heading text-4xl md:text-5xl font-semibold text-gold-500 mb-4">
+        <main className="relative z-10 pt-24 pb-20">
+          <div className="max-w-lg mx-auto px-4 sm:px-6 text-center mb-10">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-100 mb-6">
+              <Leaf className="w-7 h-7 text-emerald-600" />
+            </div>
+            <h1 className="font-heading text-3xl md:text-4xl font-semibold text-gray-900 mb-3 normal-case">
               Create Your Account
             </h1>
-            <p className="text-gold-100/90 text-lg">
-              Create an account to access the member area and dashboard.
+            <p className="text-gray-500 text-base md:text-lg">
+              Join EcoWatch to report waste issues and track complaint resolution.
             </p>
           </div>
           <div className="max-w-md mx-auto px-4">
-            <div className="fc-card rounded-2xl border border-forest-600 bg-forest-700/60 p-6 md:p-8">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-xl p-6 md:p-8">
               {error && (
                 <div
                   className={`rounded-lg border px-4 py-3 text-sm font-medium mb-6 ${
                     error.startsWith('✓')
-                      ? 'border-emerald-800/60 bg-emerald-900/20 text-emerald-200'
-                      : 'border-red-800/60 bg-red-900/20 text-red-200'
+                      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                      : 'border-red-200 bg-red-50 text-red-700'
                   }`}
                   role="alert"
                   aria-live="assertive"
@@ -271,13 +263,13 @@ export default function SignupPage() {
 
               <form onSubmit={onSubmit} className="flex flex-col gap-5" noValidate>
                 <label>
-                  <span className={labelClass}>Full name</span>
+                  <span className={labelClass}>Full Name</span>
                   <input
                     type="text"
                     autoComplete="name"
                     id="signup-name"
                     name="name"
-                    placeholder="Alex Johnson"
+                    placeholder="Your full name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
@@ -286,7 +278,7 @@ export default function SignupPage() {
                   />
                 </label>
                 <label>
-                  <span className={labelClass}>Email</span>
+                  <span className={labelClass}>Email Address</span>
                   <input
                     type="email"
                     inputMode="email"
@@ -323,29 +315,26 @@ export default function SignupPage() {
                       tabIndex={-1}
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
                       disabled={loading}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gold-200/80 hover:text-gold-300 rounded-md disabled:opacity-50"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600 rounded-md disabled:opacity-50"
                     >
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
                   {passwordHint && (
-                    <small className="mt-1.5 block text-xs text-gold-200/70">{passwordHint}</small>
+                    <small className="mt-1.5 block text-xs text-gray-400">{passwordHint}</small>
                   )}
                 </label>
                 <button type="submit" disabled={isDisabled} className="btn-fc-primary w-full justify-center py-3">
                   {loading && (
-                    <span
-                      className="inline-block h-4 w-4 rounded-full border-2 border-forest-950/40 border-t-gold-400 animate-spin"
-                      aria-hidden
-                    />
+                    <span className="inline-block h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" aria-hidden />
                   )}
-                  <span>{loading ? 'Creating your account…' : 'Create Account'}</span>
+                  <span>{loading ? 'Creating your account...' : 'Create Account'}</span>
                 </button>
               </form>
 
-              <footer className="mt-8 pt-6 border-t border-forest-600/60 flex flex-wrap justify-center items-center gap-2 text-sm text-gold-100/80">
+              <footer className="mt-8 pt-6 border-t border-gray-100 flex flex-wrap justify-center items-center gap-2 text-sm text-gray-500">
                 <span>Already registered?</span>
-                <Link href="/login" className="font-semibold text-gold-400 hover:text-gold-300 transition-colors">
+                <Link href="/login" className="font-semibold text-emerald-600 hover:text-emerald-700 transition-colors">
                   Sign in instead
                 </Link>
               </footer>

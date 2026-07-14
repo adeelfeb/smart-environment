@@ -17,7 +17,7 @@ export default function PracticeAreasSection() {
           transition={{ duration: 0.6 }}
           className="section-heading font-heading text-4xl md:text-5xl font-medium text-gold-500 mb-10 md:mb-14 text-left normal-case"
         >
-          <span className="text-white">Service</span> areas
+          <span className="text-white">Key</span> Features
         </motion.h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
           {areas.map((item, i) => (

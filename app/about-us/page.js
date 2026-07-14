@@ -11,87 +11,87 @@ const sections = [
     id: '01',
     title: 'Our story',
     image: siteAssets.aboutStory,
-    body: `Every organization has an origin story. This paragraph is a placeholder: describe why you started, what problem you saw, and what you set out to build.
+    body: `Environment activists corporations often rely on phone calls, emails, or manual reporting methods to receive waste-related complaints. These approaches suffer from incomplete location details, delayed responses, duplicate complaints, and lack of visibility into complaint resolution.
 
-Keep it authentic when you replace this text. Short paragraphs read better on the web than one long block.`,
+EcoWatch was built to solve these problems by digitizing the complaint lifecycle with image-based reporting and automatic location capture.`,
   },
   {
     id: '02',
     title: 'What we focus on',
     image: siteAssets.aboutProblem,
-    body: `Explain the main themes of your work — for example community, product quality, education, or operations. This template does not assume a specific industry.
+    body: `Our platform focuses on three core areas: simplifying waste complaint reporting for citizens, routing complaints to the correct environment activists administrator, and providing real-time analytics for better decision-making.
 
-Use this section to set expectations before someone signs up, books a call, or logs into the member area.`,
+We believe technology can transform how communities manage waste, making our cities cleaner and more livable.`,
   },
   {
     id: '03',
     title: 'How we work',
     image: siteAssets.aboutSpark,
-    body: `Describe your principles: how decisions get made, how you treat customers or members, and what people can rely on when they engage with you.
+    body: `Citizens report waste-related issues by uploading a geotagged photo. The system captures GPS location, the citizen tags the responsible corporation and ward, and the complaint is routed to the correct admin for review and resolution.
 
-You can align this copy with your FAQ and contact page so the same messages appear everywhere.`,
+Every complaint is tracked from submission to resolution, ensuring full transparency and accountability.`,
   },
   {
     id: '04',
-    title: 'Growth',
+    title: 'Impact',
     image: siteAssets.aboutGrowth,
-    body: `Optional milestone section: team size, geography, product stages, or community stats — only if you are comfortable sharing them.
+    body: `By reducing manual complaint handling, improving response times, and increasing transparency, we help environment activists authorities serve their communities better.
 
-If you prefer not to use numbers, rewrite this block as a narrative about where you are headed next.`,
+Our analytics dashboard provides real-time insights into complaint patterns, resolution times, and environmental hotspots.`,
   },
   {
     id: '05',
     title: 'Mission',
     image: siteAssets.aboutMission,
-    body: `Close with a clear mission statement: who you serve and the change you want to see. One or two sentences is enough.
+    body: `Our mission is to improve waste management by reducing complaint resolution time, providing analytical dashboards for environment activists authorities, and maintaining a centralized repository of complaints.
 
-The login and dashboard experience behind this site stays as the technical base; this page is yours to customize.`,
+We envision cleaner communities powered by smart, data-driven waste management systems.`,
   },
 ]
 
 export const metadata = {
   title: `About Us | ${siteName}`,
-  description: siteTagline,
-  keywords: 'about us, organization, draft template',
+  description: 'Learn about EcoWatch — the Smart Environment Activists Waste Complaint & Monitoring System.',
+  keywords: 'about us, environment activists, waste management, complaint system',
 }
 
 export default function AboutUsPage() {
   return (
-    <main className="relative min-h-screen">
-      <TextureOverlay opacity={0.08} className="mix-blend-overlay" />
+    <main className="relative min-h-screen bg-white">
+      <TextureOverlay opacity={0.03} className="mix-blend-overlay" />
       <Navbar />
-      <section className="relative min-h-[30vh] flex items-center justify-center pt-28 pb-16">
+      {/* Hero */}
+      <section className="relative min-h-[35vh] flex items-center justify-center pt-24 pb-16 bg-gradient-to-b from-emerald-50/80 to-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="section-heading font-heading text-4xl md:text-5xl font-semibold text-gold-500 mb-6 normal-case">
-            About us
+          <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-semibold text-gray-900 mb-6 normal-case">
+            About <span className="text-emerald-600">Us</span>
           </h1>
-          <p className="text-gold-100/95 text-lg md:text-xl max-w-3xl mx-auto mb-8 leading-relaxed font-subheading">
+          <p className="text-gray-600 text-lg md:text-xl max-w-3xl mx-auto mb-8 leading-relaxed font-subheading">
             {siteTagline}
           </p>
-          <Link href="/contact" className="btn-fc-primary">
-            Contact us
+          <Link href="/signup" className="btn-fc-primary">
+            Report an Issue
           </Link>
         </div>
       </section>
+      {/* Content sections */}
       <div className="pb-20">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
           {sections.map((section, index) => (
-            <section key={section.id} className="border-t border-forest-600/50 pt-16">
-              <div
-                className={`grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-12 lg:gap-16 items-center`}
-              >
+            <section key={section.id} className="pt-16 first:pt-0">
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-12 lg:gap-16 items-center">
                 <div className={index % 2 === 1 ? 'md:order-2' : ''}>
-                  <span className="text-gold-500/80 font-subheading text-lg">{section.id}</span>
-                  <h2 className="font-heading text-2xl md:text-3xl font-semibold text-gold-300 mt-2 mb-6">
+                  <span className="text-emerald-500 font-subheading text-sm font-semibold tracking-wider uppercase">{section.id}</span>
+                  <h2 className="font-heading text-2xl md:text-3xl lg:text-4xl font-semibold text-gray-900 mt-2 mb-5 normal-case">
                     {section.title}
                   </h2>
-                  <div className="text-gold-100/90 leading-relaxed whitespace-pre-line font-subheading">
+                  <div className="text-gray-600 leading-relaxed whitespace-pre-line font-subheading text-base md:text-lg">
                     {section.body}
                   </div>
                 </div>
                 {section.image && (
                   <div
-                    className={`relative aspect-[16/11] overflow-hidden bg-forest-700 ${
+                    className={`relative aspect-[16/11] overflow-hidden bg-emerald-50 rounded-xl ${
                       index % 2 === 1 ? 'md:order-1' : ''
                     }`}
                   >
@@ -107,25 +107,22 @@ export default function AboutUsPage() {
               </div>
             </section>
           ))}
-          <section className="mt-20 pt-12 border-t border-forest-600/50">
-            <h2 className="font-heading text-2xl md:text-3xl font-semibold text-gold-500 mb-4">
-              Next steps
-            </h2>
-            <p className="text-gold-100/90 text-lg leading-relaxed mb-8 font-subheading">
-              Ready to go deeper? Point visitors to contact, signup, or your member login — whichever matches your funnel.
-            </p>
-            <p className="text-gold-100/80 leading-relaxed mb-10 font-subheading">
-              Replace this section with a call to action that fits your launch: waitlist, demo request, or account creation.
-            </p>
-            <h2 className="font-heading text-2xl md:text-3xl font-semibold text-gold-500 mb-4">
-              Create an account
-            </h2>
-            <p className="text-gold-100/90 mb-6 font-subheading">
-              Member signup and the dashboard are part of the base implementation. Update the shared site name and contact details in your site config module when you fork this template.
-            </p>
-            <Link href="/signup" className="btn-fc-primary">
-              Sign up
-            </Link>
+          {/* CTA */}
+          <section className="mt-20 pt-12 border-t border-gray-100">
+            <div className="bg-emerald-50 rounded-2xl p-8 md:p-12">
+              <h2 className="font-heading text-2xl md:text-3xl lg:text-4xl font-semibold text-gray-900 mb-4 normal-case">
+                Get Started
+              </h2>
+              <p className="text-gray-700 text-lg md:text-xl leading-relaxed mb-6 font-subheading max-w-2xl">
+                Ready to help keep our communities clean? Create an account to start reporting waste issues and tracking complaint resolution.
+              </p>
+              <p className="text-gray-600 leading-relaxed mb-8 font-subheading max-w-2xl">
+                Our platform digitizes the complaint lifecycle by enabling image-based reporting with automatic location capture and centralized complaint management.
+              </p>
+              <Link href="/signup" className="btn-fc-primary">
+                Create an Account
+              </Link>
+            </div>
           </section>
         </div>
       </div>

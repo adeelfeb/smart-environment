@@ -20,16 +20,16 @@ module.exports = {
           800: '#1e40af',
           900: '#1e3a8a',
         },
-        // Draft theme – forest + gold (adjust in tailwind.config.js for your brand)
+        // Environment-friendly theme — clean greens + earth tones
         forest: {
-          950: '#020c08',
-          900: '#0d261c',
-          800: '#1a3328',
-          700: '#1e4234',
-          600: '#255540',
-          500: '#2d6b52',
-          400: '#3d8a6a',
-          350: '#4a9d7a',
+          950: '#02201a',
+          900: '#0d3d2e',
+          800: '#1a5c44',
+          700: '#1e7a56',
+          600: '#25996a',
+          500: '#2db87e',
+          400: '#3dd49a',
+          350: '#52e0ac',
         },
         gold: {
           50: '#FBF6E8',
@@ -46,7 +46,7 @@ module.exports = {
         sans: ['var(--font-poppins)', 'Poppins', 'system-ui', 'sans-serif'],
         serif: ['var(--font-serif)', 'Georgia', 'Cambria', 'serif'],
         heading: ['var(--font-heading)', 'Luxerie', 'Georgia', 'Cambria', 'serif'],
-        subheading: ['var(--font-subheading)', 'Dragon-Serial', 'Georgia', 'Cambria', 'serif'],
+        subheading: ['var(--font-subheading)', 'Poppins', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
         'fc': '0.5rem',

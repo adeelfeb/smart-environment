@@ -2,13 +2,12 @@ import Head from 'next/head'
 import { useMemo, useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, Leaf } from 'lucide-react'
 import Navbar from '../components/designndev/Navbar'
 import Footer from '../components/designndev/Footer'
 import { AuthCardSkeleton } from '../components/Skeleton'
 import { useRecaptcha } from '../utils/useRecaptcha'
 import { safeParseJsonResponse } from '../utils/safeJsonResponse'
-import { siteAssets } from '../lib/siteAssets'
 import { siteName } from '../lib/siteConfig'
 
 function formatErrorMessage(payload, fallback) {
@@ -108,7 +107,7 @@ export default function LoginPage() {
           if (redirectDestination === '/dashboard' || !router.query.redirect) {
             router.replace('/dashboard').then(() => {
               if (typeof window !== 'undefined') {
-                window.location.hash = 'blogs'
+                window.location.hash = 'overview'
               }
             })
           } else {
@@ -179,7 +178,7 @@ export default function LoginPage() {
       if (redirectDest === '/dashboard' || !router.query.redirect) {
         router.replace('/dashboard').then(() => {
           if (typeof window !== 'undefined') {
-            window.location.hash = 'blogs'
+            window.location.hash = 'overview'
           }
         })
       } else {
@@ -275,7 +274,7 @@ export default function LoginPage() {
       if (redirectDest === '/dashboard' || !router.query.redirect) {
         router.replace('/dashboard').then(() => {
           if (typeof window !== 'undefined') {
-            window.location.hash = 'blogs'
+            window.location.hash = 'overview'
           }
         })
       } else {
@@ -293,26 +292,21 @@ export default function LoginPage() {
     }
   }
 
-  const fieldClass = 'block w-full rounded-lg border border-forest-600 bg-forest-800/80 px-4 py-3 text-gold-100 placeholder:text-gold-200/50 focus:border-gold-500/60 focus:outline-none focus:ring-2 focus:ring-gold-500/30 disabled:opacity-60'
-  const labelClass = 'text-sm font-semibold text-gold-300 mb-1.5'
+  const fieldClass = 'block w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all'
+  const labelClass = 'text-sm font-medium text-gray-700 mb-1.5 block'
 
   if (checkingAuth) {
     return (
       <>
         <Head>
-          <title>{`Member login | ${siteName}`}</title>
+          <title>{`Sign In | ${siteName}`}</title>
           <meta name="description" content={`Sign in to your ${siteName} account.`} />
         </Head>
-        <div className="min-h-screen bg-forest-800">
-          <div
-            className="absolute inset-0 w-full h-full bg-no-repeat bg-center opacity-[0.06] pointer-events-none"
-            style={{ backgroundImage: `url(${siteAssets.texture})`, backgroundSize: 'cover' }}
-            aria-hidden
-          />
+        <div className="min-h-screen bg-white">
           <Navbar />
           <main className="relative z-10 pt-20 pb-20 flex items-center justify-center min-h-[50vh]">
             <div className="w-full max-w-md mx-auto px-4">
-              <div className="fc-card rounded-2xl border border-forest-600 bg-forest-700/60 p-6 md:p-8">
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-xl p-6 md:p-8">
                 <AuthCardSkeleton />
               </div>
             </div>
@@ -326,31 +320,29 @@ export default function LoginPage() {
   return (
     <>
       <Head>
-        <title>{`Member login | ${siteName}`}</title>
+        <title>{`Sign In | ${siteName}`}</title>
         <meta name="description" content={`Sign in to your ${siteName} account.`} />
-        <meta name="keywords" content="login, member, account" />
+        <meta name="keywords" content="login, sign in, account, ecowatch" />
       </Head>
-      <div className="min-h-screen bg-forest-800 relative">
-        <div
-          className="absolute inset-0 w-full h-full bg-no-repeat bg-center opacity-[0.06] pointer-events-none"
-          style={{ backgroundImage: `url(${siteAssets.texture})`, backgroundSize: 'cover' }}
-          aria-hidden
-        />
+      <div className="min-h-screen bg-white relative">
         <Navbar />
-        <main className="relative z-10 pt-20 pb-20">
-          <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-10">
-            <h1 className="font-heading text-4xl md:text-5xl font-semibold text-gold-500 mb-4">
-              Member Login
+        <main className="relative z-10 pt-24 pb-20">
+          <div className="max-w-lg mx-auto px-4 sm:px-6 text-center mb-10">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-100 mb-6">
+              <Leaf className="w-7 h-7 text-emerald-600" />
+            </div>
+            <h1 className="font-heading text-3xl md:text-4xl font-semibold text-gray-900 mb-3 normal-case">
+              Welcome Back
             </h1>
-            <p className="text-gold-100/90 text-lg">
-              Sign in to access your account and member resources.
+            <p className="text-gray-500 text-base md:text-lg">
+              Sign in to manage waste reports and track complaint resolution.
             </p>
           </div>
           <div className="max-w-md mx-auto px-4">
-            <div className="fc-card rounded-2xl border border-forest-600 bg-forest-700/60 p-6 md:p-8">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-xl p-6 md:p-8">
               {error && (
                 <div
-                  className="rounded-lg border border-red-800/60 bg-red-900/20 px-4 py-3 text-red-200 text-sm font-medium mb-6"
+                  className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700 text-sm font-medium mb-6"
                   role="alert"
                   aria-live="assertive"
                 >
@@ -360,8 +352,8 @@ export default function LoginPage() {
 
               {needsVerification ? (
                 <>
-                  <p className="text-gold-100/90 text-sm mb-6">
-                    We&apos;ve sent a verification code to <strong className="text-gold-300">{pendingEmail}</strong>. Enter it below to sign in.
+                  <p className="text-gray-600 text-sm mb-6">
+                    We&apos;ve sent a verification code to <strong className="text-gray-900">{pendingEmail}</strong>. Enter it below to sign in.
                   </p>
                   <form onSubmit={onVerifySubmit} className="flex flex-col gap-5" noValidate>
                     <label>
@@ -382,21 +374,18 @@ export default function LoginPage() {
                     </label>
                     <button type="submit" disabled={isVerifyDisabled} className="btn-fc-primary w-full justify-center py-3">
                       {loading && (
-                        <span
-                          className="inline-block h-4 w-4 rounded-full border-2 border-forest-950/40 border-t-gold-400 animate-spin"
-                          aria-hidden
-                        />
+                        <span className="inline-block h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" aria-hidden />
                       )}
-                      <span>{loading ? 'Verifying…' : 'Verify & Sign In'}</span>
+                      <span>{loading ? 'Verifying...' : 'Verify & Sign In'}</span>
                     </button>
                   </form>
                   <button
                     type="button"
                     onClick={backToSignIn}
                     disabled={loading}
-                    className="mt-4 text-sm font-semibold text-gold-400 hover:text-gold-300 transition-colors disabled:opacity-60"
+                    className="mt-4 text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors disabled:opacity-60"
                   >
-                    ← Back to sign in
+                    &larr; Back to sign in
                   </button>
                 </>
               ) : (
@@ -440,7 +429,7 @@ export default function LoginPage() {
                           tabIndex={-1}
                           aria-label={showPassword ? 'Hide password' : 'Show password'}
                           disabled={loading}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gold-200/80 hover:text-gold-300 rounded-md disabled:opacity-50"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600 rounded-md disabled:opacity-50"
                         >
                           {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                         </button>
@@ -448,20 +437,17 @@ export default function LoginPage() {
                     </label>
                     <button type="submit" disabled={isDisabled} className="btn-fc-primary w-full justify-center py-3">
                       {loading && (
-                        <span
-                          className="inline-block h-4 w-4 rounded-full border-2 border-forest-950/40 border-t-gold-400 animate-spin"
-                          aria-hidden
-                        />
+                        <span className="inline-block h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" aria-hidden />
                       )}
-                      <span>{loading ? 'Signing you in…' : 'Sign In'}</span>
+                      <span>{loading ? 'Signing you in...' : 'Sign In'}</span>
                     </button>
                   </form>
                 </>
               )}
 
-              <footer className="mt-8 pt-6 border-t border-forest-600/60 flex flex-wrap justify-center items-center gap-2 text-sm text-gold-100/80">
+              <footer className="mt-8 pt-6 border-t border-gray-100 flex flex-wrap justify-center items-center gap-2 text-sm text-gray-500">
                 <span>Need an account?</span>
-                <Link href="/signup" className="font-semibold text-gold-400 hover:text-gold-300 transition-colors">
+                <Link href="/signup" className="font-semibold text-emerald-600 hover:text-emerald-700 transition-colors">
                   Create one here
                 </Link>
               </footer>

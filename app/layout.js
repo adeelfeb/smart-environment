@@ -17,15 +17,15 @@ const cormorant = Cormorant_Garamond({
 })
 
 export const metadata = {
-  title: `${siteName} | Draft template`,
+  title: `${siteName} | Waste Complaint & Monitoring System`,
   description: siteTagline,
-  keywords: 'draft, template, web app',
+  keywords: 'waste complaint, environment activists, GPS geotag, waste management, complaint tracking',
   icons: {
     icon: '/favicon.svg',
     apple: '/favicon.svg',
   },
   openGraph: {
-    title: `${siteName} | Draft template`,
+    title: `${siteName} | Waste Complaint & Monitoring System`,
     description: siteTagline,
     url: siteUrl,
     siteName,
@@ -39,8 +39,8 @@ export default function RootLayout({ children }) {
       <body className={`${poppins.className} antialiased relative min-h-screen`} suppressHydrationWarning>
         {/* Static full-viewport background – all pages share this */}
         <div
-          className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: 'url(/images/bg.png)' }}
+          className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat bg-gray-100"
+          style={{ backgroundImage: 'url(/images/nature-green.jpg)' }}
           aria-hidden
         />
         <div className="relative z-10 min-h-screen">
