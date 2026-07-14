@@ -574,6 +574,7 @@ export async function createInitialSuperAdmin(req, res) {
       password,
       role: superRole.name,
       roleRef: superRole._id,
+      isEmailVerified: true,
     });
     return jsonSuccess(res, 201, 'Superadmin created', { user: sanitizeUser(user) });
   } catch (err) {

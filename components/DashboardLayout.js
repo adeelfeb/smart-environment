@@ -92,11 +92,6 @@ const getNavIcon = (key) => {
         <line x1="12" y1="17" x2="12.01" y2="17"></line>
       </svg>
     ),
-    'messages': (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-      </svg>
-    ),
     'backup': (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -122,14 +117,12 @@ export default function DashboardLayout({
   onOpenSettings,
   onLogout,
   isLoggingOut,
-  chatUnreadCount = 0,
   children,
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
   const displayName = user?.name || 'User';
   const items = Array.isArray(navItems) ? navItems : [];
-  const messagesUnread = typeof chatUnreadCount === 'number' ? chatUnreadCount : 0;
 
   useEffect(() => {
     if (!sidebarOpen) return;
@@ -196,9 +189,6 @@ export default function DashboardLayout({
                   >
                     <span className="nav-ico">{getNavIcon(item.key)}</span>
                     <span className="nav-lbl">{item.label}</span>
-                    {item.key === 'messages' && messagesUnread > 0 && (
-                      <span className="badge">{messagesUnread > 99 ? '99+' : messagesUnread}</span>
-                    )}
                   </button>
                 </li>
               );
@@ -385,20 +375,6 @@ export default function DashboardLayout({
           letter-spacing: .04em;
           font-size: .78rem;
           font-weight: 600;
-        }
-        .badge {
-          margin-left: auto;
-          min-width: 18px; height: 18px;
-          padding: 0 5px;
-          border-radius: 999px;
-          background: #ef4444;
-          color: #fff;
-          font-size: .65rem;
-          font-weight: 700;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          box-shadow: 0 2px 6px rgba(239,68,68,.4);
         }
 
         /* ── Footer ── */

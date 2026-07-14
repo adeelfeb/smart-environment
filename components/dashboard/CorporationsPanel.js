@@ -118,10 +118,19 @@ export default function CorporationsPanel({ user }) {
         </div>
         <div className="corp-panel-header-actions">
           <button className="corp-btn corp-btn-refresh" onClick={fetchCorporations} disabled={loading}>
-            ↻ Refresh
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+            Refresh
           </button>
           <button className="corp-btn corp-btn-primary" onClick={openAddCorp}>
-            + Add Corporation
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add Corporation
           </button>
         </div>
       </header>
@@ -237,6 +246,9 @@ export default function CorporationsPanel({ user }) {
           background: #fff;
           color: #02201a;
           transition: all 0.15s;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
         }
         .corp-btn:hover { background: #f9fafb; }
         .corp-btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -364,7 +376,7 @@ export default function CorporationsPanel({ user }) {
           color: #64748b;
           margin-top: 4px;
         }
-        .corp-card-meta span {
+        .corp-meta-item {
           display: flex;
           align-items: center;
           gap: 4px;
@@ -713,8 +725,28 @@ function CorporationCard({ corp, expanded, onToggleExpand, onEdit, onToggleActiv
           </span>
         </div>
         <div className="corp-card-meta">
-          {corp.state && <span>📍 {corp.state}</span>}
-          {corp.district && <span>🏢 {corp.district}</span>}
+          {corp.state && (
+            <span className="corp-meta-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              {corp.state}
+            </span>
+          )}
+          {corp.district && (
+            <span className="corp-meta-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 21h18"></path>
+                <path d="M5 21V7l8-4v18"></path>
+                <path d="M19 21V11l-6-4"></path>
+                <path d="M9 9v.01"></path>
+                <path d="M9 12v.01"></path>
+                <path d="M9 15v.01"></path>
+              </svg>
+              {corp.district}
+            </span>
+          )}
         </div>
       </div>
 
@@ -738,7 +770,15 @@ function CorporationCard({ corp, expanded, onToggleExpand, onEdit, onToggleActiv
               className="corp-btn corp-btn-sm corp-btn-primary"
               onClick={() => setWardFormOpen(!wardFormOpen)}
             >
-              {wardFormOpen ? 'Cancel' : '+ Add Ward'}
+              {wardFormOpen ? 'Cancel' : (
+                <>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                  Add Ward
+                </>
+              )}
             </button>
           </div>
 

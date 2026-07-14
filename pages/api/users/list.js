@@ -20,7 +20,7 @@ export default async function handler(req, res) {
 
   const sessionUser = await authMiddleware(req, res);
   if (!sessionUser) return;
-  if (!roleMiddleware(['admin', 'superadmin', 'hr', 'hr_admin', 'developer'])(req, res)) return;
+  if (!roleMiddleware(['superadmin', 'developer'])(req, res)) return;
 
   try {
     const db = await requireDB(res);

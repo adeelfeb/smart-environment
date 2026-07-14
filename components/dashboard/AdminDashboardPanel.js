@@ -1,13 +1,55 @@
 import React, { useState, useEffect } from 'react';
 import { safeParseJsonResponse } from '../../utils/safeJsonResponse';
 
+const KPI_ICONS = {
+  total: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+      <polyline points="14 2 14 8 20 8"></polyline>
+      <line x1="16" y1="13" x2="8" y2="13"></line>
+      <line x1="16" y1="17" x2="8" y2="17"></line>
+    </svg>
+  ),
+  pending: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"></circle>
+      <polyline points="12 6 12 12 16 14"></polyline>
+    </svg>
+  ),
+  underReview: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    </svg>
+  ),
+  workInProgress: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"></path>
+    </svg>
+  ),
+  resolved: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+    </svg>
+  ),
+  rejected: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="15" y1="9" x2="9" y2="15"></line>
+      <line x1="9" y1="9" x2="15" y2="15"></line>
+    </svg>
+  ),
+};
+
 const KPI_CONFIG = [
-  { key: 'total', label: 'Total Complaints', icon: '📋', color: '#02201a' },
-  { key: 'pending', label: 'Pending', icon: '⏳', color: '#f59e0b' },
-  { key: 'underReview', label: 'Under Review', icon: '🔍', color: '#3b82f6' },
-  { key: 'workInProgress', label: 'Work in Progress', icon: '⚙️', color: '#f97316' },
-  { key: 'resolved', label: 'Resolved', icon: '✅', color: '#10b981' },
-  { key: 'rejected', label: 'Rejected', icon: '❌', color: '#ef4444' },
+  { key: 'total', label: 'Total Complaints', color: '#02201a' },
+  { key: 'pending', label: 'Pending', color: '#f59e0b' },
+  { key: 'underReview', label: 'Under Review', color: '#3b82f6' },
+  { key: 'workInProgress', label: 'Work in Progress', color: '#f97316' },
+  { key: 'resolved', label: 'Resolved', color: '#10b981' },
+  { key: 'rejected', label: 'Rejected', color: '#ef4444' },
 ];
 
 const CATEGORY_COLORS = [
@@ -77,7 +119,12 @@ export default function AdminDashboardPanel({ user, onNavigate }) {
           </p>
         </div>
         <button className="admin-dash-refresh" onClick={fetchStats} disabled={loading}>
-          ↻ Refresh
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          Refresh
         </button>
       </header>
 
@@ -97,7 +144,7 @@ export default function AdminDashboardPanel({ user, onNavigate }) {
             {KPI_CONFIG.map((kpi) => (
               <div key={kpi.key} className="admin-dash-kpi" style={{ borderLeftColor: kpi.color }}>
                 <span className="admin-dash-kpi-icon" style={{ background: kpi.color + '18', color: kpi.color }}>
-                  {kpi.icon}
+                  {KPI_ICONS[kpi.key]}
                 </span>
                 <div className="admin-dash-kpi-body">
                   <span className="admin-dash-kpi-num" style={{ color: kpi.color }}>
@@ -179,13 +226,27 @@ export default function AdminDashboardPanel({ user, onNavigate }) {
               {onNavigate && (
                 <>
                   <button className="admin-dash-action-btn" onClick={() => onNavigate('complaints')}>
-                    📄 View All Complaints
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                    View All Complaints
                   </button>
-                  <button className="admin-dash-action-btn" onClick={() => onNavigate('map')}>
-                    🗺️ View Map
+                  <button className="admin-dash-action-btn" onClick={() => onNavigate('gis-map')}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                      <line x1="8" y1="2" x2="8" y2="18"></line>
+                      <line x1="16" y1="6" x2="16" y2="22"></line>
+                    </svg>
+                    View Map
                   </button>
                   <button className="admin-dash-action-btn" onClick={() => onNavigate('analytics')}>
-                    📊 Analytics
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="20" x2="18" y2="10"></line>
+                      <line x1="12" y1="20" x2="12" y2="4"></line>
+                      <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                    Analytics
                   </button>
                 </>
               )}
@@ -227,6 +288,9 @@ export default function AdminDashboardPanel({ user, onNavigate }) {
           font-weight: 500;
           cursor: pointer;
           transition: background 0.15s;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
         }
         .admin-dash-refresh:hover { background: #f1f5f9; }
         .admin-dash-refresh:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -440,6 +504,9 @@ export default function AdminDashboardPanel({ user, onNavigate }) {
           font-weight: 500;
           cursor: pointer;
           transition: background 0.15s, border-color 0.15s, transform 0.1s;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
         }
         .admin-dash-action-btn:hover {
           background: #02201a;

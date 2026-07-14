@@ -75,6 +75,7 @@ export default async function handler(req, res) {
       password,
       role: roleDoc.name,
       roleRef: roleDoc._id,
+      isEmailVerified: true,
     });
 
     const safeUser = {

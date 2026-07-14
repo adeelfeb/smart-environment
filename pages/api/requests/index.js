@@ -6,7 +6,7 @@ import { applyCors } from '../../../utils';
 import { jsonSuccess, jsonError } from '../../../lib/response';
 import { getDBConnection } from '../../../lib/dbHelper';
 
-const ALLOWED_ROLES = ['superadmin', 'developer', 'admin', 'hr', 'hr_admin'];
+const ALLOWED_ROLES = ['superadmin', 'developer'];
 
 const EMPTY_REQUESTS = { helpRequests: [], contactSubmissions: [] };
 

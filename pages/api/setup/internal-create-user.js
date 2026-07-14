@@ -103,6 +103,7 @@ export default async function handler(req, res) {
       password,
       role: roleDoc.name,
       roleRef: roleDoc._id,
+      isEmailVerified: true,
     });
 
     return jsonSuccess(res, 201, `Terminal user created with role: ${roleDoc.name}`, {

@@ -17,20 +17,16 @@ const DATE_FORMAT_OPTIONS = {
   timeStyle: 'short',
 };
 
-const EDIT_ROLES = new Set(['superadmin', 'admin', 'hr', 'hr_admin', 'developer']);
+const EDIT_ROLES = new Set(['superadmin', 'developer']);
 const ROLE_OPTIONS = [
   { value: 'superadmin', label: 'Super Admin' },
   { value: 'developer', label: 'Developer' },
-  { value: 'admin', label: 'Admin' },
-  { value: 'hr_admin', label: 'HR Admin' },
-  { value: 'hr', label: 'HR' },
   { value: 'base_user', label: 'Base User' },
-  { value: 'simple_user', label: 'Simple User' },
-  { value: 'loved_one', label: 'Loved One' },
+  { value: 'citizen', label: 'Citizen' },
 ];
 const DEFAULT_ROLE = 'base_user';
 const MIN_PASSWORD_LENGTH = 5;
-const ROLES_WITH_USERNAME = ['loved_one'];
+const ROLES_WITH_USERNAME = [];
 
 function isValidEmail(value) {
   if (typeof value !== 'string') return false;
@@ -916,9 +912,7 @@ export default function UserOverviewTable({ currentUser = null }) {
             <div className={styles.editPanelHeaderText}>
               <span className={styles.editPanelTitle}>Create New User</span>
               <p className={styles.panelDescription}>
-                {ROLES_WITH_USERNAME.includes(createForm.role) 
-                  ? 'Create a Loved One account with a unique username. They can login using their username instead of email.'
-                  : 'Add a teammate by assigning their role and temporary password. They can update their details after logging in.'}
+                Add a user by assigning their role and temporary password. They can update their details after logging in.
               </p>
             </div>
           </div>

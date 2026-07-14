@@ -35,7 +35,7 @@ export default async function handler(req, res) {
         let normalizedRole = null;
         let roleDoc = null;
         if (Object.prototype.hasOwnProperty.call(body, 'role')) {
-          if (!roleMiddleware(['admin', 'superadmin', 'hr', 'hr_admin', 'developer'])(req, res)) return;
+          if (!roleMiddleware(['superadmin', 'developer'])(req, res)) return;
           normalizedRole =
             typeof body.role === 'string' && body.role.trim()
               ? body.role.trim().toLowerCase()
@@ -79,12 +79,12 @@ export default async function handler(req, res) {
         }
 
         if (Object.prototype.hasOwnProperty.call(body, 'isEmailVerified')) {
-          if (!roleMiddleware(['admin', 'superadmin', 'hr', 'hr_admin', 'developer'])(req, res)) return;
+          if (!roleMiddleware(['superadmin', 'developer'])(req, res)) return;
           userDoc.isEmailVerified = Boolean(body.isEmailVerified);
         }
 
         if (Object.prototype.hasOwnProperty.call(body, 'isPaused')) {
-          if (!roleMiddleware(['admin', 'superadmin', 'hr', 'hr_admin', 'developer'])(req, res)) return;
+          if (!roleMiddleware(['superadmin', 'developer'])(req, res)) return;
           userDoc.isPaused = Boolean(body.isPaused);
         }
 

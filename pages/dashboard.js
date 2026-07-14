@@ -11,7 +11,6 @@ import BackupPanel from '../components/dashboard/BackupPanel';
 import HelpPanel from '../components/dashboard/HelpPanel';
 import PrivacyPanel from '../components/dashboard/PrivacyPanel';
 import RequestsPanel from '../components/dashboard/RequestsPanel';
-import ChatNow from '../components/dashboard/ChatNow';
 import ComplaintSubmitForm from '../components/dashboard/ComplaintSubmitForm';
 import ComplaintHistory from '../components/dashboard/ComplaintHistory';
 import ComplaintDetail from '../components/dashboard/ComplaintDetail';
@@ -68,7 +67,6 @@ const NAVIGATION_BY_ROLE = {
     { key: 'citizen-management', label: 'Citizens' },
     { key: 'audit-logs', label: 'Audit Logs' },
     { key: 'system-settings', label: 'Settings' },
-    { key: 'messages', label: 'Messages' },
     { key: 'user-management', label: 'Users' },
     { key: 'backup', label: 'Backup' },
     { key: 'help', label: 'Help' },
@@ -78,7 +76,6 @@ const NAVIGATION_BY_ROLE = {
     { key: 'complaints', label: 'Complaints' },
     { key: 'corporations', label: 'Corporations' },
     { key: 'user-management', label: 'Users' },
-    { key: 'messages', label: 'Messages' },
     { key: 'backup', label: 'Backup' },
     { key: 'help', label: 'Help' },
   ],
@@ -89,19 +86,14 @@ const NAVIGATION_BY_ROLE = {
     { key: 'analytics', label: 'Analytics' },
     { key: 'help', label: 'Help' },
   ],
-  base_user: [
+  citizen: [
     { key: 'submit-complaint', label: 'New Complaint' },
     { key: 'complaint-history', label: 'My Complaints' },
     { key: 'help', label: 'Help' },
   ],
-  hr: [
-    { key: 'overview', label: 'Overview' },
-    { key: 'messages', label: 'Messages' },
-    { key: 'help', label: 'Help' },
-  ],
-  hr_admin: [
-    { key: 'overview', label: 'Overview' },
-    { key: 'messages', label: 'Messages' },
+  base_user: [
+    { key: 'submit-complaint', label: 'New Complaint' },
+    { key: 'complaint-history', label: 'My Complaints' },
     { key: 'help', label: 'Help' },
   ],
 };
@@ -167,11 +159,7 @@ const SECTION_DESCRIPTORS = {
     hideHeader: true,
     body: () => <HelpPanel />,
   },
-  messages: {
-    subtitle: 'Chat with administrators. Messages are stored securely and push notifications can be enabled.',
-    hideHeader: true,
-    body: (user) => <ChatNow user={user} />,
-  },
+
   requests: {
     subtitle: 'View all help requests and contact form submissions.',
     hideHeader: true,
@@ -233,7 +221,6 @@ function ComplaintListWrapper({ user }) {
 export default function Dashboard({ user }) {
   const [sessionUser, setSessionUser] = useState(user);
   const normalizedRole = (sessionUser?.role || '').toLowerCase();
-  const canAccessChat = ['developer', 'hr', 'hr_admin', 'superadmin'].includes(normalizedRole);
   const navItems = NAVIGATION_BY_ROLE[normalizedRole] || FALLBACK_NAV;
   const router = useRouter();
 
@@ -284,26 +271,6 @@ export default function Dashboard({ user }) {
     return navItems[0]?.key || FALLBACK_NAV[0].key;
   });
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [chatUnreadCount, setChatUnreadCount] = useState(0);
-
-  const refetchChatUnread = useCallback(async () => {
-    const role = (sessionUser?.role || '').toLowerCase();
-    if (!['developer', 'hr', 'hr_admin', 'superadmin'].includes(role)) return;
-    try {
-      const res = await fetch('/api/chat/unread-count', {
-        headers: typeof window !== 'undefined' && localStorage.getItem('token') ? { Authorization: `Bearer ${localStorage.getItem('token')}` } : {},
-        credentials: 'include',
-      });
-      if (res.ok) {
-        const data = await safeParseJsonResponse(res);
-        if (data.success && typeof data.data?.unreadCount === 'number') {
-          setChatUnreadCount(data.data.unreadCount);
-        }
-      }
-    } catch {
-      // ignore
-    }
-  }, [sessionUser?.role]);
 
   const updateUrlHash = useCallback((key) => {
     if (typeof window === 'undefined') return;
@@ -374,19 +341,6 @@ export default function Dashboard({ user }) {
       window.removeEventListener('hashchange', applyHashToState);
     };
   }, [resolveSectionKey, updateUrlHash, navItems]);
-
-  /* Unread count: only poll when NOT on Messages (ChatNow calls onUnreadChange when on Messages) */
-  useEffect(() => {
-    if (!canAccessChat) return;
-    if (activeSection === 'messages') return;
-    refetchChatUnread();
-    const interval = setInterval(refetchChatUnread, 15000);
-    return () => clearInterval(interval);
-  }, [canAccessChat, activeSection, refetchChatUnread]);
-
-  useEffect(() => {
-    if (canAccessChat && activeSection === 'messages') refetchChatUnread();
-  }, [canAccessChat, activeSection, refetchChatUnread]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -487,7 +441,6 @@ export default function Dashboard({ user }) {
         onOpenSettings={handleOpenSettings}
         onLogout={handleLogout}
         isLoggingOut={isLoggingOut}
-        chatUnreadCount={chatUnreadCount}
       >
         <section className="section">
           {!hideHeader && (
@@ -496,7 +449,7 @@ export default function Dashboard({ user }) {
               {sectionSubtitle && <p className="section-subtitle">{sectionSubtitle}</p>}
             </header>
           )}
-          <div className={`section-body ${activeSection === 'messages' ? 'section-body--chat' : ''}`}>
+          <div className="section-body">
             {activeSection === 'settings' ? (
               <SettingsPanel
                 user={sessionUser}
@@ -536,12 +489,7 @@ export default function Dashboard({ user }) {
                   </div>
                 )}
 
-                {hasCustomBody && activeSection === 'messages' && (
-                  <div className="section-custom section-custom--chat">
-                    <ChatNow user={sessionUser} onUnreadChange={refetchChatUnread} />
-                  </div>
-                )}
-                {hasCustomBody && activeSection !== 'messages' && (
+                {hasCustomBody && (
                   <div className="section-custom">{sectionDescriptor.body(sessionUser, handleSelectNav)}</div>
                 )}
 
@@ -753,26 +701,6 @@ export default function Dashboard({ user }) {
               padding: 1.25rem;
             }
 
-            .section-body--chat {
-              max-height: calc(100vh - 6rem);
-              display: flex;
-              flex-direction: column;
-              min-height: 0;
-            }
-            .section-custom--chat {
-              padding: 1rem 1.25rem;
-              min-height: 0;
-              flex: 1;
-              display: flex;
-              flex-direction: column;
-              overflow: hidden;
-            }
-            .section-custom--chat > * {
-              flex: 1;
-              min-height: 320px;
-              max-height: 100%;
-            }
-
             .empty-state {
               padding: 1.5rem;
             }
@@ -799,20 +727,10 @@ export default function Dashboard({ user }) {
               padding: 1rem;
               border-radius: 0.9rem;
             }
-          .section-custom {
-            padding: 1rem;
-            border-radius: 0.9rem;
-          }
-
-          .section-body--chat {
-            max-height: calc(100vh - 5rem);
-          }
-          .section-custom--chat {
-            padding: 0.75rem 1rem;
-          }
-          .section-custom--chat > * {
-            min-height: 300px;
-          }
+            .section-custom {
+              padding: 1rem;
+              border-radius: 0.9rem;
+            }
           }
         `}</style>
       </DashboardLayout>
