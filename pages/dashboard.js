@@ -74,6 +74,8 @@ const NAVIGATION_BY_ROLE = {
   developer: [
     { key: 'admin-dashboard', label: 'Dashboard' },
     { key: 'complaints', label: 'Complaints' },
+    { key: 'gis-map', label: 'GIS Map' },
+    { key: 'analytics', label: 'Analytics' },
     { key: 'corporations', label: 'Corporations' },
     { key: 'user-management', label: 'Users' },
     { key: 'backup', label: 'Backup' },

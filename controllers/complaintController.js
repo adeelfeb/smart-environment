@@ -94,13 +94,11 @@ export async function getComplaints(req, res) {
 
     if (user.role === 'base_user') {
       filter.citizen = user._id;
-    } else if (user.role === 'admin' && user.corporation) {
-      filter.corporation = user.corporation;
     }
 
     if (status) filter.status = status;
     if (category) filter.category = category;
-    if (corporation && user.role !== 'admin') filter.corporation = corporation;
+    if (corporation) filter.corporation = corporation;
     if (ward) filter.ward = ward;
     if (priority) filter.priority = priority;
 
@@ -303,12 +301,7 @@ export async function getDashboardStats(req, res) {
     if (!dbResult.success) {
       return jsonError(res, 503, 'Database service is currently unavailable');
     }
-    const user = req.user;
     const filter = {};
-
-    if (user.role === 'admin' && user.corporation) {
-      filter.corporation = user.corporation;
-    }
 
     const [
       total,
@@ -355,7 +348,7 @@ export async function getDashboardStats(req, res) {
     ]);
 
     const complaintsByCorporation = await Complaint.aggregate([
-      { $match: user.role === 'superadmin' || user.role === 'developer' ? {} : filter },
+      { $match: filter },
       { $group: { _id: '$corporation', count: { $sum: 1 } } },
       { $sort: { count: -1 } },
     ]);
@@ -397,12 +390,7 @@ export async function getComplaintMapData(req, res) {
     if (!dbResult.success) {
       return jsonError(res, 503, 'Database service is currently unavailable');
     }
-    const user = req.user;
     const filter = { 'location.latitude': { $ne: null }, 'location.longitude': { $ne: null } };
-
-    if (user.role === 'admin' && user.corporation) {
-      filter.corporation = user.corporation;
-    }
 
     const complaints = await Complaint.find(filter)
       .select('complaintId category status priority location corporation ward createdAt')

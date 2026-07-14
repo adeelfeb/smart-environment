@@ -1,66 +1,64 @@
 import React, { useState, useEffect } from 'react';
 import { safeParseJsonResponse } from '../../utils/safeJsonResponse';
-
-const KPI_ICONS = {
-  total: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-      <polyline points="14 2 14 8 20 8"></polyline>
-      <line x1="16" y1="13" x2="8" y2="13"></line>
-      <line x1="16" y1="17" x2="8" y2="17"></line>
-    </svg>
-  ),
-  pending: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10"></circle>
-      <polyline points="12 6 12 12 16 14"></polyline>
-    </svg>
-  ),
-  underReview: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="8"></circle>
-      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-    </svg>
-  ),
-  workInProgress: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="3"></circle>
-      <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"></path>
-    </svg>
-  ),
-  resolved: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-      <polyline points="22 4 12 14.01 9 11.01"></polyline>
-    </svg>
-  ),
-  rejected: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10"></circle>
-      <line x1="15" y1="9" x2="9" y2="15"></line>
-      <line x1="9" y1="9" x2="15" y2="15"></line>
-    </svg>
-  ),
-};
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
+  CartesianGrid,
+} from 'recharts';
+import {
+  Activity, Clock, AlertTriangle, Loader, CheckCircle, XCircle,
+  FileText, Map, BarChart3, RefreshCw, ChevronRight,
+  ArrowUpRight, Calendar, TrendingUp,
+} from 'lucide-react';
 
 const KPI_CONFIG = [
-  { key: 'total', label: 'Total Complaints', color: '#02201a' },
-  { key: 'pending', label: 'Pending', color: '#f59e0b' },
-  { key: 'underReview', label: 'Under Review', color: '#3b82f6' },
-  { key: 'workInProgress', label: 'Work in Progress', color: '#f97316' },
-  { key: 'resolved', label: 'Resolved', color: '#10b981' },
-  { key: 'rejected', label: 'Rejected', color: '#ef4444' },
+  { key: 'total', label: 'Total Complaints', color: '#02201a', bg: 'linear-gradient(135deg, #02201a, #1a5c44)', icon: 'total' },
+  { key: 'pending', label: 'Pending', color: '#f59e0b', bg: 'linear-gradient(135deg, #f59e0b, #fbbf24)', icon: 'pending' },
+  { key: 'underReview', label: 'Under Review', color: '#3b82f6', bg: 'linear-gradient(135deg, #3b82f6, #60a5fa)', icon: 'underReview' },
+  { key: 'workInProgress', label: 'Work in Progress', color: '#f97316', bg: 'linear-gradient(135deg, #f97316, #fb923c)', icon: 'workInProgress' },
+  { key: 'resolved', label: 'Resolved', color: '#10b981', bg: 'linear-gradient(135deg, #10b981, #34d399)', icon: 'resolved' },
+  { key: 'rejected', label: 'Rejected', color: '#ef4444', bg: 'linear-gradient(135deg, #ef4444, #f87171)', icon: 'rejected' },
 ];
+
+const KPI_ICONS = {
+  total: <FileText size={20} />,
+  pending: <Clock size={20} />,
+  underReview: <AlertTriangle size={20} />,
+  workInProgress: <Loader size={20} />,
+  resolved: <CheckCircle size={20} />,
+  rejected: <XCircle size={20} />,
+};
 
 const CATEGORY_COLORS = [
   '#02201a', '#10b981', '#3b82f6', '#f59e0b', '#f97316',
   '#8b5cf6', '#ec4899', '#06b6d4', '#64748b',
 ];
 
+const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload || !payload.length) return null;
+  return (
+    <div style={{
+      background: 'rgba(255,255,255,0.98)',
+      border: '1px solid #e2e8f0',
+      borderRadius: '10px',
+      padding: '10px 14px',
+      boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+      fontSize: '0.8rem',
+    }}>
+      <p style={{ margin: 0, color: '#02201a', fontWeight: 600 }}>{label}</p>
+      {payload.map((p, i) => (
+        <p key={i} style={{ margin: '4px 0 0', color: p.color || '#64748b' }}>
+          {p.name}: <strong>{p.value}</strong>
+        </p>
+      ))}
+    </div>
+  );
+};
+
 export default function AdminDashboardPanel({ user, onNavigate }) {
   const [stats, setStats] = useState(null);
   const [complaintsByCategory, setComplaintsByCategory] = useState([]);
   const [recentComplaints, setRecentComplaints] = useState([]);
+  const [dailyTrend, setDailyTrend] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -82,21 +80,33 @@ export default function AdminDashboardPanel({ user, onNavigate }) {
         setStats(data.data.stats || {});
         setComplaintsByCategory(data.data.complaintsByCategory || []);
         setRecentComplaints((data.data.recentComplaints || []).slice(0, 5));
+        setDailyTrend(data.data.dailyTrend || []);
       } else {
         setError(data.message || 'Failed to load dashboard stats');
       }
-    } catch (err) {
+    } catch {
       setError('Unable to connect. Please try again.');
     } finally {
       setLoading(false);
     }
   }
 
-  const maxCategory = complaintsByCategory.reduce(
-    (max, c) => Math.max(max, c.count || 0), 0
-  );
+  const chartData = complaintsByCategory.map((cat, i) => ({
+    name: cat._id || 'Unknown',
+    count: cat.count || 0,
+    fill: CATEGORY_COLORS[i % CATEGORY_COLORS.length],
+  }));
 
-  const formatDate = (d) => (d ? new Date(d).toLocaleDateString() : '—');
+  const trendData = dailyTrend.map(d => ({
+    date: (() => {
+      if (!d._id) return '';
+      const dt = new Date(d._id);
+      return `${dt.toLocaleString('default', { month: 'short' })} ${dt.getDate()}`;
+    })(),
+    count: d.count || 0,
+  }));
+
+  const formatDate = (d) => (d ? new Date(d).toLocaleDateString() : '---');
 
   const statusColor = (status) => {
     const map = {
@@ -111,41 +121,50 @@ export default function AdminDashboardPanel({ user, onNavigate }) {
 
   return (
     <div className="admin-dash">
+      {/* Header */}
       <header className="admin-dash-header">
-        <div>
-          <h2 className="admin-dash-title">Dashboard Overview</h2>
-          <p className="admin-dash-sub">
-            Welcome back{user?.name ? `, ${user.name}` : ''}
-          </p>
+        <div className="admin-dash-header-left">
+          <div className="admin-dash-header-icon">
+            <Activity size={22} />
+          </div>
+          <div>
+            <h2 className="admin-dash-title">Dashboard Overview</h2>
+            <p className="admin-dash-sub">
+              Welcome back{user?.name ? `, ${user.name}` : ''}
+              <span className="admin-dash-date">
+                <Calendar size={12} />
+                {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+              </span>
+            </p>
+          </div>
         </div>
         <button className="admin-dash-refresh" onClick={fetchStats} disabled={loading}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="23 4 23 10 17 10"></polyline>
-            <polyline points="1 20 1 14 7 14"></polyline>
-            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-          </svg>
+          <RefreshCw size={14} className={loading ? 'spinning' : ''} />
           Refresh
         </button>
       </header>
 
       {error && (
-        <div className="admin-dash-alert">{error}</div>
+        <div className="admin-dash-alert">
+          <AlertTriangle size={16} />
+          {error}
+        </div>
       )}
 
       {loading ? (
         <div className="admin-dash-loading">
           <div className="admin-dash-spinner" />
-          <span>Loading dashboard…</span>
+          <span>Loading dashboard...</span>
         </div>
       ) : stats && (
         <>
           {/* KPI Cards */}
           <div className="admin-dash-kpi-grid">
             {KPI_CONFIG.map((kpi) => (
-              <div key={kpi.key} className="admin-dash-kpi" style={{ borderLeftColor: kpi.color }}>
-                <span className="admin-dash-kpi-icon" style={{ background: kpi.color + '18', color: kpi.color }}>
+              <div key={kpi.key} className="admin-dash-kpi">
+                <div className="admin-dash-kpi-icon" style={{ background: kpi.bg, color: '#fff' }}>
                   {KPI_ICONS[kpi.key]}
-                </span>
+                </div>
                 <div className="admin-dash-kpi-body">
                   <span className="admin-dash-kpi-num" style={{ color: kpi.color }}>
                     {kpi.key === 'avgResolutionTime'
@@ -154,61 +173,74 @@ export default function AdminDashboardPanel({ user, onNavigate }) {
                   </span>
                   <span className="admin-dash-kpi-label">{kpi.label}</span>
                 </div>
+                <div className="admin-dash-kpi-shine" />
               </div>
             ))}
           </div>
 
           {/* Charts + Recent */}
           <div className="admin-dash-two-col">
-            {/* Complaints by Category */}
+            {/* Complaints by Category Bar Chart */}
             <section className="admin-dash-card">
-              <h3 className="admin-dash-card-title">Complaints by Category</h3>
-              {complaintsByCategory.length === 0 ? (
+              <div className="admin-dash-card-header">
+                <div className="admin-dash-card-title-wrap">
+                  <BarChart3 size={18} className="admin-dash-card-icon" />
+                  <h3 className="admin-dash-card-title">Complaints by Category</h3>
+                </div>
+                {complaintsByCategory.length > 0 && (
+                  <button className="admin-dash-view-all" onClick={() => onNavigate?.('analytics')}>
+                    View Analytics <ChevronRight size={14} />
+                  </button>
+                )}
+              </div>
+              {chartData.length === 0 ? (
                 <p className="admin-dash-empty">No category data available</p>
               ) : (
-                <div className="admin-dash-bar-chart">
-                  {complaintsByCategory.map((cat, i) => {
-                    const pct = maxCategory > 0 ? ((cat.count || 0) / maxCategory) * 100 : 0;
-                    return (
-                      <div key={cat._id || i} className="admin-dash-bar-row">
-                        <span className="admin-dash-bar-label" title={cat._id}>
-                          {cat._id}
-                        </span>
-                        <div className="admin-dash-bar-track">
-                          <div
-                            className="admin-dash-bar-fill"
-                            style={{
-                              width: pct + '%',
-                              background: CATEGORY_COLORS[i % CATEGORY_COLORS.length],
-                            }}
-                          />
-                        </div>
-                        <span className="admin-dash-bar-val">{cat.count}</span>
-                      </div>
-                    );
-                  })}
-                </div>
+                <ResponsiveContainer width="100%" height={240}>
+                  <BarChart data={chartData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                    <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Bar dataKey="count" name="Complaints" radius={[6, 6, 0, 0]} barSize={28}>
+                      {chartData.map((entry, i) => (
+                        <Cell key={i} fill={entry.fill} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
               )}
             </section>
 
             {/* Recent Complaints */}
             <section className="admin-dash-card">
-              <h3 className="admin-dash-card-title">Recent Complaints</h3>
+              <div className="admin-dash-card-header">
+                <div className="admin-dash-card-title-wrap">
+                  <Clock size={18} className="admin-dash-card-icon" />
+                  <h3 className="admin-dash-card-title">Recent Complaints</h3>
+                </div>
+                {recentComplaints.length > 0 && (
+                  <button className="admin-dash-view-all" onClick={() => onNavigate?.('complaints')}>
+                    View All <ChevronRight size={14} />
+                  </button>
+                )}
+              </div>
               {recentComplaints.length === 0 ? (
                 <p className="admin-dash-empty">No complaints yet</p>
               ) : (
                 <ul className="admin-dash-recent-list">
                   {recentComplaints.map((c) => (
                     <li key={c._id} className="admin-dash-recent-item">
+                      <div className="admin-dash-recent-dot" style={{ background: statusColor(c.status) }} />
                       <div className="admin-dash-recent-info">
                         <span className="admin-dash-recent-title">{c.title || 'Untitled'}</span>
                         <span className="admin-dash-recent-meta">
-                          {c.category || 'General'} · {formatDate(c.createdAt)}
+                          {c.category || 'General'} &middot; {formatDate(c.createdAt)}
                         </span>
                       </div>
                       <span
                         className="admin-dash-recent-status"
-                        style={{ background: statusColor(c.status) + '20', color: statusColor(c.status) }}
+                        style={{ background: statusColor(c.status) + '18', color: statusColor(c.status) }}
                       >
                         {(c.status || 'pending').replace(/([A-Z])/g, ' $1').trim()}
                       </span>
@@ -219,34 +251,49 @@ export default function AdminDashboardPanel({ user, onNavigate }) {
             </section>
           </div>
 
+          {/* Daily Trend Mini Chart */}
+          {trendData.length > 0 && (
+            <section className="admin-dash-card admin-dash-trend-card">
+              <div className="admin-dash-card-header">
+                <div className="admin-dash-card-title-wrap">
+                  <TrendingUp size={18} className="admin-dash-card-icon" />
+                  <h3 className="admin-dash-card-title">Last 30 Days Activity</h3>
+                </div>
+              </div>
+              <ResponsiveContainer width="100%" height={140}>
+                <BarChart data={trendData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                  <XAxis dataKey="date" tick={{ fontSize: 9, fill: '#94a3b8' }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+                  <YAxis tick={{ fontSize: 9, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Bar dataKey="count" name="Complaints" radius={[4, 4, 0, 0]} fill="#10b981" barSize={6} />
+                </BarChart>
+              </ResponsiveContainer>
+            </section>
+          )}
+
           {/* Quick Actions */}
           <section className="admin-dash-card admin-dash-actions">
-            <h3 className="admin-dash-card-title">Quick Actions</h3>
+            <div className="admin-dash-card-header">
+              <div className="admin-dash-card-title-wrap">
+                <ArrowUpRight size={18} className="admin-dash-card-icon" />
+                <h3 className="admin-dash-card-title">Quick Actions</h3>
+              </div>
+            </div>
             <div className="admin-dash-actions-row">
               {onNavigate && (
                 <>
                   <button className="admin-dash-action-btn" onClick={() => onNavigate('complaints')}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                      <polyline points="14 2 14 8 20 8"></polyline>
-                    </svg>
-                    View All Complaints
+                    <FileText size={16} />
+                    <span>View All Complaints</span>
                   </button>
                   <button className="admin-dash-action-btn" onClick={() => onNavigate('gis-map')}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
-                      <line x1="8" y1="2" x2="8" y2="18"></line>
-                      <line x1="16" y1="6" x2="16" y2="22"></line>
-                    </svg>
-                    View Map
+                    <Map size={16} />
+                    <span>View GIS Map</span>
                   </button>
-                  <button className="admin-dash-action-btn" onClick={() => onNavigate('analytics')}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="18" y1="20" x2="18" y2="10"></line>
-                      <line x1="12" y1="20" x2="12" y2="4"></line>
-                      <line x1="6" y1="20" x2="6" y2="14"></line>
-                    </svg>
-                    Analytics
+                  <button className="admin-dash-action-btn primary" onClick={() => onNavigate('analytics')}>
+                    <BarChart3 size={16} />
+                    <span>Analytics</span>
                   </button>
                 </>
               )}
@@ -257,54 +304,91 @@ export default function AdminDashboardPanel({ user, onNavigate }) {
 
       <style jsx>{`
         .admin-dash {
-          padding: 24px;
-          max-width: 1280px;
+          padding: 0;
+          max-width: 1400px;
           margin: 0 auto;
         }
+
+        /* Header */
         .admin-dash-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 28px;
+          margin-bottom: 24px;
+        }
+        .admin-dash-header-left {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+        }
+        .admin-dash-header-icon {
+          width: 48px;
+          height: 48px;
+          border-radius: 12px;
+          background: linear-gradient(135deg, #02201a, #10b981);
+          color: #fff;
+          display: grid;
+          place-items: center;
+          flex-shrink: 0;
         }
         .admin-dash-title {
           font-size: 1.5rem;
           font-weight: 700;
           color: #02201a;
           margin: 0;
+          letter-spacing: -0.02em;
         }
         .admin-dash-sub {
-          margin: 4px 0 0;
+          margin: 2px 0 0;
           color: #64748b;
-          font-size: 0.9rem;
+          font-size: 0.85rem;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+        .admin-dash-date {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 0.75rem;
+          color: #94a3b8;
         }
         .admin-dash-refresh {
-          padding: 8px 18px;
+          padding: 8px 16px;
           border: 1px solid #d1d5db;
           border-radius: 8px;
           background: #fff;
           color: #02201a;
-          font-size: 0.85rem;
+          font-size: 0.82rem;
           font-weight: 500;
           cursor: pointer;
-          transition: background 0.15s;
+          transition: all 0.15s;
           display: inline-flex;
           align-items: center;
           gap: 6px;
         }
-        .admin-dash-refresh:hover { background: #f1f5f9; }
+        .admin-dash-refresh:hover { background: #f1f5f9; border-color: #94a3b8; }
         .admin-dash-refresh:disabled { opacity: 0.5; cursor: not-allowed; }
+        .admin-dash-refresh :global(.spinning) {
+          animation: admin-dash-spin 1s linear infinite;
+        }
 
+        /* Alert */
         .admin-dash-alert {
           background: #fef2f2;
           color: #991b1b;
           border: 1px solid #fecaca;
-          border-radius: 8px;
+          border-radius: 10px;
           padding: 12px 16px;
           margin-bottom: 20px;
-          font-size: 0.875rem;
+          font-size: 0.85rem;
+          display: flex;
+          align-items: center;
+          gap: 8px;
         }
 
+        /* Loading */
         .admin-dash-loading {
           display: flex;
           flex-direction: column;
@@ -314,47 +398,44 @@ export default function AdminDashboardPanel({ user, onNavigate }) {
           color: #64748b;
         }
         .admin-dash-spinner {
-          width: 32px;
-          height: 32px;
+          width: 36px;
+          height: 36px;
           border: 3px solid #e2e8f0;
           border-top-color: #10b981;
           border-radius: 50%;
           animation: admin-dash-spin 0.8s linear infinite;
         }
-        @keyframes admin-dash-spin {
-          to { transform: rotate(360deg); }
-        }
+        @keyframes admin-dash-spin { to { transform: rotate(360deg); } }
 
         /* KPI Grid */
         .admin-dash-kpi-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-          gap: 16px;
-          margin-bottom: 28px;
+          grid-template-columns: repeat(6, 1fr);
+          gap: 14px;
+          margin-bottom: 24px;
         }
         .admin-dash-kpi {
           background: #fff;
           border-radius: 12px;
-          border-left: 4px solid;
-          box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.03);
-          padding: 18px 16px;
+          padding: 16px;
           display: flex;
           align-items: center;
-          gap: 14px;
+          gap: 12px;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.03);
           transition: transform 0.15s, box-shadow 0.15s;
+          position: relative;
+          overflow: hidden;
         }
         .admin-dash-kpi:hover {
           transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+          box-shadow: 0 4px 16px rgba(0,0,0,0.08);
         }
         .admin-dash-kpi-icon {
-          width: 44px;
-          height: 44px;
+          width: 42px;
+          height: 42px;
           border-radius: 10px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.25rem;
+          display: grid;
+          place-items: center;
           flex-shrink: 0;
         }
         .admin-dash-kpi-body {
@@ -363,86 +444,89 @@ export default function AdminDashboardPanel({ user, onNavigate }) {
           min-width: 0;
         }
         .admin-dash-kpi-num {
-          font-size: 1.5rem;
+          font-size: 1.4rem;
           font-weight: 700;
           line-height: 1.2;
         }
         .admin-dash-kpi-label {
-          font-size: 0.75rem;
-          color: #64748b;
+          font-size: 0.7rem;
+          color: #94a3b8;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+        }
+        .admin-dash-kpi-shine {
+          position: absolute;
+          top: -20px;
+          right: -20px;
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(16,185,129,0.06) 0%, transparent 70%);
+          pointer-events: none;
         }
 
         /* Two-column layout */
         .admin-dash-two-col {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 20px;
-          margin-bottom: 24px;
+          gap: 18px;
+          margin-bottom: 18px;
         }
 
         .admin-dash-card {
           background: #fff;
           border-radius: 12px;
-          box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.03);
           padding: 20px;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.03);
+        }
+        .admin-dash-card-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 16px;
+        }
+        .admin-dash-card-title-wrap {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .admin-dash-card-icon {
+          color: #10b981;
         }
         .admin-dash-card-title {
-          font-size: 1rem;
+          font-size: 0.95rem;
           font-weight: 600;
           color: #02201a;
-          margin: 0 0 16px;
+          margin: 0;
+        }
+        .admin-dash-view-all {
+          display: inline-flex;
+          align-items: center;
+          gap: 2px;
+          padding: 4px 10px;
+          border: none;
+          background: #f1f5f9;
+          color: #64748b;
+          font-size: 0.72rem;
+          font-weight: 500;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: all 0.15s;
+        }
+        .admin-dash-view-all:hover {
+          background: #e2e8f0;
+          color: #02201a;
         }
         .admin-dash-empty {
           color: #94a3b8;
           font-size: 0.85rem;
           text-align: center;
-          padding: 32px 0;
+          padding: 40px 0;
         }
 
-        /* Bar chart */
-        .admin-dash-bar-chart {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
-        .admin-dash-bar-row {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-        .admin-dash-bar-label {
-          width: 120px;
-          font-size: 0.8rem;
-          color: #334155;
-          text-align: right;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          flex-shrink: 0;
-        }
-        .admin-dash-bar-track {
-          flex: 1;
-          height: 22px;
-          background: #f1f5f9;
-          border-radius: 6px;
-          overflow: hidden;
-        }
-        .admin-dash-bar-fill {
-          height: 100%;
-          border-radius: 6px;
-          transition: width 0.4s ease;
-          min-width: 2px;
-        }
-        .admin-dash-bar-val {
-          width: 32px;
-          font-size: 0.8rem;
-          font-weight: 600;
-          color: #02201a;
-          text-align: right;
-          flex-shrink: 0;
+        .admin-dash-trend-card {
+          margin-bottom: 18px;
         }
 
         /* Recent list */
@@ -454,19 +538,26 @@ export default function AdminDashboardPanel({ user, onNavigate }) {
         .admin-dash-recent-item {
           display: flex;
           align-items: center;
-          justify-content: space-between;
+          gap: 10px;
           padding: 10px 0;
           border-bottom: 1px solid #f1f5f9;
-          gap: 12px;
+          transition: background 0.1s;
         }
         .admin-dash-recent-item:last-child { border-bottom: none; }
+        .admin-dash-recent-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          flex-shrink: 0;
+        }
         .admin-dash-recent-info {
           display: flex;
           flex-direction: column;
           min-width: 0;
+          flex: 1;
         }
         .admin-dash-recent-title {
-          font-size: 0.85rem;
+          font-size: 0.82rem;
           font-weight: 500;
           color: #02201a;
           white-space: nowrap;
@@ -474,12 +565,12 @@ export default function AdminDashboardPanel({ user, onNavigate }) {
           text-overflow: ellipsis;
         }
         .admin-dash-recent-meta {
-          font-size: 0.75rem;
+          font-size: 0.72rem;
           color: #94a3b8;
           margin-top: 2px;
         }
         .admin-dash-recent-status {
-          font-size: 0.7rem;
+          font-size: 0.68rem;
           font-weight: 600;
           padding: 3px 10px;
           border-radius: 99px;
@@ -489,50 +580,81 @@ export default function AdminDashboardPanel({ user, onNavigate }) {
         }
 
         /* Quick Actions */
+        .admin-dash-actions {
+          margin-bottom: 0;
+        }
         .admin-dash-actions-row {
           display: flex;
-          gap: 12px;
+          gap: 10px;
           flex-wrap: wrap;
         }
         .admin-dash-action-btn {
-          padding: 10px 20px;
-          border: 1px solid #d1d5db;
+          padding: 10px 18px;
+          border: 1px solid #e2e8f0;
           border-radius: 8px;
           background: #fff;
-          color: #02201a;
-          font-size: 0.85rem;
+          color: #334155;
+          font-size: 0.82rem;
           font-weight: 500;
           cursor: pointer;
-          transition: background 0.15s, border-color 0.15s, transform 0.1s;
+          transition: all 0.15s;
           display: inline-flex;
           align-items: center;
           gap: 8px;
         }
         .admin-dash-action-btn:hover {
-          background: #02201a;
+          background: #f8fafc;
+          border-color: #10b981;
+          color: #10b981;
+        }
+        .admin-dash-action-btn.primary {
+          background: linear-gradient(135deg, #02201a, #10b981);
           color: #fff;
-          border-color: #02201a;
+          border-color: transparent;
+        }
+        .admin-dash-action-btn.primary:hover {
+          box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+          transform: translateY(-1px);
         }
         .admin-dash-action-btn:active { transform: scale(0.97); }
 
-        @media (max-width: 768px) {
-          .admin-dash { padding: 16px; }
+        /* Responsive */
+        @media (max-width: 1200px) {
           .admin-dash-kpi-grid {
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
           }
+        }
+        @media (max-width: 1024px) {
           .admin-dash-two-col {
             grid-template-columns: 1fr;
           }
+        }
+        @media (max-width: 768px) {
           .admin-dash-header {
             flex-direction: column;
             align-items: flex-start;
             gap: 12px;
           }
-          .admin-dash-bar-label { width: 80px; font-size: 0.7rem; }
+          .admin-dash-kpi-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+          .admin-dash-actions-row {
+            flex-direction: column;
+          }
+          .admin-dash-action-btn {
+            justify-content: center;
+          }
         }
         @media (max-width: 480px) {
           .admin-dash-kpi-grid {
             grid-template-columns: 1fr;
+          }
+          .admin-dash-kpi-icon {
+            width: 36px;
+            height: 36px;
+          }
+          .admin-dash-kpi-num {
+            font-size: 1.2rem;
           }
         }
       `}</style>

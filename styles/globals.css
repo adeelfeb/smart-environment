@@ -306,3 +306,32 @@ a:hover:not(nav a):not(.btn-fc-primary):not(.btn-fc-secondary) {
   animation: skeleton-shimmer 1.5s ease-in-out infinite;
 }
 
+/* Dashboard shared styles */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Smooth transitions for dashboard interactive elements */
+button, a, input, select, textarea {
+  transition: all 0.15s ease;
+}
+
+/* Recharts overrides for consistent look */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: #f1f5f9;
+}
+
+.recharts-text {
+  font-family: var(--font-poppins), 'Poppins', system-ui, sans-serif;
+}
+
+/* Focus ring for accessibility */
+:focus-visible {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
