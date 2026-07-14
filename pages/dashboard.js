@@ -233,6 +233,7 @@ function ComplaintListWrapper({ user }) {
 export default function Dashboard({ user }) {
   const [sessionUser, setSessionUser] = useState(user);
   const normalizedRole = (sessionUser?.role || '').toLowerCase();
+  const canAccessChat = ['developer', 'hr', 'hr_admin', 'superadmin'].includes(normalizedRole);
   const navItems = NAVIGATION_BY_ROLE[normalizedRole] || FALLBACK_NAV;
   const router = useRouter();
 
@@ -468,8 +469,6 @@ export default function Dashboard({ user }) {
       updateUrlHash(fallbackKey);
     }
   }, [primaryNav, activeSection, updateUrlHash]);
-
-  const canAccessChat = ['developer', 'hr', 'hr_admin', 'superadmin'].includes(normalizedRole);
 
   // Ensure sectionTitle is always a string to prevent React warnings
   const safeSectionTitle = typeof sectionTitle === 'string' ? sectionTitle : (Array.isArray(sectionTitle) ? sectionTitle.join(' ') : String(sectionTitle || 'Dashboard'));

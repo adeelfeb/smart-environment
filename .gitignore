@@ -66,3 +66,10 @@ proof-backups/
 
 # Webpack cache
 .webpack/
+
+# User uploads (runtime files, not source code)
+# .gitkeep is preserved so the directory exists in fresh deploys
+public/uploads/*
+!public/uploads/.gitkeep
+public/uploads/complaints/*
+!public/uploads/complaints/.gitkeep

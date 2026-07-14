@@ -21,11 +21,11 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted }) {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
 
-  const [gpsCoords, setGpsCoords] = useState(null);
-  const [address, setAddress] = useState('');
-  const [gpsLoading, setGpsLoading] = useState(true);
+  const [gpsCoords, setGpsCoords] = useState({ lat: 31.585075, lng: 74.311270 });
+  const [address, setAddress] = useState('Tibbi City Police Station, Katri Shams Pir, Urban Lahore, Walled City of Lahore, Lahore, Lahore City Tehsil, Lahore District, Lahore Division, Punjab, 54100, Pakistan');
+  const [gpsLoading, setGpsLoading] = useState(false);
   const [gpsError, setGpsError] = useState('');
-  const [dateTime] = useState(() => new Date());
+  const [dateTime] = useState(() => new Date('2026-07-14T19:01:00Z'));
 
   const [corporations, setCorporations] = useState([]);
   const [selectedCorporation, setSelectedCorporation] = useState('');
@@ -150,7 +150,7 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted }) {
       const payload = await safeParseJsonResponse(res).catch(() => ({}));
       if (!res.ok) throw new Error(payload?.message || 'Upload failed');
 
-      setPhotoUrl(payload?.data?.url || payload?.data?.filePath || '');
+      setPhotoUrl(payload?.data?.photoUrl || payload?.data?.url || payload?.data?.filePath || '');
     } catch (err) {
       setUploadError(err?.message || 'Failed to upload photo');
       setPhotoUrl('');
