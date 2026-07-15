@@ -6,23 +6,19 @@ import { safeParseJsonResponse } from '../../utils/safeJsonResponse';
 
 const STATUS_OPTIONS = [
   { value: '', label: 'All Statuses' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'under_review', label: 'Under Review' },
-  { value: 'work_in_progress', label: 'Work in Progress' },
-  { value: 'resolved', label: 'Resolved' },
-  { value: 'rejected', label: 'Rejected' },
+  { value: 'Pending', label: 'Pending' },
+  { value: 'Under Review', label: 'Under Review' },
+  { value: 'Work in Progress', label: 'Work in Progress' },
+  { value: 'Resolved', label: 'Resolved' },
+  { value: 'Rejected', label: 'Rejected' },
 ];
 
 const CATEGORY_OPTIONS = [
   { value: '', label: 'All Categories' },
-  { value: 'road_damage', label: 'Road Damage' },
-  { value: 'water_supply', label: 'Water Supply' },
-  { value: 'garbage_collection', label: 'Garbage Collection' },
-  { value: 'street_lighting', label: 'Street Lighting' },
-  { value: 'drainage', label: 'Drainage' },
-  { value: 'noise_pollution', label: 'Noise Pollution' },
-  { value: 'encroachment', label: 'Encroachment' },
-  { value: 'other', label: 'Other' },
+  { value: 'Overflowing Dustbin', label: 'Overflowing Dustbin' },
+  { value: 'Unauthorized Garbage Dumping', label: 'Unauthorized Garbage Dumping' },
+  { value: 'Damaged Dustbin', label: 'Damaged Dustbin' },
+  { value: 'Missing Dustbin', label: 'Missing Dustbin' },
 ];
 
 const STATUS_CHIP_STYLES = {

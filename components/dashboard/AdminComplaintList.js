@@ -6,8 +6,10 @@ import { safeParseJsonResponse } from '../../utils/safeJsonResponse';
 const STATUS_OPTIONS = ['Pending', 'Under Review', 'Work in Progress', 'Resolved', 'Rejected'];
 
 const CATEGORY_OPTIONS = [
-  'Pothole', 'Street Light', 'Garbage Collection', 'Water Supply',
-  'Drainage', 'Road Damage', 'Noise', 'Stray Animals', 'Encroachment', 'Other',
+  'Overflowing Dustbin',
+  'Unauthorized Garbage Dumping',
+  'Damaged Dustbin',
+  'Missing Dustbin',
 ];
 
 const STATUS_COLORS = {
