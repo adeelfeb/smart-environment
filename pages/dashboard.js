@@ -30,7 +30,7 @@ function serializeUser(user) {
     id: user._id?.toString?.() || user.id || null,
     name: user.name || '',
     email: user.email || '',
-    role: user.role || 'base_user',
+    role: user.role || 'citizen',
     roleRef: user.roleRef?.toString?.() || user.roleRef || null,
     createdAt: user.createdAt ? new Date(user.createdAt).toISOString() : null,
   };

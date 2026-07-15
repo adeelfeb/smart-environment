@@ -8,7 +8,7 @@ function sanitizeUser(userDoc) {
     id: userDoc._id,
     name: userDoc.name,
     email: userDoc.email,
-    role: userDoc.role || 'base_user',
+    role: userDoc.role || 'citizen',
     roleRef: userDoc.roleRef,
     createdAt: userDoc.createdAt,
   };

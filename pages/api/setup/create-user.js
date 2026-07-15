@@ -60,7 +60,7 @@ export default async function handler(req, res) {
     }
 
     // Normalize role name
-    const normalizedRole = typeof role === 'string' ? role.trim().toLowerCase() : 'base_user';
+    const normalizedRole = typeof role === 'string' ? role.trim().toLowerCase() : 'citizen';
 
     // Ensure the role exists, create it if it doesn't
     const roleDoc = await ensureRole(

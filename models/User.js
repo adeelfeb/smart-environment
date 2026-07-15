@@ -21,7 +21,7 @@ const UserSchema = new mongoose.Schema(
       index: true 
     },
     password: { type: String, required: true, minlength: 5 },
-    role: { type: String, default: 'base_user', index: true },
+    role: { type: String, default: 'citizen', index: true },
     /**
      * Optional pointer to a role document.
      * Enables future migration to managed roles without breaking existing data.

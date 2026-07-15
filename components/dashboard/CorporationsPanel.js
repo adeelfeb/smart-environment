@@ -464,7 +464,7 @@ function CorporationModal({ isOpen, onClose, editingCorp, form, setForm, formSta
   }, [isOpen, isEdit, fetchWards]);
 
   const addWard = async (e) => {
-    e.preventDefault();
+    if (e) { e.preventDefault(); e.stopPropagation(); }
     if (!wardForm.name.trim() || !wardForm.wardNumber.toString().trim()) return;
     setWardSaving(true);
     try {
@@ -556,7 +556,7 @@ function CorporationModal({ isOpen, onClose, editingCorp, form, setForm, formSta
               <form className="cm-ward-form" onSubmit={addWard}>
                 <input type="text" placeholder="Ward name" value={wardForm.name} onChange={(e) => setWardForm({ ...wardForm, name: e.target.value })} required autoFocus />
                 <input type="text" placeholder="Number" value={wardForm.wardNumber} onChange={(e) => setWardForm({ ...wardForm, wardNumber: e.target.value })} required style={{ maxWidth: 100 }} />
-                <button type="submit" className="cp-btn cp-btn-sm cp-btn-primary" disabled={wardSaving}>{wardSaving ? 'Saving...' : 'Add'}</button>
+                <button type="button" className="cp-btn cp-btn-sm cp-btn-primary" onClick={addWard} disabled={wardSaving}>{wardSaving ? 'Saving...' : 'Add'}</button>
               </form>
             )}
 

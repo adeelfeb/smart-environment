@@ -38,7 +38,7 @@ export default async function handler(req, res) {
         const trimmedEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
         const trimmedPassword = typeof password === 'string' ? password.trim() : '';
         const normalizedRole =
-          typeof role === 'string' && role.trim() ? role.trim().toLowerCase() : 'base_user';
+          typeof role === 'string' && role.trim() ? role.trim().toLowerCase() : 'citizen';
 
         if (!trimmedName || !trimmedPassword) {
           return jsonError(res, 400, 'Name and password are required');

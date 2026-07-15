@@ -8,7 +8,7 @@ function toSafeUser(doc) {
     id: doc._id,
     name: doc.name,
     email: doc.email,
-    role: doc.role || 'base_user',
+    role: doc.role || 'citizen',
     roleRef: doc.roleRef || null,
     createdAt: doc.createdAt,
   };

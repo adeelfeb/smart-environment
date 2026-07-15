@@ -3,7 +3,7 @@ import Role from '../models/Role';
 import User from '../models/User';
 import { jsonError, jsonSuccess } from '../lib/response';
 
-const RESERVED_ROLES = new Set(['superadmin', 'admin', 'hr', 'marketing', 'developer', 'base_user']);
+const RESERVED_ROLES = new Set(['superadmin', 'admin', 'hr', 'marketing', 'developer', 'citizen', 'base_user']);
 
 export async function createRole(req, res) {
   if (req.method !== 'POST') {

@@ -32,8 +32,8 @@ export default function CitizensManagement({ user }) {
       const data = await safeParseJsonResponse(res);
       if (data.success && data.data) {
         const allUsers = data.data.users || [];
-        const baseUsers = allUsers.filter((u) => u.role === 'base_user');
-        setCitizens(baseUsers);
+        const citizenUsers = allUsers.filter((u) => u.role === 'citizen' || u.role === 'base_user');
+        setCitizens(citizenUsers);
       } else {
         setError(data.message || 'Failed to load citizens');
         setCitizens([]);

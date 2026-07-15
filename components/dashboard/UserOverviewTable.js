@@ -20,11 +20,11 @@ const DATE_FORMAT_OPTIONS = {
 const EDIT_ROLES = new Set(['superadmin', 'developer']);
 const ROLE_OPTIONS = [
   { value: 'superadmin', label: 'Super Admin' },
+  { value: 'admin', label: 'Admin' },
   { value: 'developer', label: 'Developer' },
-  { value: 'base_user', label: 'Base User' },
   { value: 'citizen', label: 'Citizen' },
 ];
-const DEFAULT_ROLE = 'base_user';
+const DEFAULT_ROLE = 'citizen';
 const MIN_PASSWORD_LENGTH = 5;
 const ROLES_WITH_USERNAME = [];
 

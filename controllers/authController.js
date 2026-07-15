@@ -14,7 +14,7 @@ const DEFAULT_ROLES = [
   { name: 'hr', description: 'Human resources role' },
   { name: 'marketing', description: 'Marketing role' },
   { name: 'developer', description: 'Technical role' },
-  { name: 'base_user', description: 'Default role for new users' },
+  { name: 'citizen', description: 'Default role for new users' },
 ];
 
 function sanitizeUser(userDoc) {
@@ -23,7 +23,7 @@ function sanitizeUser(userDoc) {
     name: userDoc.name,
     email: userDoc.email,
     username: userDoc.username,
-    role: userDoc.role || 'base_user',
+    role: userDoc.role || 'citizen',
     roleRef: userDoc.roleRef,
     createdAt: userDoc.createdAt,
   };
@@ -141,7 +141,7 @@ export async function signup(req, res) {
     const otp = generateOTP();
     const otpExpires = generateOTPExpiry();
     
-    const baseRole = await ensureRole('base_user', 'Default role for new users');
+    const baseRole = await ensureRole('citizen', 'Default role for new users');
     
     const user = await User.create({
       name: nameTrimmed,

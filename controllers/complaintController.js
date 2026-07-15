@@ -92,7 +92,7 @@ export async function getComplaints(req, res) {
     const user = req.user;
     const filter = {};
 
-    if (user.role === 'base_user') {
+    if (user.role === 'citizen' || user.role === 'base_user') {
       filter.citizen = user._id;
     }
 
@@ -166,7 +166,7 @@ export async function getComplaintById(req, res) {
       return jsonError(res, 404, 'Complaint not found');
     }
     const user = req.user;
-    if (user.role === 'base_user' && complaint.citizen._id.toString() !== user._id.toString()) {
+    if ((user.role === 'citizen' || user.role === 'base_user') && complaint.citizen._id.toString() !== user._id.toString()) {
       return jsonError(res, 403, 'Access denied');
     }
     return jsonSuccess(res, 200, 'Ok', { complaint });

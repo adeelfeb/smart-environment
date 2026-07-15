@@ -12,6 +12,15 @@ const CATEGORIES = [
 
 const MAX_DESCRIPTION = 500;
 
+function authHeaders() {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    credentials: 'include',
+  };
+}
+
 export default function ComplaintSubmitForm({ user, onComplaintSubmitted }) {
   const [step, setStep] = useState(1);
 
@@ -78,12 +87,13 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted }) {
     let cancelled = false;
     setLoadingCorporations(true);
 
-    fetch('/api/corporations')
+    fetch('/api/corporations', { headers: authHeaders(), credentials: 'include' })
       .then((res) => safeParseJsonResponse(res))
       .then((payload) => {
         if (cancelled) return;
         if (!payload?.success) throw new Error(payload?.message || 'Failed to load corporations');
-        setCorporations(Array.isArray(payload?.data) ? payload.data : []);
+        const corps = payload?.data?.corporations || (Array.isArray(payload?.data) ? payload.data : []);
+        setCorporations(corps);
       })
       .catch((err) => {
         if (!cancelled) setError(err?.message || 'Unable to load corporations');
@@ -106,12 +116,13 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted }) {
     setLoadingWards(true);
     setSelectedWard('');
 
-    fetch(`/api/wards?corporation=${selectedCorporation}`)
+    fetch(`/api/wards?corporation=${selectedCorporation}`, { headers: authHeaders(), credentials: 'include' })
       .then((res) => safeParseJsonResponse(res))
       .then((payload) => {
         if (cancelled) return;
         if (!payload?.success) throw new Error(payload?.message || 'Failed to load wards');
-        setWards(Array.isArray(payload?.data) ? payload.data : []);
+        const wardList = payload?.data?.wards || (Array.isArray(payload?.data) ? payload.data : []);
+        setWards(wardList);
       })
       .catch((err) => {
         if (!cancelled) setError(err?.message || 'Unable to load wards');
