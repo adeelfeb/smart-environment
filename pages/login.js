@@ -198,11 +198,6 @@ export default function LoginPage() {
     setError('')
 
     const recaptchaToken = recaptchaAvailable ? await executeRecaptcha() : null
-    if (recaptchaAvailable && !recaptchaToken) {
-      setError('Security verification failed. Please refresh and try again.')
-      setLoading(false)
-      return
-    }
 
     try {
       const trimmedIdentifier = identifier.trim()

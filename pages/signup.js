@@ -125,11 +125,6 @@ export default function SignupPage() {
     setError('')
 
     const recaptchaToken = recaptchaAvailable ? await executeRecaptcha() : null
-    if (recaptchaAvailable && !recaptchaToken) {
-      setError('Security verification failed. Please refresh and try again.')
-      setLoading(false)
-      return
-    }
 
     try {
       const payload = { name: name.trim(), email: email.trim(), password }
