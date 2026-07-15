@@ -319,6 +319,7 @@ export default function DashboardLayout({
     if (!notif.read) {
       markAsRead(notif._id);
     }
+    setNotificationsOpen(false);
     if (notif.targetRef && notif.targetType === 'Complaint') {
       const userRoleLower = (user?.role || '').toLowerCase();
       const section = (userRoleLower === 'citizen' || userRoleLower === 'base_user')
@@ -327,10 +328,8 @@ export default function DashboardLayout({
       if (typeof window !== 'undefined') {
         window.location.hash = `${section}/${notif.targetRef}`;
       }
-      onNavSelect?.(section);
-      setNotificationsOpen(false);
     }
-  }, [markAsRead, onNavSelect, user]);
+  }, [markAsRead, user]);
 
   const formatNotifTime = (dateStr) => {
     const date = new Date(dateStr);

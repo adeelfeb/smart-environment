@@ -212,6 +212,27 @@ function ComplaintHistoryWrapper({ user }) {
     }
   }, []);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const onHashChange = () => {
+      const hash = window.location.hash.replace(/^#/, '');
+      const match = hash.match(/^complaint-history\/(.+)$/);
+      if (match && match[1]) {
+        const complaintId = decodeURIComponent(match[1]);
+        const currentId = selectedComplaint?._id || selectedComplaint?.id;
+        if (complaintId !== currentId) {
+          fetchComplaintById(complaintId).then((complaint) => {
+            if (complaint) setSelectedComplaint(complaint);
+          });
+        }
+      } else if (hash === 'complaint-history') {
+        setSelectedComplaint(null);
+      }
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, [selectedComplaint]);
+
   const fetchComplaintById = async (id) => {
     try {
       const token = localStorage.getItem('token');
@@ -278,6 +299,27 @@ function ComplaintListWrapper({ user, onHashChange }) {
       setLoadingFromHash(false);
     }
   }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const onHashChange = () => {
+      const hash = window.location.hash.replace(/^#/, '');
+      const match = hash.match(/^complaints\/(.+)$/);
+      if (match && match[1]) {
+        const complaintId = decodeURIComponent(match[1]);
+        const currentId = selectedComplaint?._id || selectedComplaint?.id;
+        if (complaintId !== currentId) {
+          fetchComplaintById(complaintId).then((complaint) => {
+            if (complaint) setSelectedComplaint(complaint);
+          });
+        }
+      } else if (hash === 'complaints') {
+        setSelectedComplaint(null);
+      }
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, [selectedComplaint]);
 
   const fetchComplaintById = async (id) => {
     try {
