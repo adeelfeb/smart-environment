@@ -101,10 +101,10 @@ const renderActiveShape = (props) => {
   const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent, value } = props;
   return (
     <g>
-      <text x={cx} y={cy - 8} textAnchor="middle" fill="#02201a" fontSize="20" fontWeight="700">
+      <text x={cx} y={cy - 8} textAnchor="middle" fill="#0f172a" fontSize="16" fontWeight="700">
         {value}
       </text>
-      <text x={cx} y={cy + 14} textAnchor="middle" fill="#64748b" fontSize="12">
+      <text x={cx} y={cy + 12} textAnchor="middle" fill="#64748b" fontSize="11">
         {`${(percent * 100).toFixed(1)}%`}
       </text>
       <Pie
@@ -306,14 +306,14 @@ export default function AnalyticsPanel({ user }) {
                 <p className="analytics-empty">No status data</p>
               ) : (
                 <div className="analytics-pie-container">
-                  <ResponsiveContainer width="100%" height={600}>
+                  <ResponsiveContainer width="100%" height={280}>
                     <PieChart>
                       <Pie
                         data={pieDataWithTotal}
                         cx="50%"
                         cy="50%"
-                        innerRadius={220}
-                        outerRadius={260}
+                        innerRadius={80}
+                        outerRadius={110}
                         paddingAngle={3}
                         dataKey="value"
                         activeIndex={activePieIndex}
@@ -352,13 +352,13 @@ export default function AnalyticsPanel({ user }) {
               {catData.length === 0 ? (
                 <p className="analytics-empty">No category data</p>
               ) : (
-                <ResponsiveContainer width="100%" height={600}>
+                <ResponsiveContainer width="100%" height={260}>
                   <BarChart data={catData} layout="vertical" margin={{ left: 10, right: 20, top: 5, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" horizontal={false} />
                     <XAxis type="number" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                     <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: '#334155' }} width={100} axisLine={false} tickLine={false} />
                     <Tooltip content={<CustomTooltip />} />
-                    <Bar dataKey="count" name="Complaints" radius={[0, 6, 6, 0]} barSize={50}>
+                    <Bar dataKey="count" name="Complaints" radius={[0, 6, 6, 0]} barSize={28}>
                       {catData.map((entry, i) => (
                         <Cell key={i} fill={entry.fill} />
                       ))}
@@ -380,13 +380,13 @@ export default function AnalyticsPanel({ user }) {
               {corpData.length === 0 ? (
                 <p className="analytics-empty">No corporation data</p>
               ) : (
-                <ResponsiveContainer width="100%" height={600}>
+                <ResponsiveContainer width="100%" height={260}>
                   <BarChart data={corpData} layout="vertical" margin={{ left: 10, right: 20, top: 5, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" horizontal={false} />
                     <XAxis type="number" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                     <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: '#334155' }} width={120} axisLine={false} tickLine={false} />
                     <Tooltip content={<CustomTooltip />} />
-                    <Bar dataKey="count" name="Complaints" radius={[0, 6, 6, 0]} barSize={50}>
+                    <Bar dataKey="count" name="Complaints" radius={[0, 6, 6, 0]} barSize={28}>
                       {corpData.map((entry, i) => (
                         <Cell key={i} fill={entry.fill} />
                       ))}
@@ -408,13 +408,13 @@ export default function AnalyticsPanel({ user }) {
               {wardData.length === 0 ? (
                 <p className="analytics-empty">No ward data</p>
               ) : (
-                <ResponsiveContainer width="100%" height={600}>
+                <ResponsiveContainer width="100%" height={260}>
                   <BarChart data={wardData} layout="vertical" margin={{ left: 10, right: 20, top: 5, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" horizontal={false} />
                     <XAxis type="number" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                     <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: '#334155' }} width={120} axisLine={false} tickLine={false} />
                     <Tooltip content={<CustomTooltip />} />
-                    <Bar dataKey="count" name="Complaints" radius={[0, 6, 6, 0]} barSize={50}>
+                    <Bar dataKey="count" name="Complaints" radius={[0, 6, 6, 0]} barSize={28}>
                       {wardData.map((entry, i) => (
                         <Cell key={i} fill={entry.fill} />
                       ))}
@@ -436,7 +436,7 @@ export default function AnalyticsPanel({ user }) {
               {trendData.length === 0 ? (
                 <p className="analytics-empty">No trend data</p>
               ) : (
-                <ResponsiveContainer width="100%" height={600}>
+                <ResponsiveContainer width="100%" height={260}>
                   <AreaChart data={trendData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="trendGradient" x1="0" y1="0" x2="0" y2="1">
@@ -453,10 +453,10 @@ export default function AnalyticsPanel({ user }) {
                       dataKey="count"
                       name="Complaints"
                       stroke="#10b981"
-                      strokeWidth={2.5}
+                      strokeWidth={2}
                       fill="url(#trendGradient)"
-                      dot={{ r: 5, fill: '#10b981', strokeWidth: 0 }}
-                      activeDot={{ r: 20, fill: '#10b981', stroke: '#fff', strokeWidth: 2 }}
+                      dot={{ r: 3, fill: '#10b981', strokeWidth: 0 }}
+                      activeDot={{ r: 6, fill: '#10b981', stroke: '#fff', strokeWidth: 2 }}
                     />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -509,89 +509,87 @@ export default function AnalyticsPanel({ user }) {
           max-width: 1400px;
           margin: 0 auto;
           min-height: 100%;
-          padding-bottom: 144px;
+          padding-bottom: 48px;
         }
 
-        /* Header */
         .analytics-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 88px;
+          margin-bottom: 24px;
         }
         .analytics-header-left {
           display: flex;
           align-items: center;
-          gap: 16px;
+          gap: 12px;
         }
         .analytics-header-icon {
-          width: 112px;
-          height: 112px;
-          border-radius: 42px;
-          background: linear-gradient(135deg, #02201a, #10b981);
+          width: 44px;
+          height: 44px;
+          border-radius: 12px;
+          background: linear-gradient(135deg, #059669, #10b981);
           color: #fff;
           display: grid;
           place-items: center;
           flex-shrink: 0;
         }
         .analytics-title {
-          font-size: 1.6rem;
+          font-size: 1.15rem;
           font-weight: 700;
-          color: #02201a;
+          color: #0f172a;
           margin: 0;
           letter-spacing: -0.02em;
         }
         .analytics-sub {
-          margin: 4px 0 0;
+          margin: 2px 0 0;
           color: #64748b;
-          font-size: 0.9rem;
+          font-size: 0.78rem;
         }
         .analytics-refresh {
-          padding: 10px 18px;
-          border: 1px solid #d1d5db;
-          border-radius: 8px;
+          padding: 7px 14px;
+          border: 1px solid rgba(16, 185, 129, 0.25);
+          border-radius: 9px;
           background: #fff;
-          color: #02201a;
-          font-size: 0.85rem;
-          font-weight: 500;
+          color: #059669;
+          font-size: 0.78rem;
+          font-weight: 600;
           cursor: pointer;
           transition: all 0.15s;
           display: inline-flex;
           align-items: center;
-          gap: 8px;
+          gap: 6px;
         }
-        .analytics-refresh:hover { background: #f1f5f9; border-color: #94a3b8; }
+        .analytics-refresh:hover { background: #f0fdf4; border-color: rgba(16, 185, 129, 0.4); }
         .analytics-refresh:disabled { opacity: 0.5; cursor: not-allowed; }
         .analytics-refresh :global(.spinning) {
           animation: analytics-spin 1s linear infinite;
         }
 
-        /* Alert */
         .analytics-alert {
           background: #fef2f2;
           color: #991b1b;
           border: 1px solid #fecaca;
-          border-radius: 12px;
-          padding: 44px 76px;
-          margin-bottom: 84px;
-          font-size: 1.5rem;
+          border-radius: 10px;
+          padding: 12px 18px;
+          margin-bottom: 20px;
+          font-size: 0.85rem;
           display: flex;
           align-items: center;
-          gap: 40px;
+          gap: 10px;
         }
 
-        /* Loading */
         .analytics-loading {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 46px;
-          padding: 400px 0;
+          gap: 16px;
+          padding: 120px 0;
           color: #64748b;
+          font-size: 0.85rem;
         }
         .analytics-spinner {
-          width: 100px;
-          height: 100px;
+          width: 36px;
+          height: 36px;
           border: 3px solid #e2e8f0;
           border-top-color: #10b981;
           border-radius: 50%;
@@ -599,33 +597,32 @@ export default function AnalyticsPanel({ user }) {
         }
         @keyframes analytics-spin { to { transform: rotate(360deg); } }
 
-        /* KPI Grid */
         .analytics-kpi-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
-          gap: 76px;
-          margin-bottom: 88px;
+          gap: 14px;
+          margin-bottom: 20px;
         }
         .analytics-kpi {
           background: #fff;
-          border-radius: 14px;
-          padding: 76px;
+          border-radius: 12px;
+          padding: 16px 18px;
           display: flex;
           align-items: center;
-          gap: 44px;
+          gap: 14px;
           box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.03);
           transition: transform 0.15s, box-shadow 0.15s;
           position: relative;
           overflow: hidden;
         }
         .analytics-kpi:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 16px rgba(0,0,0,0.07);
         }
         .analytics-kpi-icon {
-          width: 104px;
-          height: 104px;
-          border-radius: 40px;
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
           display: grid;
           place-items: center;
           flex-shrink: 0;
@@ -636,12 +633,12 @@ export default function AnalyticsPanel({ user }) {
           min-width: 0;
         }
         .analytics-kpi-value {
-          font-size: 3rem;
+          font-size: 1.35rem;
           font-weight: 700;
           line-height: 1.2;
         }
         .analytics-kpi-label {
-          font-size: 1.4rem;
+          font-size: 0.72rem;
           color: #94a3b8;
           white-space: nowrap;
           overflow: hidden;
@@ -649,27 +646,26 @@ export default function AnalyticsPanel({ user }) {
         }
         .analytics-kpi-trend {
           position: absolute;
-          top: 10px;
-          right: 12px;
+          top: 8px;
+          right: 10px;
           display: flex;
           align-items: center;
           gap: 2px;
-          font-size: 0.7rem;
+          font-size: 0.65rem;
           font-weight: 600;
         }
         .analytics-kpi-trend.up { color: #10b981; }
         .analytics-kpi-trend.down { color: #ef4444; }
 
-        /* Charts Grid */
         .analytics-charts-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 80px;
+          gap: 14px;
         }
         .analytics-chart-card {
           background: #fff;
-          border-radius: 14px;
-          padding: 84px;
+          border-radius: 12px;
+          padding: 18px;
           box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.03);
         }
         .analytics-chart-card-full {
@@ -679,99 +675,97 @@ export default function AnalyticsPanel({ user }) {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 80px;
+          margin-bottom: 14px;
         }
         .analytics-chart-title-wrap {
           display: flex;
           align-items: center;
-          gap: 38px;
+          gap: 8px;
         }
         .analytics-chart-icon {
           color: #10b981;
         }
         .analytics-chart-title {
-          font-size: 1.75rem;
+          font-size: 0.88rem;
           font-weight: 600;
-          color: #02201a;
+          color: #0f172a;
           margin: 0;
         }
         .analytics-chart-badge {
-          font-size: 1.4rem;
+          font-size: 0.7rem;
           font-weight: 500;
           color: #64748b;
           background: #f1f5f9;
-          padding: 20px 60px;
+          padding: 3px 10px;
           border-radius: 99px;
         }
         .analytics-empty {
           color: #94a3b8;
-          font-size: 0.85rem;
+          font-size: 0.8rem;
           text-align: center;
-          padding: 40px 0;
+          padding: 24px 0;
         }
 
-        /* Pie legend */
         .analytics-pie-container {
           display: flex;
           flex-direction: column;
-          gap: 76px;
+          gap: 14px;
         }
         .analytics-pie-legend {
           display: flex;
           flex-wrap: wrap;
-          gap: 40px 76px;
+          gap: 8px 16px;
           justify-content: center;
         }
         .analytics-legend-item {
           display: flex;
           align-items: center;
-          gap: 36px;
-          font-size: 1.45rem;
+          gap: 6px;
+          font-size: 0.75rem;
         }
         .analytics-legend-dot {
-          width: 40px;
-          height: 40px;
-          border-radius: 4px;
+          width: 10px;
+          height: 10px;
+          border-radius: 3px;
           flex-shrink: 0;
         }
         .analytics-legend-label { color: #334155; }
         .analytics-legend-value { color: #94a3b8; font-weight: 600; }
 
-        /* Resolution list */
         .analytics-resolution-list {
           display: flex;
           flex-direction: column;
-          gap: 76px;
+          gap: 12px;
         }
         .analytics-resolution-row {
           display: flex;
           flex-direction: column;
-          gap: 38px;
+          gap: 6px;
         }
         .analytics-resolution-left {
           display: flex;
           align-items: center;
-          gap: 40px;
+          gap: 8px;
         }
         .analytics-resolution-dot {
-          width: 40px;
-          height: 40px;
-          border-radius: 4px;
+          width: 10px;
+          height: 10px;
+          border-radius: 3px;
           flex-shrink: 0;
         }
         .analytics-resolution-label {
-          font-size: 1.5rem;
+          font-size: 0.78rem;
           font-weight: 500;
           color: #334155;
         }
         .analytics-resolution-right {
           display: flex;
           align-items: center;
-          gap: 42px;
+          gap: 10px;
         }
         .analytics-resolution-bar-track {
           flex: 1;
-          height: 40px;
+          height: 8px;
           background: #f1f5f9;
           border-radius: 4px;
           overflow: hidden;
@@ -782,20 +776,19 @@ export default function AnalyticsPanel({ user }) {
           transition: width 0.5s ease;
         }
         .analytics-resolution-val {
-          font-size: 1.5rem;
+          font-size: 0.78rem;
           font-weight: 600;
-          color: #02201a;
-          width: 110px;
+          color: #0f172a;
+          width: 36px;
           text-align: right;
         }
         .analytics-resolution-pct {
-          font-size: 1.45rem;
+          font-size: 0.72rem;
           color: #94a3b8;
-          width: 120px;
+          width: 42px;
           text-align: right;
         }
 
-        /* Responsive */
         @media (max-width: 1200px) {
           .analytics-kpi-grid {
             grid-template-columns: repeat(2, 1fr);
@@ -813,7 +806,7 @@ export default function AnalyticsPanel({ user }) {
           .analytics-header {
             flex-direction: column;
             align-items: flex-start;
-            gap: 68px;
+            gap: 12px;
           }
           .analytics-kpi-grid {
             grid-template-columns: 1fr;
@@ -821,11 +814,11 @@ export default function AnalyticsPanel({ user }) {
         }
         @media (max-width: 480px) {
           .analytics-kpi-icon {
-            width: 96px;
-            height: 96px;
+            width: 34px;
+            height: 34px;
           }
           .analytics-kpi-value {
-            font-size: 2.8rem;
+            font-size: 1.15rem;
           }
         }
       `}</style>

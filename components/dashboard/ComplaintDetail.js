@@ -366,8 +366,8 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
   };
 
   const statusIndex = complaint ? STATUS_OPTIONS.indexOf(complaint.status) : -1;
-  const remarks = complaint?.remarks || [];
-  const timeline = complaint?.statusHistory || complaint?.timeline || [];
+  const remarks = complaint?.adminRemarks || [];
+  const timeline = complaint?.adminRemarks?.filter(r => r.status) || [];
 
   if (loading) {
     return (
@@ -534,7 +534,7 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
                         {entry.status}
                       </span>
                       <span className="cd-timeline-date">
-                        {formatDate(entry.date || entry.timestamp)}
+                        {formatDate(entry.addedAt || entry.date || entry.timestamp)}
                       </span>
                     </div>
                     {entry.remark && (
@@ -603,10 +603,10 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
             {remarks.map((remark, idx) => (
               <div key={idx} className="cd-remark-item">
                 <div className="cd-remark-header">
-                  <span className="cd-remark-author">{remark.author || remark.authorName || 'Admin'}</span>
-                  <span className="cd-remark-date">{formatDate(remark.date || remark.createdAt)}</span>
+                  <span className="cd-remark-author">{remark.addedBy?.name || 'Admin'}</span>
+                  <span className="cd-remark-date">{formatDate(remark.addedAt)}</span>
                 </div>
-                <p className="cd-remark-text">{remark.text || remark.remark || remark.content}</p>
+                <p className="cd-remark-text">{remark.remark}</p>
               </div>
             ))}
           </div>

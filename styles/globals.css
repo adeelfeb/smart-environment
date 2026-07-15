@@ -35,21 +35,21 @@
   --fc-navbar-height: 3.5rem;
 
   /* ── Proof360 Dashboard Design Tokens ── */
-  --ix-bg-soft: #eff6ff;
-  --ix-bg-mist: #f0f9ff;
+  --ix-bg-soft: #f0fdf4;
+  --ix-bg-mist: #ecfdf5;
   --ix-bg-cloud: #f8fafc;
-  --ix-bg-horizon: #e0f2fe;
-  --ix-surface: rgba(255, 255, 255, 0.78);
+  --ix-bg-horizon: #d1fae5;
+  --ix-surface: rgba(255, 255, 255, 0.82);
   --ix-surface-solid: rgba(255, 255, 255, 0.94);
-  --ix-surface-border: rgba(59, 130, 246, 0.3);
-  --ix-surface-border-soft: rgba(148, 163, 184, 0.22);
-  --ix-surface-shadow: 0 4px 24px rgba(37, 99, 235, 0.07), 0 1px 2px rgba(15, 23, 42, 0.04);
-  --ix-surface-shadow-lg: 0 12px 40px rgba(37, 99, 235, 0.1), 0 2px 8px rgba(15, 23, 42, 0.04);
-  --ix-accent: #2563eb;
-  --ix-accent-deep: #1d4ed8;
-  --ix-accent-light: #dbeafe;
-  --ix-text: #101428;
-  --ix-muted: #596174;
+  --ix-surface-border: rgba(16, 185, 129, 0.2);
+  --ix-surface-border-soft: rgba(148, 163, 184, 0.18);
+  --ix-surface-shadow: 0 4px 24px rgba(5, 150, 105, 0.07), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --ix-surface-shadow-lg: 0 12px 40px rgba(5, 150, 105, 0.1), 0 2px 8px rgba(15, 23, 42, 0.04);
+  --ix-accent: #059669;
+  --ix-accent-deep: #047857;
+  --ix-accent-light: #d1fae5;
+  --ix-text: #0f172a;
+  --ix-muted: #64748b;
   --ix-glass-blur: blur(14px) saturate(1.12);
 }
 
@@ -352,4 +352,3 @@ button, a, input, select, textarea {
   outline-offset: 2px;
   border-radius: 4px;
 }
-
