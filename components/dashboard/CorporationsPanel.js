@@ -285,7 +285,7 @@ export default function CorporationsPanel({ user }) {
       />
 
       <style jsx>{`
-        .cp { width: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .cp { width: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; overflow-y: auto; flex: 1; min-height: 0; scrollbar-width: thin; scrollbar-color: rgba(148, 163, 184, 0.6) rgba(241, 245, 249, 0.8); }
 
         /* Header */
         .cp-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 24px; flex-wrap: wrap; }

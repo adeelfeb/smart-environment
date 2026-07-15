@@ -159,6 +159,11 @@ export default function HelpPanel() {
         .help-panel {
           display: grid;
           gap: 2.5rem;
+          overflow-y: auto;
+          flex: 1;
+          min-height: 0;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(148, 163, 184, 0.6) rgba(241, 245, 249, 0.8);
         }
         .help-header {
           text-align: center;

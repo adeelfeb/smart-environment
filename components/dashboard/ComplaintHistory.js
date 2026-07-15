@@ -162,10 +162,10 @@ export default function ComplaintHistory({ user, onSelectComplaint }) {
     const q = searchQuery.trim().toLowerCase();
     return complaints.filter(
       (c) =>
-        (c.id || '').toLowerCase().includes(q) ||
+        (c.complaintId || c.id || '').toLowerCase().includes(q) ||
         (c.category || '').toLowerCase().includes(q) ||
         (c.description || '').toLowerCase().includes(q) ||
-        (c.ward || '').toLowerCase().includes(q)
+        (typeof c.ward === 'object' ? (c.ward?.name || c.ward?.wardNumber || '') : (c.ward || '')).toLowerCase().includes(q)
     );
   }, [complaints, searchQuery]);
 
@@ -293,7 +293,7 @@ export default function ComplaintHistory({ user, onSelectComplaint }) {
               const chipStyle = getStatusStyle(complaint.status);
               return (
                 <li
-                  key={complaint.id || complaint._id}
+                  key={complaint._id || complaint.id || complaint.complaintId}
                   className="complaint-history-card"
                   onClick={() => handleCardClick(complaint)}
                   role="button"
@@ -304,7 +304,7 @@ export default function ComplaintHistory({ user, onSelectComplaint }) {
                 >
                   <div className="complaint-history-card-top">
                     <span className="complaint-history-card-id">
-                      #{complaint.id || complaint._id || 'N/A'}
+                      #{complaint.complaintId || complaint.id || complaint._id || 'N/A'}
                     </span>
                     <span
                       className="complaint-history-chip"
@@ -441,6 +441,12 @@ export default function ComplaintHistory({ user, onSelectComplaint }) {
           display: flex;
           flex-direction: column;
           gap: 1.5rem;
+          overflow-y: auto;
+          flex: 1;
+          min-height: 0;
+          padding: 0.5rem;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(148, 163, 184, 0.6) rgba(241, 245, 249, 0.8);
         }
 
         .complaint-history-header {

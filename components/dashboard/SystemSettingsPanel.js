@@ -180,14 +180,19 @@ export default function SystemSettingsPanel({ user, onNavigate }) {
       </section>
 
       <style jsx>{`
-        .system-settings {
-          padding: 24px;
-          max-width: 1080px;
-          margin: 0 auto;
-          display: flex;
-          flex-direction: column;
-          gap: 24px;
-        }
+.system-settings {
+  padding: 24px;
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.6) rgba(241, 245, 249, 0.8);
+}
 
         .ss-header {
           display: flex;

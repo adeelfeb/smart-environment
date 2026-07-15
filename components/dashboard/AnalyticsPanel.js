@@ -504,13 +504,17 @@ export default function AnalyticsPanel({ user }) {
       )}
 
       <style jsx>{`
-        .analytics-panel {
-          padding: 0;
-          max-width: 1400px;
-          margin: 0 auto;
-          min-height: 100%;
-          padding-bottom: 48px;
-        }
+.analytics-panel {
+  padding: 0;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: 100%;
+  padding-bottom: 48px;
+  overflow-y: auto;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.6) rgba(241, 245, 249, 0.8);
+}
 
         .analytics-header {
           display: flex;

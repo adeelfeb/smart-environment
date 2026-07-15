@@ -796,11 +796,13 @@ export default function Dashboard({ user }) {
             border: 1px solid rgba(16, 185, 129, 0.12);
             background: rgba(255, 255, 255, 0.94);
             box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-            overflow: hidden;
+            overflow: auto;
             flex: 1;
             min-height: 0;
             display: flex;
             flex-direction: column;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(148, 163, 184, 0.6) rgba(241, 245, 249, 0.8);
           }
 
           .empty-state {

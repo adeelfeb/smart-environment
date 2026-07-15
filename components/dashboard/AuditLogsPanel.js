@@ -192,12 +192,17 @@ export default function AuditLogsPanel({ user }) {
       )}
 
       <style jsx>{`
-        .audit-panel {
-          background: #fff;
-          border-radius: 8px;
-          padding: 24px;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-        }
+.audit-panel {
+  background: #fff;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.6) rgba(241, 245, 249, 0.8);
+}
         .panel-header {
           display: flex;
           justify-content: space-between;

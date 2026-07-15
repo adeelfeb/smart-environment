@@ -5,6 +5,7 @@ import { jsonError, jsonSuccess } from '../lib/response';
 
 export async function createNotification({ recipient, type, title, message, targetRef, targetType, actor }) {
   try {
+    await connectDB();
     await Notification.create({ recipient, type, title, message, targetRef, targetType, actor });
   } catch (err) {
     console.error('[Notification] Failed to create:', err.message);

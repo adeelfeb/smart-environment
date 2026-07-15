@@ -289,8 +289,19 @@ export default function DashboardLayout({
 
   useEffect(() => {
     fetchUnreadCount();
-    const interval = setInterval(fetchUnreadCount, 30000);
-    return () => clearInterval(interval);
+    const interval = setInterval(fetchUnreadCount, 15000);
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchUnreadCount();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [fetchUnreadCount]);
 
   useEffect(() => {

@@ -283,7 +283,7 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
         </div>
 
         <style jsx>{`
-          .complaint-form { display: flex; justify-content: center; padding: 2rem 1rem; }
+          .complaint-form { display: flex; justify-content: center; padding: 2rem 1rem; overflow-y: auto; flex: 1; scrollbar-width: thin; scrollbar-color: rgba(148, 163, 184, 0.6) rgba(241, 245, 249, 0.8); }
           .success-card {
             background: #fff;
             border-radius: 1.25rem;
@@ -603,6 +603,10 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
           justify-content: center;
           padding: 2rem 1rem;
           min-height: 500px;
+          overflow-y: auto;
+          flex: 1;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(148, 163, 184, 0.6) rgba(241, 245, 249, 0.8);
         }
 
         .form-card {

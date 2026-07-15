@@ -131,7 +131,7 @@ export default function BackupPanel({ user }) {
           <p>Backup and import are only available to users with the developer or super admin role.</p>
         </div>
         <style jsx>{`
-          .backup-panel { padding: 1.5rem; }
+          .backup-panel { padding: 1.5rem; overflow-y: auto; flex: 1; min-height: 0; scrollbar-width: thin; scrollbar-color: rgba(148, 163, 184, 0.6) rgba(241, 245, 249, 0.8); }
           .backup-access-denied {
             text-align: center;
             padding: 3rem 2rem;
@@ -234,6 +234,11 @@ export default function BackupPanel({ user }) {
       <style jsx>{`
         .backup-panel {
           padding: 0.25rem 0;
+          overflow-y: auto;
+          flex: 1;
+          min-height: 0;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(148, 163, 184, 0.6) rgba(241, 245, 249, 0.8);
         }
         .backup-header {
           margin-bottom: 1.5rem;

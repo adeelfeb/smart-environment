@@ -269,15 +269,18 @@ export default function GisMapPanel({ user, onSelectComplaint }) {
       )}
 
       <style jsx>{`
-        .gis-panel {
-          position: relative;
-          width: 100%;
-          flex: 1;
-          min-height: 0;
-          display: flex;
-          flex-direction: column;
-          font-family: inherit;
-        }
+.gis-panel {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  font-family: inherit;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.6) rgba(241, 245, 249, 0.8);
+}
 
         .gis-panel-map {
           width: 100%;

@@ -435,6 +435,10 @@ export default function AdminComplaintList({ user, onSelectComplaint }) {
           border-radius: 12px;
           padding: 24px;
           min-height: 400px;
+          overflow-y: auto;
+          flex: 1;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(148, 163, 184, 0.6) rgba(241, 245, 249, 0.8);
         }
         .acl-header {
           display: flex;

@@ -235,12 +235,17 @@ export default function CitizensManagement({ user }) {
       )}
 
       <style jsx>{`
-        .cm-panel {
-          padding: 24px;
-          max-width: 1200px;
-          margin: 0 auto;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
+.cm-panel {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.6) rgba(241, 245, 249, 0.8);
+}
 
         .cm-header {
           display: flex;

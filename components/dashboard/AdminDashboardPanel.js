@@ -307,6 +307,11 @@ export default function AdminDashboardPanel({ user, onNavigate }) {
           padding: 0;
           max-width: 1400px;
           margin: 0 auto;
+          overflow-y: auto;
+          flex: 1;
+          min-height: 0;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(148, 163, 184, 0.6) rgba(241, 245, 249, 0.8);
         }
 
         /* Header */
