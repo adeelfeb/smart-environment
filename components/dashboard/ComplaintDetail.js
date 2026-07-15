@@ -123,11 +123,31 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
 
   const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
 
-  useEffect(() => {
-    if (!complaintProp && complaint?.id) {
-      fetchComplaint(complaint.id);
+  const getApiId = (c) => c?._id || c?.id;
+  const getDisplayId = (c) => c?.complaintId || c?._id || c?.id || 'N/A';
+  const getLocation = (c) => {
+    if (!c) return { address: '', latitude: null, longitude: null, dateCaptured: null };
+    if (c.location && typeof c.location === 'object') {
+      return {
+        address: c.location.address || c.address || '',
+        latitude: c.location.latitude || c.latitude,
+        longitude: c.location.longitude || c.longitude,
+        dateCaptured: c.location.dateCaptured || c.dateCaptured,
+      };
     }
-  }, [complaintProp, complaint?.id]);
+    return {
+      address: c.address || '',
+      latitude: c.latitude,
+      longitude: c.longitude,
+      dateCaptured: c.dateCaptured,
+    };
+  };
+
+  useEffect(() => {
+    if (!complaintProp && getApiId(complaint)) {
+      fetchComplaint(getApiId(complaint));
+    }
+  }, [complaintProp, complaint?._id]);
 
   const fetchComplaint = async (id) => {
     try {
@@ -152,12 +172,13 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
   };
 
   const handleUpdateStatus = async (newStatus) => {
-    if (!complaint?.id || statusLoading) return;
+    const apiId = getApiId(complaint);
+    if (!apiId || statusLoading) return;
     setStatusLoading(true);
     setActionMessage(null);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`/api/complaints/${complaint.id}`, {
+      const res = await fetch(`/api/complaints/${apiId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -174,7 +195,7 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
       } else {
         setComplaint((prev) => ({ ...prev, status: newStatus }));
       }
-      if (typeof onUpdated === 'function') onUpdated();
+      if (typeof onUpdated === 'function') onUpdated(data.data?.complaint || { ...complaint, status: newStatus });
     } catch (err) {
       setActionMessage({ type: 'error', text: err.message || 'Update failed' });
     } finally {
@@ -183,12 +204,13 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
   };
 
   const handleAddRemark = async () => {
-    if (!complaint?.id || !remarkText.trim() || remarkLoading) return;
+    const apiId = getApiId(complaint);
+    if (!apiId || !remarkText.trim() || remarkLoading) return;
     setRemarkLoading(true);
     setActionMessage(null);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`/api/complaints/${complaint.id}`, {
+      const res = await fetch(`/api/complaints/${apiId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -204,7 +226,7 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
       if (data.data?.complaint) {
         setComplaint(data.data.complaint);
       }
-      if (typeof onUpdated === 'function') onUpdated();
+      if (typeof onUpdated === 'function') onUpdated(data.data?.complaint || complaint);
     } catch (err) {
       setActionMessage({ type: 'error', text: err.message || 'Failed to add remark' });
     } finally {
@@ -224,7 +246,8 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
   };
 
   const handleUploadVerification = async () => {
-    if (!complaint?.id || !verifyFile || verifyLoading) return;
+    const apiId = getApiId(complaint);
+    if (!apiId || !verifyFile || verifyLoading) return;
     setVerifyLoading(true);
     setActionMessage(null);
     try {
@@ -243,7 +266,7 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
       const photoUrl = uploadData.data?.url || uploadData.url || '';
       const photoFilename = uploadData.data?.filename || uploadData.filename || verifyFile.name;
 
-      const res = await fetch(`/api/complaints/${complaint.id}`, {
+      const res = await fetch(`/api/complaints/${apiId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -258,7 +281,7 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
       setVerifyFile(null);
       setVerifyPreview(null);
       if (data.data?.complaint) setComplaint(data.data.complaint);
-      if (typeof onUpdated === 'function') onUpdated();
+      if (typeof onUpdated === 'function') onUpdated(data.data?.complaint || complaint);
     } catch (err) {
       setActionMessage({ type: 'error', text: err.message || 'Upload failed' });
     } finally {
@@ -267,12 +290,13 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
   };
 
   const handleResolve = async () => {
-    if (!complaint?.id || resolveLoading) return;
+    const apiId = getApiId(complaint);
+    if (!apiId || resolveLoading) return;
     setResolveLoading(true);
     setActionMessage(null);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`/api/complaints/${complaint.id}`, {
+      const res = await fetch(`/api/complaints/${apiId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -289,7 +313,7 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
       } else {
         setComplaint((prev) => ({ ...prev, status: 'Resolved' }));
       }
-      if (typeof onUpdated === 'function') onUpdated();
+      if (typeof onUpdated === 'function') onUpdated(data.data?.complaint || { ...complaint, status: 'Resolved' });
     } catch (err) {
       setActionMessage({ type: 'error', text: err.message || 'Resolve failed' });
     } finally {
@@ -298,12 +322,13 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
   };
 
   const handleReject = async () => {
-    if (!complaint?.id || rejectLoading) return;
+    const apiId = getApiId(complaint);
+    if (!apiId || rejectLoading) return;
     setRejectLoading(true);
     setActionMessage(null);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`/api/complaints/${complaint.id}`, {
+      const res = await fetch(`/api/complaints/${apiId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -320,7 +345,7 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
       } else {
         setComplaint((prev) => ({ ...prev, status: 'Rejected' }));
       }
-      if (typeof onUpdated === 'function') onUpdated();
+      if (typeof onUpdated === 'function') onUpdated(data.data?.complaint || { ...complaint, status: 'Rejected' });
     } catch (err) {
       setActionMessage({ type: 'error', text: err.message || 'Reject failed' });
     } finally {
@@ -381,7 +406,7 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
               <h2 className="cd-title">
                 {complaint.category || 'General Complaint'}
               </h2>
-              <span className="cd-id">#{complaint.id}</span>
+              <span className="cd-id">#{getDisplayId(complaint)}</span>
             </div>
           </div>
           <span
@@ -400,7 +425,7 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
           <div className="cd-photo-section">
             <img
               src={complaint.photoUrl}
-              alt={`Complaint ${complaint.id} photo`}
+              alt={`Complaint ${getDisplayId(complaint)} photo`}
               className="cd-photo"
             />
           </div>
@@ -419,11 +444,11 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
             <div className="cd-detail-value">
               <div className="cd-location-row">
                 <MapPin size={14} className="cd-icon" />
-                <span>{complaint.address || 'No address provided'}</span>
+                <span>{getLocation(complaint).address || 'No address provided'}</span>
               </div>
-              {complaint.latitude && complaint.longitude && (
+              {getLocation(complaint).latitude && getLocation(complaint).longitude && (
                 <div className="cd-coords">
-                  {Number(complaint.latitude).toFixed(6)}, {Number(complaint.longitude).toFixed(6)}
+                  {Number(getLocation(complaint).latitude).toFixed(6)}, {Number(getLocation(complaint).longitude).toFixed(6)}
                 </div>
               )}
             </div>
@@ -434,7 +459,7 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
             <div className="cd-detail-value">
               <div className="cd-info-row">
                 <Calendar size={14} className="cd-icon" />
-                <span>{formatDate(complaint.createdAt || complaint.date)}</span>
+                <span>{formatDate(getLocation(complaint).dateCaptured || complaint.createdAt || complaint.date)}</span>
               </div>
               {complaint.corporation && (
                 <div className="cd-info-row">
@@ -451,23 +476,23 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
             </div>
           </div>
 
-          {complaint.latitude && complaint.longitude && (
+          {getLocation(complaint).latitude && getLocation(complaint).longitude && (
             <div className="cd-detail-card">
               <span className="cd-detail-label">Map</span>
               <div className="cd-map-container">
                 <img
-                  src={buildOSMUrl(complaint.latitude, complaint.longitude)}
+                  src={buildOSMUrl(getLocation(complaint).latitude, getLocation(complaint).longitude)}
                   alt="Complaint location map"
                   className="cd-map-image"
                   onError={(e) => {
-                    e.target.src = `https://maps.googleapis.com/maps/api/staticmap?center=${complaint.latitude},${complaint.longitude}&zoom=15&size=400x200&maptype=roadmap&markers=color:red%7C${complaint.latitude},${complaint.longitude}`;
+                    e.target.src = `https://maps.googleapis.com/maps/api/staticmap?center=${getLocation(complaint).latitude},${getLocation(complaint).longitude}&zoom=15&size=400x200&maptype=roadmap&markers=color:red%7C${getLocation(complaint).latitude},${getLocation(complaint).longitude}`;
                   }}
                 />
                 <div className="cd-map-overlay">
                   <MapPin size={20} className="cd-map-pin" />
                 </div>
                 <a
-                  href={`https://www.google.com/maps?q=${complaint.latitude},${complaint.longitude}`}
+                  href={`https://www.google.com/maps?q=${getLocation(complaint).latitude},${getLocation(complaint).longitude}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="cd-map-link"

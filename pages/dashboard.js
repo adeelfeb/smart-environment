@@ -195,35 +195,144 @@ const SECTION_DESCRIPTORS = {
 
 function ComplaintHistoryWrapper({ user }) {
   const [selectedComplaint, setSelectedComplaint] = useState(null);
+  const [loadingFromHash, setLoadingFromHash] = useState(true);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const hash = window.location.hash.replace(/^#/, '');
+    const match = hash.match(/^complaint-history\/(.+)$/);
+    if (match && match[1]) {
+      const complaintId = decodeURIComponent(match[1]);
+      fetchComplaintById(complaintId).then((complaint) => {
+        if (complaint) setSelectedComplaint(complaint);
+        setLoadingFromHash(false);
+      });
+    } else {
+      setLoadingFromHash(false);
+    }
+  }, []);
+
+  const fetchComplaintById = async (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/complaints/${id}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        credentials: 'include',
+      });
+      const data = await safeParseJsonResponse(res);
+      if (data.success && data.data?.complaint) {
+        return data.data.complaint;
+      }
+    } catch {}
+    return null;
+  };
+
+  const handleSelectComplaint = (complaint) => {
+    setSelectedComplaint(complaint);
+    const complaintId = complaint?._id || complaint?.id || complaint?.complaintId;
+    if (complaintId && typeof window !== 'undefined') {
+      const newHash = `complaint-history/${complaintId}`;
+      window.history.replaceState(null, '', `#${newHash}`);
+    }
+  };
+
+  const handleBack = () => {
+    setSelectedComplaint(null);
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', '#complaint-history');
+    }
+  };
+
+  if (loadingFromHash) {
+    return <div style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>Loading...</div>;
+  }
+
   if (selectedComplaint) {
     return (
       <ComplaintDetail
         complaint={selectedComplaint}
         user={user}
-        onBack={() => setSelectedComplaint(null)}
-        onUpdated={() => setSelectedComplaint(null)}
+        onBack={handleBack}
+        onUpdated={handleBack}
       />
     );
   }
-  return <ComplaintHistory user={user} onSelectComplaint={setSelectedComplaint} />;
+  return <ComplaintHistory user={user} onSelectComplaint={handleSelectComplaint} />;
 }
 
-function ComplaintListWrapper({ user }) {
+function ComplaintListWrapper({ user, onHashChange }) {
   const [selectedComplaint, setSelectedComplaint] = useState(null);
+  const [loadingFromHash, setLoadingFromHash] = useState(true);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const hash = window.location.hash.replace(/^#/, '');
+    const match = hash.match(/^complaints\/(.+)$/);
+    if (match && match[1]) {
+      const complaintId = decodeURIComponent(match[1]);
+      fetchComplaintById(complaintId).then((complaint) => {
+        if (complaint) setSelectedComplaint(complaint);
+        setLoadingFromHash(false);
+      });
+    } else {
+      setLoadingFromHash(false);
+    }
+  }, []);
+
+  const fetchComplaintById = async (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/complaints/${id}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        credentials: 'include',
+      });
+      const data = await safeParseJsonResponse(res);
+      if (data.success && data.data?.complaint) {
+        return data.data.complaint;
+      }
+    } catch {}
+    return null;
+  };
+
+  const handleSelectComplaint = (complaint) => {
+    setSelectedComplaint(complaint);
+    const complaintId = complaint?._id || complaint?.id || complaint?.complaintId;
+    if (complaintId && typeof window !== 'undefined') {
+      const newHash = `complaints/${complaintId}`;
+      window.history.replaceState(null, '', `#${newHash}`);
+    }
+  };
+
+  const handleBack = () => {
+    setSelectedComplaint(null);
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', '#complaints');
+    }
+  };
+
+  const handleUpdated = (updated) => {
+    if (updated) {
+      setSelectedComplaint(updated);
+    } else {
+      handleBack();
+    }
+  };
+
+  if (loadingFromHash) {
+    return <div style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>Loading...</div>;
+  }
+
   if (selectedComplaint) {
     return (
       <ComplaintDetail
         complaint={selectedComplaint}
         user={user}
-        onBack={() => setSelectedComplaint(null)}
-        onUpdated={(updated) => {
-          if (updated) setSelectedComplaint(updated);
-          else setSelectedComplaint(null);
-        }}
+        onBack={handleBack}
+        onUpdated={handleUpdated}
       />
     );
   }
-  return <AdminComplaintList user={user} onSelectComplaint={setSelectedComplaint} />;
+  return <AdminComplaintList user={user} onSelectComplaint={handleSelectComplaint} />;
 }
 
 export default function Dashboard({ user }) {
@@ -278,6 +387,11 @@ export default function Dashboard({ user }) {
       const normalized = sanitized.toLowerCase();
       if (normalized === 'settings') {
         return 'settings';
+      }
+      if (normalized.startsWith('complaints/') || normalized.startsWith('complaint-history/')) {
+        const baseKey = normalized.startsWith('complaints/') ? 'complaints' : 'complaint-history';
+        const match = primaryNav.find((item) => item.key.toLowerCase() === baseKey);
+        return match?.key || null;
       }
       const match = primaryNav.find((item) => item.key.toLowerCase() === normalized);
       return match?.key || null;
@@ -335,15 +449,15 @@ export default function Dashboard({ user }) {
         const resolvedKey = resolveSectionKey(hashValue);
         if (resolvedKey) {
           setActiveSection((prev) => {
-            // Only update if different to avoid unnecessary re-renders
             return prev === resolvedKey ? prev : resolvedKey;
           });
-          // Update URL hash to ensure it's properly formatted
-          updateUrlHash(resolvedKey);
+          const hasComplaintId = /^complaints\//.test(hashValue) || /^complaint-history\//.test(hashValue);
+          if (!hasComplaintId) {
+            updateUrlHash(resolvedKey);
+          }
           return;
         }
       }
-      // If no valid hash, ensure we're showing the first nav item
       const firstNavKey = navItems[0]?.key || FALLBACK_NAV[0].key;
       setActiveSection((prev) => {
         return prev === firstNavKey ? prev : firstNavKey;
