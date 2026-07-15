@@ -4,6 +4,7 @@ import Corporation from '../models/Corporation';
 import Ward from '../models/Ward';
 import { jsonError, jsonSuccess } from '../lib/response';
 import { createAuditLog } from './auditLogController';
+import { createNotification, notifyAdmins } from './notificationController';
 
 let complaintCounter = 0;
 
@@ -75,6 +76,15 @@ export async function submitComplaint(req, res) {
       targetId: complaint._id,
       details: { complaintId, category, corporationId, wardId },
       ipAddress: req.headers['x-forwarded-for'] || req.socket?.remoteAddress || null,
+    });
+
+    notifyAdmins({
+      type: 'complaint_submitted',
+      title: 'New Complaint Submitted',
+      message: `A new ${category} complaint (${complaintId}) has been submitted.`,
+      targetRef: complaint._id,
+      targetType: 'Complaint',
+      actor: req.user._id,
     });
 
     return jsonSuccess(res, 201, 'Complaint submitted successfully', { complaint });
@@ -221,6 +231,19 @@ export async function updateComplaintStatus(req, res) {
       ipAddress: req.headers['x-forwarded-for'] || req.socket?.remoteAddress || null,
     });
 
+    const notifType = status === 'Resolved' ? 'complaint_resolved'
+      : status === 'Rejected' ? 'complaint_rejected'
+      : 'complaint_status_updated';
+    createNotification({
+      recipient: complaint.citizen,
+      type: notifType,
+      title: `Complaint ${complaint.status}`,
+      message: `Your complaint ${complaint.complaintId} has been updated to "${complaint.status}".`,
+      targetRef: complaint._id,
+      targetType: 'Complaint',
+      actor: req.user._id,
+    });
+
     return jsonSuccess(res, 200, 'Complaint updated', { complaint });
   } catch (err) {
     return jsonError(res, 500, 'Failed to update complaint', err.message);
@@ -259,6 +282,16 @@ export async function addRemark(req, res) {
       ipAddress: req.headers['x-forwarded-for'] || req.socket?.remoteAddress || null,
     });
 
+    createNotification({
+      recipient: complaint.citizen,
+      type: 'complaint_remark_added',
+      title: 'New Remark on Complaint',
+      message: `A new remark has been added to your complaint ${complaint.complaintId}.`,
+      targetRef: complaint._id,
+      targetType: 'Complaint',
+      actor: req.user._id,
+    });
+
     return jsonSuccess(res, 200, 'Remark added', { complaint });
   } catch (err) {
     return jsonError(res, 500, 'Failed to add remark', err.message);
@@ -288,6 +321,16 @@ export async function uploadVerificationPhoto(req, res) {
       targetId: complaint._id,
       details: { complaintId: complaint.complaintId },
       ipAddress: req.headers['x-forwarded-for'] || req.socket?.remoteAddress || null,
+    });
+
+    createNotification({
+      recipient: complaint.citizen,
+      type: 'verification_uploaded',
+      title: 'Verification Photo Uploaded',
+      message: `A verification photo has been uploaded for your complaint ${complaint.complaintId}.`,
+      targetRef: complaint._id,
+      targetType: 'Complaint',
+      actor: req.user._id,
     });
 
     return jsonSuccess(res, 200, 'Verification photo uploaded', { complaint });

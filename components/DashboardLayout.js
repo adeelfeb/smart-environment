@@ -148,8 +148,13 @@ export default function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifLoading, setNotifLoading] = useState(false);
   const sidebarRef = useRef(null);
   const settingsRef = useRef(null);
+  const notifRef = useRef(null);
   const displayName = user?.name || 'User';
   const userRole = (user?.role || '').toLowerCase();
   const items = Array.isArray(navItems) ? navItems : [];
@@ -206,6 +211,182 @@ export default function DashboardLayout({
     };
   }, [settingsOpen]);
 
+  useEffect(() => {
+    if (!notificationsOpen) return;
+    const handleClickOutside = (e) => {
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setNotificationsOpen(false);
+      }
+    };
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') setNotificationsOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEsc);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEsc);
+    };
+  }, [notificationsOpen]);
+
+  const fetchNotifications = useCallback(async () => {
+    try {
+      setNotifLoading(true);
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const res = await fetch('/api/notifications', {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        credentials: 'include',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          setNotifications(data.data?.notifications || []);
+          setUnreadCount(data.data?.unreadCount || 0);
+        }
+      }
+    } catch {}
+    setNotifLoading(false);
+  }, []);
+
+  const fetchUnreadCount = useCallback(async () => {
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const res = await fetch('/api/notifications/unread-count', {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        credentials: 'include',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          setUnreadCount(data.data?.unreadCount || 0);
+        }
+      }
+    } catch {}
+  }, []);
+
+  const markAsRead = useCallback(async (id) => {
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const res = await fetch(`/api/notifications/read?id=${id}`, {
+        method: 'PUT',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        credentials: 'include',
+      });
+      if (res.ok) {
+        setNotifications((prev) =>
+          id === 'all'
+            ? prev.map((n) => ({ ...n, read: true }))
+            : prev.map((n) => (n._id === id ? { ...n, read: true } : n))
+        );
+        if (id === 'all') {
+          setUnreadCount(0);
+        } else {
+          setUnreadCount((prev) => Math.max(0, prev - 1));
+        }
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    fetchUnreadCount();
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, [fetchUnreadCount]);
+
+  useEffect(() => {
+    if (notificationsOpen) {
+      fetchNotifications();
+    }
+  }, [notificationsOpen, fetchNotifications]);
+
+  const handleToggleNotifications = useCallback(() => {
+    setSettingsOpen(false);
+    setNotificationsOpen((prev) => !prev);
+  }, []);
+
+  const handleNotifClick = useCallback((notif) => {
+    if (!notif.read) {
+      markAsRead(notif._id);
+    }
+    if (notif.targetRef && notif.targetType === 'Complaint') {
+      const userRoleLower = (user?.role || '').toLowerCase();
+      const section = (userRoleLower === 'citizen' || userRoleLower === 'base_user')
+        ? 'complaint-history'
+        : 'complaints';
+      if (typeof window !== 'undefined') {
+        window.location.hash = `${section}/${notif.targetRef}`;
+      }
+      onNavSelect?.(section);
+      setNotificationsOpen(false);
+    }
+  }, [markAsRead, onNavSelect, user]);
+
+  const formatNotifTime = (dateStr) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMin = Math.floor(diffMs / 60000);
+    if (diffMin < 1) return 'Just now';
+    if (diffMin < 60) return `${diffMin}m ago`;
+    const diffHr = Math.floor(diffMin / 60);
+    if (diffHr < 24) return `${diffHr}h ago`;
+    const diffDay = Math.floor(diffHr / 24);
+    if (diffDay < 7) return `${diffDay}d ago`;
+    return date.toLocaleDateString();
+  };
+
+  const getNotifIcon = (type) => {
+    switch (type) {
+      case 'complaint_submitted':
+        return (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="16" /><line x1="8" y1="12" x2="16" y2="12" />
+          </svg>
+        );
+      case 'complaint_resolved':
+        return (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
+          </svg>
+        );
+      case 'complaint_rejected':
+        return (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" />
+          </svg>
+        );
+      case 'complaint_status_updated':
+      case 'complaint_remark_added':
+        return (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" />
+          </svg>
+        );
+      case 'verification_uploaded':
+        return (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" />
+          </svg>
+        );
+      default:
+        return (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
+          </svg>
+        );
+    }
+  };
+
+  const getNotifIconClass = (type) => {
+    switch (type) {
+      case 'complaint_submitted': return 'ix-notif-icon--blue';
+      case 'complaint_resolved': return 'ix-notif-icon--green';
+      case 'complaint_rejected': return 'ix-notif-icon--red';
+      case 'complaint_priority_escalated': return 'ix-notif-icon--orange';
+      default: return 'ix-notif-icon--teal';
+    }
+  };
+
   return (
     <div className="ix-page">
       {/* TopBar (standalone mode) */}
@@ -249,17 +430,68 @@ export default function DashboardLayout({
           </div>
         </div>
         <div className="ix-topbar-right">
-          <button className="ix-topbar-icon-btn ix-topbar-notif" aria-label="Notifications" title="Notifications">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-            </svg>
-            <span className="ix-notif-dot" />
-          </button>
+          <div className="ix-notif-wrap" ref={notifRef}>
+            <button
+              className={`ix-topbar-icon-btn ix-topbar-notif${notificationsOpen ? ' ix-topbar-notif--open' : ''}`}
+              aria-label="Notifications"
+              title="Notifications"
+              onClick={handleToggleNotifications}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+              </svg>
+              {unreadCount > 0 && <span className="ix-notif-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>}
+            </button>
+            {notificationsOpen && (
+              <div className="ix-notif-dropdown">
+                <div className="ix-notif-header">
+                  <span className="ix-notif-title">Notifications</span>
+                  {unreadCount > 0 && (
+                    <button className="ix-notif-mark-read" onClick={() => markAsRead('all')}>
+                      Mark all read
+                    </button>
+                  )}
+                </div>
+                <div className="ix-notif-divider" />
+                <div className="ix-notif-list">
+                  {notifLoading && notifications.length === 0 ? (
+                    <div className="ix-notif-empty">Loading...</div>
+                  ) : notifications.length === 0 ? (
+                    <div className="ix-notif-empty">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4 }}>
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                      </svg>
+                      <span>No notifications yet</span>
+                    </div>
+                  ) : (
+                    notifications.map((notif) => (
+                      <button
+                        key={notif._id}
+                        className={`ix-notif-item${notif.read ? '' : ' ix-notif-item--unread'}`}
+                        onClick={() => handleNotifClick(notif)}
+                      >
+                        <span className={`ix-notif-icon ${getNotifIconClass(notif.type)}`}>
+                          {getNotifIcon(notif.type)}
+                        </span>
+                        <div className="ix-notif-content">
+                          <span className="ix-notif-item-title">{notif.title}</span>
+                          <span className="ix-notif-item-msg">{notif.message}</span>
+                          <span className="ix-notif-item-time">{formatNotifTime(notif.createdAt)}</span>
+                        </div>
+                        {!notif.read && <span className="ix-notif-unread-dot" />}
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
           <div className="ix-settings-wrap" ref={settingsRef}>
             <button
               className={`ix-topbar-icon-btn ix-topbar-settings${settingsOpen ? ' ix-topbar-settings--open' : ''}`}
-              onClick={() => setSettingsOpen(prev => !prev)}
+              onClick={() => { setNotificationsOpen(false); setSettingsOpen(prev => !prev); }}
               aria-label="Settings"
               title="Settings"
             >
@@ -572,15 +804,178 @@ export default function DashboardLayout({
         .ix-topbar-notif {
           position: relative;
         }
-        .ix-notif-dot {
+        .ix-topbar-notif--open {
+          background: rgba(209, 250, 229, 0.7) !important;
+          border-color: rgba(16, 185, 129, 0.45) !important;
+          color: #059669 !important;
+        }
+        .ix-notif-badge {
           position: absolute;
-          top: 5px;
-          right: 5px;
+          top: 2px;
+          right: 2px;
+          min-width: 16px;
+          height: 16px;
+          padding: 0 4px;
+          border-radius: 999px;
+          background: #ef4444;
+          color: #fff;
+          font-size: 0.6rem;
+          font-weight: 700;
+          line-height: 16px;
+          text-align: center;
+          border: 1.5px solid #fff;
+        }
+        .ix-notif-wrap {
+          position: relative;
+        }
+        .ix-notif-dropdown {
+          position: absolute;
+          top: calc(100% + 8px);
+          right: 0;
+          width: 340px;
+          max-height: 420px;
+          background: #fff;
+          border: 1px solid rgba(16, 185, 129, 0.15);
+          border-radius: 14px;
+          box-shadow: 0 12px 40px rgba(5, 150, 105, 0.12), 0 4px 12px rgba(0,0,0,0.06);
+          z-index: 100;
+          animation: ix-dropdown-in 160ms ease;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+        .ix-notif-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0.6rem 0.75rem;
+        }
+        .ix-notif-title {
+          font-size: 0.82rem;
+          font-weight: 700;
+          color: #0f172a;
+        }
+        .ix-notif-mark-read {
+          border: none;
+          background: none;
+          color: #059669;
+          font-size: 0.68rem;
+          font-weight: 600;
+          cursor: pointer;
+          padding: 0.2rem 0.4rem;
+          border-radius: 6px;
+          font-family: inherit;
+          transition: all 140ms ease;
+        }
+        .ix-notif-mark-read:hover {
+          background: rgba(209, 250, 229, 0.5);
+          color: #047857;
+        }
+        .ix-notif-divider {
+          height: 1px;
+          background: rgba(148, 163, 184, 0.15);
+          margin: 0 0.5rem;
+        }
+        .ix-notif-list {
+          overflow-y: auto;
+          max-height: 340px;
+          padding: 0.25rem 0.35rem 0.35rem;
+          scrollbar-width: thin;
+        }
+        .ix-notif-item {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.5rem;
+          width: 100%;
+          padding: 0.5rem 0.5rem;
+          border: none;
+          border-radius: 10px;
+          background: transparent;
+          cursor: pointer;
+          text-align: left;
+          font-family: inherit;
+          transition: all 140ms ease;
+          position: relative;
+        }
+        .ix-notif-item:hover {
+          background: rgba(240, 253, 244, 0.6);
+        }
+        .ix-notif-item--unread {
+          background: rgba(236, 253, 245, 0.5);
+        }
+        .ix-notif-item--unread:hover {
+          background: rgba(209, 250, 229, 0.5);
+        }
+        .ix-notif-icon {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 30px;
+          height: 30px;
+          min-width: 30px;
+          border-radius: 8px;
+          flex-shrink: 0;
+          margin-top: 1px;
+        }
+        .ix-notif-icon--blue { background: rgba(59, 130, 246, 0.12); color: #2563eb; }
+        .ix-notif-icon--green { background: rgba(16, 185, 129, 0.12); color: #059669; }
+        .ix-notif-icon--red { background: rgba(239, 68, 68, 0.12); color: #dc2626; }
+        .ix-notif-icon--orange { background: rgba(245, 158, 11, 0.12); color: #d97706; }
+        .ix-notif-icon--teal { background: rgba(20, 184, 166, 0.12); color: #0d9488; }
+        .ix-notif-content {
+          display: flex;
+          flex-direction: column;
+          gap: 0.12rem;
+          min-width: 0;
+          flex: 1;
+        }
+        .ix-notif-item-title {
+          font-size: 0.74rem;
+          font-weight: 600;
+          color: #0f172a;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .ix-notif-item-msg {
+          font-size: 0.68rem;
+          color: #64748b;
+          line-height: 1.35;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        .ix-notif-item-time {
+          font-size: 0.62rem;
+          color: #94a3b8;
+          font-weight: 500;
+          margin-top: 0.1rem;
+        }
+        .ix-notif-unread-dot {
           width: 7px;
           height: 7px;
           border-radius: 50%;
-          background: #ef4444;
-          border: 1.5px solid #fff;
+          background: #10b981;
+          flex-shrink: 0;
+          margin-top: 0.55rem;
+        }
+        .ix-notif-empty {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          padding: 2rem 1rem;
+          color: #94a3b8;
+          font-size: 0.76rem;
+          font-weight: 500;
+        }
+        @media (max-width: 480px) {
+          .ix-notif-dropdown {
+            width: calc(100vw - 2rem);
+            right: -0.5rem;
+          }
         }
         .ix-topbar-settings--open {
           background: rgba(209, 250, 229, 0.7) !important;
