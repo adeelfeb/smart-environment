@@ -19,10 +19,25 @@ function formatErrorMessage(payload, fallback) {
   return payload.message || fallback;
 }
 
+const ERROR_HINTS = {
+  NO_DB_URI: 'The MONGODB_URI environment variable is not set on the server.',
+  CONNECTION_TIMEOUT: 'The database server took too long to respond.',
+  DNS_RESOLUTION_FAILED: 'The server cannot resolve the database hostname.',
+  AUTHENTICATION_FAILED: 'The database rejected the credentials in MONGODB_URI.',
+  DB_UNAVAILABLE: 'The database service is temporarily unreachable.',
+  NO_JWT_SECRET: 'The JWT_SECRET environment variable is not set on the server.',
+  TOKEN_SIGN_FAILED: 'The server could not generate an authentication token.',
+  UNHANDLED_ERROR: 'The server encountered an unhandled error.',
+};
+
+const NON_JSON_ERROR_HINT =
+  'The server returned an error page instead of a valid response. This usually means the serverless function crashed or failed to start. Common causes: missing environment variables (MONGODB_URI, JWT_SECRET), MongoDB Atlas IP access list blocking the deployment, or the function exceeded its time limit.';
+
 export default function VerifyEmailPage() {
   const router = useRouter();
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
+  const [errorDetail, setErrorDetail] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
@@ -65,6 +80,7 @@ export default function VerifyEmailPage() {
     
     setResending(true);
     setError('');
+    setErrorDetail('');
     setSuccess('');
 
     try {
@@ -95,6 +111,7 @@ export default function VerifyEmailPage() {
     if (isDisabled) return;
     setLoading(true);
     setError('');
+    setErrorDetail('');
     setSuccess('');
     
     try {
@@ -112,14 +129,24 @@ export default function VerifyEmailPage() {
         try {
           data = JSON.parse(text);
         } catch (parseErr) {
-            setError("Server error. Please try again.");
-            setLoading(false);
-            return;
+          if (res.status >= 500) {
+            setError('Server error (HTTP ' + res.status + ')');
+            setErrorDetail(NON_JSON_ERROR_HINT);
+          } else {
+            setError('Server error. Please try again.');
+          }
+          setLoading(false);
+          return;
         }
       }
       
       if (!res.ok || !data.success) {
-        setError(formatErrorMessage(data, "Verification failed"));
+        setError(formatErrorMessage(data, 'Verification failed'));
+        if (data.code && ERROR_HINTS[data.code]) {
+          setErrorDetail(ERROR_HINTS[data.code]);
+        } else if (res.status >= 500) {
+          setErrorDetail('This is a server-side error. Check the deployment environment variables and server logs.');
+        }
         setLoading(false);
         return;
       }
@@ -136,7 +163,8 @@ export default function VerifyEmailPage() {
       window.location.href = '/dashboard#overview';
       
     } catch (err) {
-      setError(err.message || "Verification failed. Please try again.");
+      setError(err.message || 'Verification failed. Please try again.');
+      setErrorDetail('');
     } finally {
       setLoading(false);
     }
@@ -161,7 +189,10 @@ export default function VerifyEmailPage() {
 
           {error && (
             <div className="alert" role="alert" aria-live="assertive">
-              {error}
+              <p style={{ fontWeight: 500 }}>{error}</p>
+              {errorDetail && (
+                <p style={{ fontSize: '0.8rem', opacity: 0.8, marginTop: '0.4rem', lineHeight: 1.4 }}>{errorDetail}</p>
+              )}
             </div>
           )}
           

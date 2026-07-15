@@ -15,6 +15,21 @@ function formatErrorMessage(payload, fallback) {
   return fallback
 }
 
+const ERROR_HINTS = {
+  NO_DB_URI: 'The MONGODB_URI environment variable is not set on the server. Add it to your deployment\'s environment variables and redeploy.',
+  CONNECTION_TIMEOUT: 'The database server took too long to respond. Check that MongoDB Atlas is running and that its IP access list allows connections from your deployment.',
+  DNS_RESOLUTION_FAILED: 'The server cannot resolve the database hostname. Verify the MONGODB_URI is correct and the deployment has internet access.',
+  AUTHENTICATION_FAILED: 'The database rejected the credentials in MONGODB_URI. Check the username and password in the connection string.',
+  DB_UNAVAILABLE: 'The database service is temporarily unreachable. This may be a transient issue — try again in a moment.',
+  NO_JWT_SECRET: 'The JWT_SECRET environment variable is not set on the server. Add it to your deployment\'s environment variables and redeploy.',
+  TOKEN_SIGN_FAILED: 'The server could not generate an authentication token. The JWT_SECRET may be invalid or missing.',
+  SIGNUP_FAILED: 'An unexpected error occurred while creating your account. Check the server logs for details.',
+  UNHANDLED_ERROR: 'The server encountered an unhandled error. This may be caused by a missing environment variable or a deployment issue.',
+}
+
+const NON_JSON_ERROR_HINT =
+  'The server returned an error page instead of a valid response. This usually means the serverless function crashed or failed to start. Common causes: missing environment variables (MONGODB_URI, JWT_SECRET), MongoDB Atlas IP access list blocking the deployment, or the function exceeded its time limit.'
+
 function shouldSkipAuthRedirect() {
   if (typeof window === 'undefined') return false
   const redirectKey = 'auth_redirect_count'
@@ -53,6 +68,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
+  const [errorDetail, setErrorDetail] = useState('')
   const [loading, setLoading] = useState(false)
   const [checkingAuth, setCheckingAuth] = useState(true)
   const hasCheckedAuth = useRef(false)
@@ -121,6 +137,7 @@ export default function SignupPage() {
     if (isDisabled) return
     setLoading(true)
     setError('')
+    setErrorDetail('')
 
     try {
       const payload = { name: name.trim(), email: email.trim(), password }
@@ -139,7 +156,8 @@ export default function SignupPage() {
           data = JSON.parse(text)
         } catch (parseErr) {
           if (res.status >= 500) {
-            setError('Server error. Please try again in a moment.')
+            setError('Server error (HTTP ' + res.status + ')')
+            setErrorDetail(NON_JSON_ERROR_HINT)
           } else if (res.status === 0 || !res.ok) {
             setError('Unable to connect to the server. Please check your internet connection.')
           } else {
@@ -153,6 +171,11 @@ export default function SignupPage() {
       if (!res.ok || !data.success) {
         const errorMessage = formatErrorMessage(data, "We couldn't create your account. Please try again.")
         setError(errorMessage)
+        if (data.code && ERROR_HINTS[data.code]) {
+          setErrorDetail(ERROR_HINTS[data.code])
+        } else if (res.status >= 500) {
+          setErrorDetail('This is a server-side error. Check the deployment environment variables and server logs.')
+        }
         setLoading(false)
         return
       }
@@ -184,6 +207,7 @@ export default function SignupPage() {
       } else {
         setError(err.message || "We couldn't create your account. Please check your connection and try again.")
       }
+      setErrorDetail('')
     } finally {
       setLoading(false)
     }
@@ -239,15 +263,18 @@ export default function SignupPage() {
             <div className="bg-white rounded-2xl border border-gray-200 shadow-xl p-6 md:p-8">
               {error && (
                 <div
-                  className={`rounded-lg border px-4 py-3 text-sm font-medium mb-6 ${
+                  className={`rounded-lg border px-4 py-3 text-sm mb-6 ${
                     error.startsWith('✓')
                       ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                      : 'border-red-200 bg-red-50 text-red-700'
+                      : 'border-red-200 bg-red-50'
                   }`}
                   role="alert"
                   aria-live="assertive"
                 >
-                  {error}
+                  <p className={error.startsWith('✓') ? 'text-emerald-700 font-medium' : 'text-red-700 font-medium'}>{error}</p>
+                  {errorDetail && (
+                    <p className="text-red-600/80 mt-1.5 text-xs leading-relaxed">{errorDetail}</p>
+                  )}
                 </div>
               )}
 

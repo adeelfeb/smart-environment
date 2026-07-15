@@ -14,7 +14,10 @@ export default async function handler(req, res) {
   } catch (err) {
     console.error('[Signup API] Unhandled error:', err);
     if (!res.headersSent) {
-      return jsonError(res, 500, 'Unable to create your account at this time. Please try again later.');
+      const message = err.message
+        ? `Sign-up failed: ${err.message}`
+        : 'Unable to create your account at this time. Please try again later.';
+      return jsonError(res, 500, message, null, 'UNHANDLED_ERROR');
     }
   }
 }

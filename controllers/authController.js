@@ -68,17 +68,15 @@ export async function signup(req, res) {
   
   if (!env.JWT_SECRET) {
     logger.error('JWT_SECRET not configured');
-    return jsonError(res, 503, 'Authentication service is currently unavailable. Please try again later.');
+    return jsonError(res, 503, 'Authentication service is currently unavailable. Please try again later.', null, 'NO_JWT_SECRET');
   }
   
   try {
     const dbResult = await connectDB();
-    // Only log in development
     if (process.env.NODE_ENV === 'development') {
       logger.info(`[Signup] DB connection: ${Date.now() - (startTime || Date.now())}ms`);
     }
     if (!dbResult.success) {
-      // Log error details for debugging (server-side only)
       if (dbResult.error) {
         logger.error('Database connection failed during signup:', {
           code: dbResult.code,
@@ -87,17 +85,23 @@ export async function signup(req, res) {
         });
       }
       
-      // Provide more helpful error message based on error code
       let errorMessage = 'Database service is currently unavailable. Please try again later.';
+      let errorCode = 'DB_UNAVAILABLE';
       if (dbResult.code === 'NO_DB_URI') {
         errorMessage = 'Database configuration is missing. Please contact support.';
+        errorCode = 'NO_DB_URI';
       } else if (dbResult.code === 'CONNECTION_TIMEOUT') {
         errorMessage = 'Database connection timed out. Please check your connection and try again.';
+        errorCode = 'CONNECTION_TIMEOUT';
       } else if (dbResult.code === 'DNS_RESOLUTION_FAILED') {
         errorMessage = 'Cannot connect to database server. Please check your network connection.';
+        errorCode = 'DNS_RESOLUTION_FAILED';
+      } else if (dbResult.code === 'AUTHENTICATION_FAILED') {
+        errorMessage = 'Database authentication failed. Please contact support.';
+        errorCode = 'AUTHENTICATION_FAILED';
       }
       
-      return jsonError(res, 503, errorMessage);
+      return jsonError(res, 503, errorMessage, null, errorCode);
     }
     
     // Check for existing user (case-insensitive)
@@ -200,7 +204,7 @@ export async function signup(req, res) {
     }
     
     // Generic error for everything else
-    return jsonError(res, 500, 'Unable to create your account at this time. Please try again later or contact support if the issue persists.');
+    return jsonError(res, 500, 'Unable to create your account at this time. Please try again later or contact support if the issue persists.', null, 'SIGNUP_FAILED');
   }
 }
 
@@ -224,7 +228,6 @@ export async function login(req, res) {
   try {
     const dbResult = await connectDB();
     if (!dbResult.success) {
-      // Log error details for debugging (server-side only)
       if (dbResult.error) {
         logger.error('Database connection failed during login:', {
           code: dbResult.code,
@@ -233,17 +236,23 @@ export async function login(req, res) {
         });
       }
       
-      // Provide more helpful error message based on error code
       let errorMessage = 'Database service is currently unavailable. Please try again later.';
+      let errorCode = 'DB_UNAVAILABLE';
       if (dbResult.code === 'NO_DB_URI') {
         errorMessage = 'Database configuration is missing. Please contact support.';
+        errorCode = 'NO_DB_URI';
       } else if (dbResult.code === 'CONNECTION_TIMEOUT') {
         errorMessage = 'Database connection timed out. Please check your connection and try again.';
+        errorCode = 'CONNECTION_TIMEOUT';
       } else if (dbResult.code === 'DNS_RESOLUTION_FAILED') {
         errorMessage = 'Cannot connect to database server. Please check your network connection.';
+        errorCode = 'DNS_RESOLUTION_FAILED';
+      } else if (dbResult.code === 'AUTHENTICATION_FAILED') {
+        errorMessage = 'Database authentication failed. Please contact support.';
+        errorCode = 'AUTHENTICATION_FAILED';
       }
       
-      return jsonError(res, 503, errorMessage);
+      return jsonError(res, 503, errorMessage, null, errorCode);
     }
     
     // Determine if identifier is email or username
@@ -299,12 +308,12 @@ export async function login(req, res) {
     
     if (!env.JWT_SECRET) {
       logger.error('JWT_SECRET not configured');
-      return jsonError(res, 503, 'Authentication service is currently unavailable. Please try again later.');
+      return jsonError(res, 503, 'Authentication service is currently unavailable. Please try again later.', null, 'NO_JWT_SECRET');
     }
     
     const token = signToken({ id: user._id, role: user.role });
     if (!token) {
-      return jsonError(res, 503, 'Authentication service is currently unavailable. Please try again later.');
+      return jsonError(res, 503, 'Authentication service is currently unavailable. Please try again later.', null, 'TOKEN_SIGN_FAILED');
     }
     // Pass the request so the cookie secure flag reflects the real protocol
     setAuthCookie(res, token, req);
@@ -316,8 +325,7 @@ export async function login(req, res) {
     });
   } catch (err) {
     logger.error('Login error:', err.message, err.stack);
-    // Don't expose internal error details
-    return jsonError(res, 500, 'Unable to sign you in at this time. Please try again later.');
+    return jsonError(res, 500, 'Unable to sign you in at this time. Please try again later.', null, 'LOGIN_FAILED');
   }
 }
 
