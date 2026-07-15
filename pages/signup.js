@@ -6,7 +6,6 @@ import { Eye, EyeOff, Leaf } from 'lucide-react'
 import Navbar from '../components/designndev/Navbar'
 import Footer from '../components/designndev/Footer'
 import { AuthCardSkeleton } from '../components/Skeleton'
-import { useRecaptcha } from '../utils/useRecaptcha'
 import { safeParseJsonResponse } from '../utils/safeJsonResponse'
 import { siteName } from '../lib/siteConfig'
 
@@ -49,7 +48,6 @@ function incrementRedirectCount() {
 
 export default function SignupPage() {
   const router = useRouter()
-  const { execute: executeRecaptcha, isAvailable: recaptchaAvailable } = useRecaptcha()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -124,11 +122,8 @@ export default function SignupPage() {
     setLoading(true)
     setError('')
 
-    const recaptchaToken = recaptchaAvailable ? await executeRecaptcha() : null
-
     try {
       const payload = { name: name.trim(), email: email.trim(), password }
-      if (recaptchaToken) payload.recaptchaToken = recaptchaToken
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
