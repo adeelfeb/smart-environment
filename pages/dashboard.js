@@ -645,58 +645,67 @@ export default function Dashboard({ user }) {
 
         <style jsx>{`
           .section {
-            display: grid;
-            gap: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
             min-height: 100%;
             margin: 0;
             padding: 0;
           }
 
           .section-header {
-            display: grid;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
             gap: 0.5rem;
-            margin: 0;
-            padding: 0;
+            padding: 0.32rem 0.55rem;
+            background: var(--ix-surface);
+            backdrop-filter: var(--ix-glass-blur);
+            -webkit-backdrop-filter: var(--ix-glass-blur);
+            border: 1px solid var(--ix-surface-border);
+            border-radius: 14px;
+            box-shadow: var(--ix-surface-shadow);
+            flex-shrink: 0;
           }
 
           .section-title {
-            font-family: var(--font-heading);
-            font-size: clamp(1.9rem, 3.5vw, 2.35rem);
-            font-weight: 600;
-            color: #02201a;
             margin: 0;
-            padding: 0;
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--ix-text);
           }
 
           .section-subtitle {
-            color: #4b5563;
-            font-size: 1rem;
-            line-height: 1.6;
-            max-width: 60ch;
             margin: 0;
-            padding: 0;
+            color: var(--ix-muted);
+            font-size: 0.72rem;
+            line-height: 1.3;
           }
 
           .section-body {
-            display: grid;
-            gap: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
             padding-bottom: 0.35rem;
           }
 
           .section-panels {
             display: grid;
-            gap: 1.25rem;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 0.55rem;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
           }
 
           .section-card {
-            border-radius: 1rem;
-            background: white;
-            padding: 1.6rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.04);
-            border: 1px solid #f3f4f6;
-            display: grid;
-            gap: 0.75rem;
+            border-radius: 12px;
+            border: 1px solid var(--ix-surface-border-soft);
+            background: var(--ix-surface-solid);
+            box-shadow: var(--ix-surface-shadow);
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.65rem 0.75rem;
           }
 
           .section-card-header {
@@ -707,168 +716,116 @@ export default function Dashboard({ user }) {
           }
 
           .section-card h2 {
-            font-family: var(--font-subheading);
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #02201a;
+            margin: 0;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--ix-text);
           }
 
           .section-card p {
-            color: #6b7280;
-            line-height: 1.65;
+            margin: 0;
+            color: var(--ix-muted);
+            font-size: 0.72rem;
+            line-height: 1.45;
           }
 
           .section-meta {
-            font-size: 0.82rem;
-            font-weight: 600;
-            color: #059669;
-            background: rgba(5, 150, 105, 0.08);
-            padding: 0.35rem 0.65rem;
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--ix-accent-deep);
+            background: rgba(219, 234, 254, 0.65);
+            padding: 0.15rem 0.45rem;
             border-radius: 999px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
           }
 
           .section-list-wrap {
-            display: grid;
-            gap: 0.75rem;
-            background: white;
-            border-radius: 1rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.04);
-            border: 1px solid #f3f4f6;
-            padding: 1.6rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+            background: var(--ix-surface-solid);
+            border-radius: 12px;
+            border: 1px solid var(--ix-surface-border-soft);
+            box-shadow: var(--ix-surface-shadow);
+            padding: 0.65rem 0.75rem;
           }
 
           .section-list-title {
-            font-family: var(--font-subheading);
-            font-size: 1rem;
-            font-weight: 600;
-            color: #02201a;
+            margin: 0;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--ix-text);
           }
 
           .section-list {
             list-style: none;
-            display: grid;
-            gap: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
             margin: 0;
             padding: 0;
           }
 
           .section-list-item {
-            display: grid;
-            gap: 0.3rem;
-            padding-left: 0.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+            padding: 0.45rem 0.48rem;
+            border-radius: 10px;
+            border: 1px solid var(--ix-surface-border-soft);
+            background: rgba(255, 255, 255, 0.6);
           }
 
           .section-list-item-title {
-            font-weight: 500;
-            color: #02201a;
+            font-weight: 600;
+            font-size: 0.74rem;
+            color: var(--ix-text);
           }
 
           .section-list-item p {
-            color: #6b7280;
-            line-height: 1.6;
+            margin: 0;
+            color: var(--ix-muted);
+            font-size: 0.72rem;
+            line-height: 1.4;
           }
 
           .section-custom {
-            background: white;
-            border-radius: 1rem;
-            padding: 1.6rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.04);
-            border: 1px solid #f3f4f6;
+            border-radius: 12px;
+            border: 1px solid var(--ix-surface-border-soft);
+            background: var(--ix-surface-solid);
+            box-shadow: var(--ix-surface-shadow);
+            overflow: hidden;
           }
 
           .empty-state {
-            display: grid;
-            gap: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
             text-align: center;
-            background: white;
-            border-radius: 1rem;
-            padding: 2rem;
-            border: 1px solid #f3f4f6;
+            background: var(--ix-surface-solid);
+            border-radius: 12px;
+            padding: 1.25rem 0.9rem;
+            border: 1px solid var(--ix-surface-border-soft);
+            box-shadow: var(--ix-surface-shadow);
           }
 
           .empty-state h2 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #02201a;
+            margin: 0;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--ix-text);
           }
 
           .empty-state p {
-            color: #6b7280;
-          }
-
-          @media (max-width: 960px) {
-            .section-title {
-              font-size: clamp(1.5rem, 4vw, 1.9rem);
-            }
-            .section-subtitle {
-              font-size: 0.95rem;
-              max-width: 100%;
-            }
+            margin: 0;
+            color: var(--ix-muted);
+            font-size: 0.78rem;
+            line-height: 1.45;
           }
 
           @media (max-width: 720px) {
-            .section {
-              gap: 1.5rem;
-            }
-            .section-body {
-              gap: 1.25rem;
-              padding-bottom: 0.75rem;
-            }
-
             .section-panels {
               grid-template-columns: 1fr;
-              gap: 1rem;
-            }
-
-            .section-card {
-              padding: 1.25rem;
-            }
-
-            .section-card h2 {
-              font-size: 1rem;
-            }
-
-            .section-list-wrap {
-              padding: 1.25rem;
-            }
-
-            .section-list-title {
-              font-size: 0.95rem;
-            }
-
-            .section-custom {
-              padding: 1.25rem;
-            }
-
-            .empty-state {
-              padding: 1.5rem;
-            }
-          }
-
-          @media (max-width: 480px) {
-            .section-header {
-              gap: 0.4rem;
-            }
-            .section-title {
-              font-size: 1.5rem;
-            }
-            .section-subtitle {
-              font-size: 0.9rem;
-            }
-            .section-body {
-              gap: 1rem;
-            }
-            .section-card {
-              padding: 1rem;
-              border-radius: 0.9rem;
-            }
-            .section-list-wrap {
-              padding: 1rem;
-              border-radius: 0.9rem;
-            }
-            .section-custom {
-              padding: 1rem;
-              border-radius: 0.9rem;
             }
           }
         `}</style>
