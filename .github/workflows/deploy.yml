@@ -1,25 +1,30 @@
+# GitHub Actions workflow to deploy the portfolio to a DigitalOcean Droplet
 name: Deploy to Server
 
+# Triggers: runs on every push to 'main' and can be triggered manually from the Actions tab
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
+  workflow_dispatch: # Allows manual triggering from the GitHub UI
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # Runs on a fresh Ubuntu runner
 
     steps:
+      # Checks out the repository code so the workflow has access to it
       - uses: actions/checkout@v4
 
+      # Configures SSH access to the Droplet using a private key stored in GitHub Secrets
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.DROPLET_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.DROPLET_HOST }} >> ~/.ssh/known_hosts
+          echo "${{ secrets.DROPLET_SSH_KEY }}" > ~/.ssh/id_rsa  # Write the SSH private key
+          chmod 600 ~/.ssh/id_rsa                                 # Restrict key permissions (required by SSH)
+          ssh-keyscan -H ${{ secrets.DROPLET_HOST }} >> ~/.ssh/known_hosts  # Trust the server's host key
 
+      # SSHs into the Droplet and runs the remote deploy script
       - name: Deploy
         run: |
           ssh -i ~/.ssh/id_rsa root@${{ secrets.DROPLET_HOST }} \

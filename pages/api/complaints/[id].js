@@ -1,4 +1,4 @@
-import { getComplaintById, updateComplaintStatus, addRemark, uploadVerificationPhoto } from '../../../controllers/complaintController';
+import { getComplaintById, updateComplaintStatus, addRemark, uploadVerificationPhoto, deleteComplaint } from '../../../controllers/complaintController';
 import authMiddleware from '../../../middlewares/authMiddleware';
 import roleMiddleware from '../../../middlewares/roleMiddleware';
 import { jsonError } from '../../../lib/response';
@@ -27,8 +27,13 @@ export default async function handler(req, res) {
       }
       return updateComplaintStatus(req, res);
     }
+    case 'DELETE': {
+      const user = await authMiddleware(req, res);
+      if (!user) return;
+      return deleteComplaint(req, res);
+    }
     default: {
-      res.setHeader('Allow', ['GET', 'PUT']);
+      res.setHeader('Allow', ['GET', 'PUT', 'DELETE']);
       return jsonError(res, 405, `Method ${method} not allowed`);
     }
   }

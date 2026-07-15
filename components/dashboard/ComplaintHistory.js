@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Search, Filter, Calendar, ChevronLeft, ChevronRight, Loader2, AlertCircle, MapPin, Building2, FileText } from 'lucide-react';
+import { Search, Filter, Calendar, ChevronLeft, ChevronRight, Loader2, AlertCircle, MapPin, Building2, FileText, Trash2, X } from 'lucide-react';
 import { safeParseJsonResponse } from '../../utils/safeJsonResponse';
 
 const STATUS_OPTIONS = [
@@ -67,6 +67,8 @@ export default function ComplaintHistory({ user, onSelectComplaint }) {
   const [dateTo, setDateTo] = useState('');
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, pages: 1 });
   const [fetchingMore, setFetchingMore] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
 
   const buildQueryParams = useCallback(
     (page = 1) => {
@@ -155,6 +157,33 @@ export default function ComplaintHistory({ user, onSelectComplaint }) {
       }
     },
     [onSelectComplaint]
+  );
+
+  const handleDeleteComplaint = useCallback(
+    async (complaintId) => {
+      setDeletingId(complaintId);
+      try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        const res = await fetch(`/api/complaints/${complaintId}`, {
+          method: 'DELETE',
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          credentials: 'include',
+        });
+        const data = await safeParseJsonResponse(res);
+        if (data.success) {
+          setComplaints((prev) => prev.filter((c) => (c._id || c.id) !== complaintId));
+          setPagination((prev) => ({ ...prev, total: Math.max(0, prev.total - 1) }));
+        } else {
+          setError(data.message || 'Failed to delete complaint');
+        }
+      } catch {
+        setError('Unable to connect. Please try again.');
+      } finally {
+        setDeletingId(null);
+        setDeleteConfirmId(null);
+      }
+    },
+    []
   );
 
   const filteredComplaints = useMemo(() => {
@@ -346,6 +375,49 @@ export default function ComplaintHistory({ user, onSelectComplaint }) {
                         <Building2 size={14} />
                         {typeof complaint.corporation === 'object' ? complaint.corporation.name || '—' : complaint.corporation}
                       </span>
+                    )}
+                  </div>
+
+                  <div className="complaint-history-card-actions">
+                    {deleteConfirmId === (complaint._id || complaint.id) ? (
+                      <div className="complaint-history-delete-confirm">
+                        <span className="complaint-history-delete-text">Delete this complaint?</span>
+                        <button
+                          type="button"
+                          className="complaint-history-delete-yes"
+                          disabled={deletingId === (complaint._id || complaint.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteComplaint(complaint._id || complaint.id);
+                          }}
+                        >
+                          {deletingId === (complaint._id || complaint.id) ? (
+                            <><Loader2 size={14} className="complaint-history-spinner" /> Deleting...</>
+                          ) : 'Yes, Delete'}
+                        </button>
+                        <button
+                          type="button"
+                          className="complaint-history-delete-no"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeleteConfirmId(null);
+                          }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        className="complaint-history-delete-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteConfirmId(complaint._id || complaint.id);
+                        }}
+                      >
+                        <Trash2 size={14} />
+                        Delete Record
+                      </button>
                     )}
                   </div>
                 </li>
@@ -730,6 +802,90 @@ export default function ComplaintHistory({ user, onSelectComplaint }) {
           display: inline-flex;
           align-items: center;
           gap: 0.3rem;
+        }
+
+        .complaint-history-card-actions {
+          margin-top: 0.75rem;
+          padding-top: 0.75rem;
+          border-top: 1px solid #f1f5f9;
+          display: flex;
+          justify-content: flex-end;
+        }
+
+        .complaint-history-delete-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.375rem;
+          padding: 0.4rem 0.875rem;
+          background: transparent;
+          color: #dc2626;
+          border: 1px solid #fecaca;
+          border-radius: 0.5rem;
+          font-size: 0.8rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .complaint-history-delete-btn:hover {
+          background: #fef2f2;
+          border-color: #f87171;
+        }
+
+        .complaint-history-delete-confirm {
+          display: flex;
+          align-items: center;
+          gap: 0.625rem;
+          flex-wrap: wrap;
+        }
+
+        .complaint-history-delete-text {
+          font-size: 0.825rem;
+          color: #991b1b;
+          font-weight: 500;
+        }
+
+        .complaint-history-delete-yes {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.3rem;
+          padding: 0.375rem 0.75rem;
+          background: #dc2626;
+          color: white;
+          border: none;
+          border-radius: 0.5rem;
+          font-size: 0.78rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background 0.2s;
+        }
+
+        .complaint-history-delete-yes:hover:not(:disabled) {
+          background: #b91c1c;
+        }
+
+        .complaint-history-delete-yes:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .complaint-history-delete-no {
+          display: inline-flex;
+          align-items: center;
+          padding: 0.375rem 0.75rem;
+          background: white;
+          color: #475569;
+          border: 1px solid #d1d5db;
+          border-radius: 0.5rem;
+          font-size: 0.78rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .complaint-history-delete-no:hover {
+          background: #f8fafc;
+          border-color: #94a3b8;
         }
 
         .complaint-history-pagination {

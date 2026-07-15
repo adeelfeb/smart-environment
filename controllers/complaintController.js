@@ -339,6 +339,38 @@ export async function uploadVerificationPhoto(req, res) {
   }
 }
 
+export async function deleteComplaint(req, res) {
+  try {
+    const dbResult = await connectDB();
+    if (!dbResult.success) {
+      return jsonError(res, 503, 'Database service is currently unavailable');
+    }
+    const { id } = req.query;
+    const complaint = await Complaint.findById(id);
+    if (!complaint) {
+      return jsonError(res, 404, 'Complaint not found');
+    }
+    if (complaint.citizen.toString() !== req.user._id.toString()) {
+      return jsonError(res, 403, 'Only the citizen who created this complaint can delete it');
+    }
+    const complaintIdStr = complaint.complaintId;
+    await Complaint.deleteOne({ _id: id });
+
+    await createAuditLog({
+      userId: req.user._id,
+      action: 'COMPLAINT_DELETED',
+      targetType: 'Complaint',
+      targetId: complaint._id,
+      details: { complaintId: complaintIdStr },
+      ipAddress: req.headers['x-forwarded-for'] || req.socket?.remoteAddress || null,
+    });
+
+    return jsonSuccess(res, 200, 'Complaint deleted successfully');
+  } catch (err) {
+    return jsonError(res, 500, 'Failed to delete complaint', err.message);
+  }
+}
+
 export async function getDashboardStats(req, res) {
   try {
     const dbResult = await connectDB();

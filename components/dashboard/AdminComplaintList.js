@@ -44,6 +44,9 @@ export default function AdminComplaintList({ user, onSelectComplaint }) {
     dateTo: '',
   });
 
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
+
   const fetchComplaints = useCallback(async (page = 1) => {
     setLoading(true);
     setError('');
@@ -131,6 +134,36 @@ export default function AdminComplaintList({ user, onSelectComplaint }) {
   const handlePageChange = (newPage) => {
     if (newPage < 1 || newPage > pagination.pages) return;
     fetchComplaints(newPage);
+  };
+
+  const isCreator = (complaint) => {
+    if (!user?.id) return false;
+    const citizenId = typeof complaint.citizen === 'object' ? complaint.citizen?._id : complaint.citizen;
+    return citizenId && citizenId.toString() === user.id.toString();
+  };
+
+  const handleDeleteComplaint = async (complaintId) => {
+    setDeletingId(complaintId);
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const res = await fetch(`/api/complaints/${complaintId}`, {
+        method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        credentials: 'include',
+      });
+      const data = await safeParseJsonResponse(res);
+      if (data.success) {
+        setComplaints((prev) => prev.filter((c) => (c._id || c.id) !== complaintId));
+        setPagination((prev) => ({ ...prev, total: Math.max(0, prev.total - 1) }));
+      } else {
+        setError(data.message || 'Failed to delete complaint');
+      }
+    } catch {
+      setError('Unable to connect. Please try again.');
+    } finally {
+      setDeletingId(null);
+      setDeleteConfirmId(null);
+    }
   };
 
   const handleExportCSV = () => {
@@ -310,19 +343,20 @@ export default function AdminComplaintList({ user, onSelectComplaint }) {
               <th>Date</th>
               <th>Status</th>
               <th>Priority</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={9} className="acl-loading-cell">
+                <td colSpan={10} className="acl-loading-cell">
                   <div className="acl-spinner" />
                   <span>Loading complaints...</span>
                 </td>
               </tr>
             ) : filteredComplaints.length === 0 ? (
               <tr>
-                <td colSpan={9} className="acl-empty-cell">No complaints found</td>
+                <td colSpan={10} className="acl-empty-cell">No complaints found</td>
               </tr>
             ) : (
               filteredComplaints.map((c, i) => {
@@ -352,6 +386,46 @@ export default function AdminComplaintList({ user, onSelectComplaint }) {
                       <span className="acl-chip" style={{ background: pc.bg, color: pc.text }}>
                         {c.priority || 'Low'}
                       </span>
+                    </td>
+                    <td>
+                      {isCreator(c) && (
+                        deleteConfirmId === (c._id || c.id) ? (
+                          <div className="acl-delete-confirm">
+                            <button
+                              type="button"
+                              className="acl-delete-yes"
+                              disabled={deletingId === (c._id || c.id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteComplaint(c._id || c.id);
+                              }}
+                            >
+                              {deletingId === (c._id || c.id) ? 'Deleting...' : 'Yes'}
+                            </button>
+                            <button
+                              type="button"
+                              className="acl-delete-no"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setDeleteConfirmId(null);
+                              }}
+                            >
+                              No
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            className="acl-delete-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteConfirmId(c._id || c.id);
+                            }}
+                          >
+                            Delete
+                          </button>
+                        )
+                      )}
                     </td>
                   </tr>
                 );
@@ -400,6 +474,47 @@ export default function AdminComplaintList({ user, onSelectComplaint }) {
                     <span className="acl-chip acl-chip-sm" style={{ background: pc.bg, color: pc.text }}>{c.priority || 'Low'}</span>
                   </div>
                 </div>
+                {isCreator(c) && (
+                  <div className="acl-card-actions">
+                    {deleteConfirmId === (c._id || c.id) ? (
+                      <div className="acl-delete-confirm">
+                        <span className="acl-delete-text">Delete?</span>
+                        <button
+                          type="button"
+                          className="acl-delete-yes"
+                          disabled={deletingId === (c._id || c.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteComplaint(c._id || c.id);
+                          }}
+                        >
+                          {deletingId === (c._id || c.id) ? 'Deleting...' : 'Yes, Delete'}
+                        </button>
+                        <button
+                          type="button"
+                          className="acl-delete-no"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeleteConfirmId(null);
+                          }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        className="acl-delete-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteConfirmId(c._id || c.id);
+                        }}
+                      >
+                        Delete Record
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })
@@ -813,6 +928,74 @@ export default function AdminComplaintList({ user, onSelectComplaint }) {
           .acl-filter-group {
             width: 100%;
           }
+        }
+
+        .acl-delete-btn {
+          padding: 5px 12px;
+          border: 1px solid #fecaca;
+          border-radius: 6px;
+          background: transparent;
+          color: #dc2626;
+          font-size: 0.72rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.15s;
+          white-space: nowrap;
+        }
+        .acl-delete-btn:hover {
+          background: #fef2f2;
+          border-color: #f87171;
+        }
+        .acl-delete-confirm {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          flex-wrap: wrap;
+        }
+        .acl-delete-text {
+          font-size: 0.72rem;
+          color: #991b1b;
+          font-weight: 500;
+        }
+        .acl-delete-yes {
+          padding: 4px 10px;
+          background: #dc2626;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          font-size: 0.7rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background 0.15s;
+        }
+        .acl-delete-yes:hover:not(:disabled) {
+          background: #b91c1c;
+        }
+        .acl-delete-yes:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+        .acl-delete-no {
+          padding: 4px 10px;
+          background: white;
+          color: #475569;
+          border: 1px solid #d1d5db;
+          border-radius: 5px;
+          font-size: 0.7rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.15s;
+        }
+        .acl-delete-no:hover {
+          background: #f8fafc;
+          border-color: #94a3b8;
+        }
+        .acl-card-actions {
+          margin-top: 10px;
+          padding-top: 10px;
+          border-top: 1px solid #f1f5f9;
+          display: flex;
+          justify-content: flex-end;
         }
       `}</style>
     </div>
