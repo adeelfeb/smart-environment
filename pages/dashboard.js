@@ -689,6 +689,8 @@ export default function Dashboard({ user }) {
             flex-direction: column;
             gap: 0.65rem;
             padding-bottom: 0.35rem;
+            flex: 1;
+            min-height: 0;
           }
 
           .section-panels {
@@ -795,6 +797,10 @@ export default function Dashboard({ user }) {
             background: rgba(255, 255, 255, 0.94);
             box-shadow: 0 1px 3px rgba(0,0,0,0.03);
             overflow: hidden;
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
           }
 
           .empty-state {

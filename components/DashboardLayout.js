@@ -421,6 +421,8 @@ export default function DashboardLayout({
               <line x1="3" y1="18" x2="21" y2="18" />
             </svg>
           </button>
+        </div>
+        <div className="ix-topbar-center">
           <div className="ix-topbar-brand">
             <EcoWatchLogo size={28} />
             <div className="ix-topbar-titles">
@@ -658,7 +660,8 @@ export default function DashboardLayout({
 
       <style jsx>{`
         .ix-page {
-          min-height: 100dvh;
+          height: 100dvh;
+          max-height: 100dvh;
           display: flex;
           flex-direction: column;
           color: var(--ix-text);
@@ -669,20 +672,13 @@ export default function DashboardLayout({
             radial-gradient(ellipse 85% 55% at 0% 5%, rgba(5, 150, 105, 0.09), transparent 48%),
             radial-gradient(ellipse 75% 45% at 55% 105%, rgba(52, 211, 153, 0.07), transparent 50%),
             linear-gradient(168deg, #f0fdf4 0%, #ecfdf5 36%, #f8fafc 68%, #f0fdf4 100%);
-        }
-
-        @media (min-width: 1100px) {
-          .ix-page {
-            height: 100dvh;
-            max-height: 100dvh;
-            overflow: hidden;
-          }
+          overflow: hidden;
         }
 
         .ix-topbar {
-          display: flex;
+          display: grid;
+          grid-template-columns: 1fr auto 1fr;
           align-items: center;
-          justify-content: space-between;
           gap: 0.6rem;
           padding: 0.28rem 0.55rem;
           margin: 0.32rem 0.32rem 0;
@@ -701,6 +697,14 @@ export default function DashboardLayout({
           align-items: center;
           gap: 0.45rem;
           min-width: 0;
+          justify-self: start;
+        }
+        .ix-topbar-center {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 0;
+          justify-self: center;
         }
         .ix-topbar-collapse {
           display: none;
@@ -780,6 +784,7 @@ export default function DashboardLayout({
           align-items: center;
           gap: 0.35rem;
           flex-shrink: 0;
+          justify-self: end;
         }
         .ix-topbar-icon-btn {
           display: inline-flex;
@@ -975,6 +980,17 @@ export default function DashboardLayout({
           .ix-notif-dropdown {
             width: calc(100vw - 2rem);
             right: -0.5rem;
+          }
+          .ix-topbar-subtitle {
+            display: none;
+          }
+          .ix-topbar-title {
+            font-size: 0.88rem;
+          }
+          .ix-topbar {
+            gap: 0.35rem;
+            padding: 0.22rem 0.4rem;
+            margin: 0.2rem 0.2rem 0;
           }
         }
         .ix-topbar-settings--open {

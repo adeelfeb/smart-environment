@@ -203,6 +203,9 @@ export default function GisMapPanel({ user, onSelectComplaint }) {
     (c) => c.location?.latitude && c.location?.longitude && activeFilters[c.status]
   ).length;
 
+  const [showFilters, setShowFilters] = useState(false);
+  const [showLegend, setShowLegend] = useState(false);
+
   return (
     <div className="gis-panel">
       {loading && !mapInstanceRef.current && (
@@ -216,40 +219,61 @@ export default function GisMapPanel({ user, onSelectComplaint }) {
 
       <div ref={mapRef} className="gis-panel-map" />
 
-      <div className="gis-panel-filters">
-        <div className="gis-panel-filters-header">
-          <span className="gis-panel-filters-title">Filter by Status</span>
-          <span className="gis-panel-filters-count">{activeCount} shown</span>
-        </div>
-        {Object.entries(STATUS_CONFIG).map(([status, cfg]) => (
-          <label key={status} className="gis-panel-filter-item">
-            <input
-              type="checkbox"
-              checked={activeFilters[status]}
-              onChange={() => toggleFilter(status)}
-            />
-            <span className="gis-panel-filter-dot" style={{ background: cfg.color }} />
-            <span className="gis-panel-filter-label">{cfg.label}</span>
-          </label>
-        ))}
-      </div>
+      <button className="gis-panel-toggle gis-panel-toggle--filters" onClick={() => { setShowFilters((v) => !v); setShowLegend(false); }} aria-label="Toggle filters">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+        </svg>
+        <span>Filter</span>
+        {activeCount > 0 && <span className="gis-panel-toggle-badge">{activeCount}</span>}
+      </button>
 
-      <div className="gis-panel-legend">
-        <div className="gis-panel-legend-title">Legend</div>
-        {Object.entries(STATUS_CONFIG).map(([status, cfg]) => (
-          <div key={status} className="gis-panel-legend-item">
-            <span className="gis-panel-legend-dot" style={{ background: cfg.color }} />
-            <span>{cfg.label}</span>
+      <button className="gis-panel-toggle gis-panel-toggle--legend" onClick={() => { setShowLegend((v) => !v); setShowFilters(false); }} aria-label="Toggle legend">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+          <line x1="3" y1="9" x2="21" y2="9" />
+          <line x1="9" y1="21" x2="9" y2="9" />
+        </svg>
+        <span>Legend</span>
+      </button>
+
+      {showFilters && (
+        <div className="gis-panel-filters">
+          <div className="gis-panel-filters-header">
+            <span className="gis-panel-filters-title">Filter by Status</span>
+            <span className="gis-panel-filters-count">{activeCount} shown</span>
           </div>
-        ))}
-      </div>
+          {Object.entries(STATUS_CONFIG).map(([status, cfg]) => (
+            <label key={status} className="gis-panel-filter-item">
+              <input
+                type="checkbox"
+                checked={activeFilters[status]}
+                onChange={() => toggleFilter(status)}
+              />
+              <span className="gis-panel-filter-dot" style={{ background: cfg.color }} />
+              <span className="gis-panel-filter-label">{cfg.label}</span>
+            </label>
+          ))}
+        </div>
+      )}
+
+      {showLegend && (
+        <div className="gis-panel-legend">
+          <div className="gis-panel-legend-title">Legend</div>
+          {Object.entries(STATUS_CONFIG).map(([status, cfg]) => (
+            <div key={status} className="gis-panel-legend-item">
+              <span className="gis-panel-legend-dot" style={{ background: cfg.color }} />
+              <span>{cfg.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
 
       <style jsx>{`
         .gis-panel {
           position: relative;
           width: 100%;
-          height: 100%;
-          min-height: 500px;
+          flex: 1;
+          min-height: 0;
           display: flex;
           flex-direction: column;
           font-family: inherit;
@@ -257,8 +281,8 @@ export default function GisMapPanel({ user, onSelectComplaint }) {
 
         .gis-panel-map {
           width: 100%;
-          height: 100%;
-          min-height: 500px;
+          flex: 1;
+          min-height: 200px;
           z-index: 0;
         }
 
@@ -270,7 +294,7 @@ export default function GisMapPanel({ user, onSelectComplaint }) {
           justify-content: center;
           gap: 12px;
           background: rgba(255, 255, 255, 0.85);
-          z-index: 1000;
+          z-index: 10;
           font-size: 14px;
           color: #475569;
         }
@@ -299,21 +323,73 @@ export default function GisMapPanel({ user, onSelectComplaint }) {
           border-radius: 8px;
           padding: 10px 20px;
           font-size: 13px;
-          z-index: 1001;
+          z-index: 11;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .gis-panel-toggle {
+          position: absolute;
+          bottom: 12px;
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          padding: 7px 12px;
+          background: rgba(255, 255, 255, 0.95);
+          border: 1px solid rgba(16, 185, 129, 0.2);
+          border-radius: 8px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+          backdrop-filter: blur(4px);
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 600;
+          color: #334155;
+          z-index: 5;
+          font-family: inherit;
+          transition: all 160ms ease;
+        }
+        .gis-panel-toggle:hover {
+          background: rgba(209, 250, 229, 0.9);
+          border-color: rgba(16, 185, 129, 0.4);
+          color: #059669;
+        }
+        .gis-panel-toggle--filters {
+          left: 12px;
+        }
+        .gis-panel-toggle--legend {
+          right: 12px;
+        }
+        .gis-panel-toggle-badge {
+          background: #10b981;
+          color: #fff;
+          font-size: 10px;
+          font-weight: 700;
+          min-width: 16px;
+          height: 16px;
+          line-height: 16px;
+          text-align: center;
+          border-radius: 999px;
+          padding: 0 4px;
         }
 
         .gis-panel-filters {
           position: absolute;
-          top: 12px;
+          bottom: 48px;
           left: 12px;
-          background: rgba(255, 255, 255, 0.95);
+          background: rgba(255, 255, 255, 0.97);
           border-radius: 10px;
           padding: 14px 16px;
-          z-index: 1000;
-          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+          z-index: 10;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
           min-width: 180px;
-          backdrop-filter: blur(4px);
+          max-width: 220px;
+          backdrop-filter: blur(8px);
+          border: 1px solid rgba(16, 185, 129, 0.15);
+          animation: gis-panel-slide-up 160ms ease;
+        }
+
+        @keyframes gis-panel-slide-up {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
         }
 
         .gis-panel-filters-header {
@@ -370,15 +446,18 @@ export default function GisMapPanel({ user, onSelectComplaint }) {
 
         .gis-panel-legend {
           position: absolute;
-          top: 12px;
+          bottom: 48px;
           right: 12px;
-          background: rgba(255, 255, 255, 0.95);
+          background: rgba(255, 255, 255, 0.97);
           border-radius: 10px;
           padding: 14px 16px;
-          z-index: 1000;
-          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+          z-index: 10;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
           min-width: 150px;
-          backdrop-filter: blur(4px);
+          max-width: 200px;
+          backdrop-filter: blur(8px);
+          border: 1px solid rgba(16, 185, 129, 0.15);
+          animation: gis-panel-slide-up 160ms ease;
         }
 
         .gis-panel-legend-title {
@@ -404,6 +483,19 @@ export default function GisMapPanel({ user, onSelectComplaint }) {
           height: 10px;
           border-radius: 50%;
           flex-shrink: 0;
+        }
+
+        @media (max-width: 480px) {
+          .gis-panel-filters,
+          .gis-panel-legend {
+            left: 12px;
+            right: 12px;
+            max-width: none;
+            min-width: 0;
+          }
+          .gis-panel-toggle span {
+            display: none;
+          }
         }
       `}</style>
     </div>
