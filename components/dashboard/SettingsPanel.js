@@ -87,9 +87,45 @@ export default function SettingsPanel({ user, onProfileUpdated }) {
     }
   };
 
+  const formatDate = (value) => {
+    if (!value) return '—';
+    try {
+      return new Date(value).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+    } catch {
+      return '—';
+    }
+  };
+
   return (
     <div className="settings-grid">
       <section className="settings-card">
+        <h3 className="card-title">Account Information</h3>
+        <div className="info-grid">
+          <div className="info-item">
+            <span className="info-label">Full Name</span>
+            <span className="info-value">{user?.name || '—'}</span>
+          </div>
+          <div className="info-item">
+            <span className="info-label">Email</span>
+            <span className="info-value">{user?.email || '—'}</span>
+          </div>
+          <div className="info-item">
+            <span className="info-label">Role</span>
+            <span className="info-value role-badge">{user?.role || '—'}</span>
+          </div>
+          <div className="info-item">
+            <span className="info-label">Member Since</span>
+            <span className="info-value">{formatDate(user?.createdAt)}</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="settings-card">
+        <h3 className="card-title">Edit Profile</h3>
         <form onSubmit={handleProfileSubmit} className="form">
           <label className="field">
             <span className="label">Display name</span>
@@ -112,6 +148,7 @@ export default function SettingsPanel({ user, onProfileUpdated }) {
       </section>
 
       <section className="settings-card">
+        <h3 className="card-title">Change Password</h3>
         <form onSubmit={handlePasswordSubmit} className="form">
           <label className="field">
             <span className="label">Current password</span>
@@ -172,6 +209,53 @@ export default function SettingsPanel({ user, onProfileUpdated }) {
           width: 100%;
           max-width: 100%;
           box-sizing: border-box;
+        }
+
+        .card-title {
+          font-size: 1.05rem;
+          font-weight: 600;
+          color: #1e293b;
+          margin: 0;
+        }
+
+        .info-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 1.25rem;
+          width: 100%;
+          box-sizing: border-box;
+        }
+
+        .info-item {
+          display: grid;
+          gap: 0.35rem;
+        }
+
+        .info-label {
+          font-size: 0.8rem;
+          font-weight: 500;
+          color: #64748b;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+        }
+
+        .info-value {
+          font-size: 1rem;
+          font-weight: 500;
+          color: #1e293b;
+          word-break: break-word;
+        }
+
+        .role-badge {
+          display: inline-block;
+          background: linear-gradient(135deg, #eff6ff, #dbeafe);
+          color: #1d4ed8;
+          padding: 0.25rem 0.75rem;
+          border-radius: 999px;
+          font-size: 0.85rem;
+          font-weight: 600;
+          text-transform: capitalize;
+          width: fit-content;
         }
 
         .settings-card {
@@ -285,6 +369,10 @@ export default function SettingsPanel({ user, onProfileUpdated }) {
             padding: 1.5rem;
             gap: 1rem;
           }
+          .info-grid {
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+          }
         }
 
         @media (max-width: 640px) {
@@ -319,6 +407,16 @@ export default function SettingsPanel({ user, onProfileUpdated }) {
           .message {
             font-size: 0.85rem;
           }
+          .card-title {
+            font-size: 0.95rem;
+          }
+          .info-grid {
+            grid-template-columns: 1fr;
+            gap: 0.875rem;
+          }
+          .info-value {
+            font-size: 0.95rem;
+          }
         }
 
         @media (max-width: 480px) {
@@ -337,6 +435,15 @@ export default function SettingsPanel({ user, onProfileUpdated }) {
           button {
             padding: 0.65rem 1.1rem;
             font-size: 0.875rem;
+          }
+          .card-title {
+            font-size: 0.9rem;
+          }
+          .info-label {
+            font-size: 0.75rem;
+          }
+          .info-value {
+            font-size: 0.9rem;
           }
         }
       `}</style>

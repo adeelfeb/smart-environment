@@ -70,7 +70,12 @@ export default function GisMapPanel({ user, onSelectComplaint }) {
     const existingJS = document.querySelector('script[src*="leaflet/1.9.4/dist/leaflet.js"]') ||
       document.querySelector('script[src*="unpkg.com/leaflet"]');
     if (existingJS) {
-      setLeafletReady(true);
+      if (window.L) {
+        setLeafletReady(true);
+      } else {
+        existingJS.addEventListener('load', () => setLeafletReady(true));
+        existingJS.addEventListener('error', () => {});
+      }
       return;
     }
 
@@ -82,7 +87,7 @@ export default function GisMapPanel({ user, onSelectComplaint }) {
   }, []);
 
   useEffect(() => {
-    if (!leafletReady || !mapRef.current || mapInstanceRef.current) return;
+    if (!leafletReady || !mapRef.current || mapInstanceRef.current || !window.L) return;
 
     const map = window.L.map(mapRef.current, {
       center: DEFAULT_CENTER,

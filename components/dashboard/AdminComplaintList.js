@@ -139,9 +139,9 @@ export default function AdminComplaintList({ user, onSelectComplaint }) {
       c.id || c.complaintId || '',
       c.citizenName || c.user?.name || '',
       c.type || c.category || '',
-      c.ward || c.ward?.name || '',
-      c.corporation || c.corporation?.name || '',
-      c.address || '',
+      resolveName(c.ward),
+      resolveName(c.corporation),
+      resolveAddress(c),
       c.createdAt ? new Date(c.createdAt).toLocaleDateString() : '',
       c.status || '',
       c.priority || '',
@@ -157,6 +157,20 @@ export default function AdminComplaintList({ user, onSelectComplaint }) {
   };
 
   const formatDate = (d) => d ? new Date(d).toLocaleDateString() : '—';
+
+  const resolveName = (val) => {
+    if (!val) return '—';
+    if (typeof val === 'string') return val;
+    if (typeof val === 'object') return val.name || val.wardNumber || '—';
+    return String(val);
+  };
+
+  const resolveAddress = (c) => {
+    const loc = c.location;
+    if (loc && typeof loc === 'object' && loc.address) return loc.address;
+    if (typeof c.address === 'string') return c.address;
+    return '—';
+  };
 
   const filteredComplaints = complaints.filter(c => {
     if (!filters.dateFrom && !filters.dateTo) return true;
@@ -325,9 +339,9 @@ export default function AdminComplaintList({ user, onSelectComplaint }) {
                     <td className="acl-cell-id">{c.id || c.complaintId || '—'}</td>
                     <td>{c.citizenName || c.user?.name || '—'}</td>
                     <td>{c.type || c.category || '—'}</td>
-                    <td>{c.ward || c.ward?.name || '—'}</td>
-                    <td>{c.corporation || c.corporation?.name || '—'}</td>
-                    <td className="acl-cell-address">{c.address || '—'}</td>
+                    <td>{resolveName(c.ward)}</td>
+                    <td>{resolveName(c.corporation)}</td>
+                    <td className="acl-cell-address">{resolveAddress(c)}</td>
                     <td>{formatDate(c.createdAt)}</td>
                     <td>
                       <span className="acl-chip" style={{ background: sc.bg, color: sc.text, borderColor: sc.border }}>
@@ -377,9 +391,9 @@ export default function AdminComplaintList({ user, onSelectComplaint }) {
                 <div className="acl-card-body">
                   <div className="acl-card-row"><span className="acl-card-label">Citizen</span><span>{c.citizenName || c.user?.name || '—'}</span></div>
                   <div className="acl-card-row"><span className="acl-card-label">Type</span><span>{c.type || c.category || '—'}</span></div>
-                  <div className="acl-card-row"><span className="acl-card-label">Ward</span><span>{c.ward || c.ward?.name || '—'}</span></div>
-                  <div className="acl-card-row"><span className="acl-card-label">Corporation</span><span>{c.corporation || c.corporation?.name || '—'}</span></div>
-                  <div className="acl-card-row"><span className="acl-card-label">Address</span><span>{c.address || '—'}</span></div>
+                  <div className="acl-card-row"><span className="acl-card-label">Ward</span><span>{resolveName(c.ward)}</span></div>
+                  <div className="acl-card-row"><span className="acl-card-label">Corporation</span><span>{resolveName(c.corporation)}</span></div>
+                  <div className="acl-card-row"><span className="acl-card-label">Address</span><span>{resolveAddress(c)}</span></div>
                   <div className="acl-card-row"><span className="acl-card-label">Date</span><span>{formatDate(c.createdAt)}</span></div>
                   <div className="acl-card-row">
                     <span className="acl-card-label">Priority</span>

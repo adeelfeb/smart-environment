@@ -30,6 +30,10 @@ const ComplaintSchema = new mongoose.Schema(
     description: { type: String, required: true, maxlength: 500, trim: true },
     photoUrl: { type: String, default: null },
     photoFilename: { type: String, default: null },
+    photos: [{
+      url: { type: String, required: true },
+      filename: { type: String, default: '' },
+    }],
     location: {
       latitude: { type: Number, default: null },
       longitude: { type: Number, default: null },

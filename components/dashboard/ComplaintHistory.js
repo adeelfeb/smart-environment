@@ -338,13 +338,13 @@ export default function ComplaintHistory({ user, onSelectComplaint }) {
                     {complaint.ward && (
                       <span className="complaint-history-card-meta-item">
                         <MapPin size={14} />
-                        Ward {complaint.ward}
+                        Ward {typeof complaint.ward === 'object' ? complaint.ward.name || complaint.ward.wardNumber || '—' : complaint.ward}
                       </span>
                     )}
                     {complaint.corporation && (
                       <span className="complaint-history-card-meta-item">
                         <Building2 size={14} />
-                        {complaint.corporation}
+                        {typeof complaint.corporation === 'object' ? complaint.corporation.name || '—' : complaint.corporation}
                       </span>
                     )}
                   </div>

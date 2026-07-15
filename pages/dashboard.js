@@ -109,7 +109,13 @@ const FALLBACK_NAV = [
 const SECTION_DESCRIPTORS = {
   'submit-complaint': {
     hideHeader: true,
-    body: (user) => <ComplaintSubmitForm user={user} />,
+    body: (user, onNavigate, extra) => (
+      <ComplaintSubmitForm
+        user={user}
+        formState={extra?.complaintFormState}
+        onFormStateChange={extra?.setComplaintFormState}
+      />
+    ),
   },
   'complaint-history': {
     hideHeader: true,
@@ -225,6 +231,18 @@ export default function Dashboard({ user }) {
   const normalizedRole = (sessionUser?.role || '').toLowerCase();
   const navItems = NAVIGATION_BY_ROLE[normalizedRole] || FALLBACK_NAV;
   const router = useRouter();
+
+  const [complaintFormState, setComplaintFormState] = useState({
+    step: 1,
+    photos: [],
+    gpsCoords: null,
+    address: '',
+    dateTime: null,
+    selectedCorporation: '',
+    selectedWard: '',
+    category: '',
+    description: '',
+  });
 
   // Fetch and store token from cookies if not in localStorage
   useEffect(() => {
@@ -492,7 +510,12 @@ export default function Dashboard({ user }) {
                 )}
 
                 {hasCustomBody && (
-                  <div className="section-custom">{sectionDescriptor.body(sessionUser, handleSelectNav)}</div>
+                  <div className="section-custom">
+                    {sectionDescriptor.body(sessionUser, handleSelectNav, {
+                      complaintFormState,
+                      setComplaintFormState,
+                    })}
+                  </div>
                 )}
 
                 {panels.length === 0 && list.length === 0 && !hasCustomBody && (

@@ -23,7 +23,7 @@ export async function submitComplaint(req, res) {
     if (!dbResult.success) {
       return jsonError(res, 503, 'Database service is currently unavailable');
     }
-    const { category, description, corporationId, wardId, latitude, longitude, address, photoUrl, photoFilename } = req.body || {};
+    const { category, description, corporationId, wardId, latitude, longitude, address, dateCaptured, photoUrl, photoFilename, photos } = req.body || {};
 
     if (!category) return jsonError(res, 400, 'Complaint category is required');
     if (!COMPLAINT_CATEGORIES.includes(category)) {
@@ -55,11 +55,12 @@ export async function submitComplaint(req, res) {
       description: description.trim(),
       photoUrl: photoUrl || null,
       photoFilename: photoFilename || null,
+      photos: Array.isArray(photos) ? photos.filter((p) => p?.url) : [],
       location: {
         latitude: latitude ? parseFloat(latitude) : null,
         longitude: longitude ? parseFloat(longitude) : null,
         address: address ? String(address).trim() : null,
-        dateCaptured: new Date(),
+        dateCaptured: (dateCaptured && !isNaN(new Date(dateCaptured).getTime())) ? new Date(dateCaptured) : new Date(),
       },
       corporation: corporationId,
       ward: wardId,

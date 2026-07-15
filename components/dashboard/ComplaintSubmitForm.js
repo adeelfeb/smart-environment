@@ -4,10 +4,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { safeParseJsonResponse } from '../../utils/safeJsonResponse';
 
 const CATEGORIES = [
-  { id: 'overflowing_dustbin', label: 'Overflowing Dustbin' },
-  { id: 'unauthorized_dumping', label: 'Unauthorized Garbage Dumping' },
-  { id: 'damaged_dustbin', label: 'Damaged Dustbin' },
-  { id: 'missing_dustbin', label: 'Missing Dustbin' },
+  { id: 'Overflowing Dustbin', label: 'Overflowing Dustbin' },
+  { id: 'Unauthorized Garbage Dumping', label: 'Unauthorized Garbage Dumping' },
+  { id: 'Damaged Dustbin', label: 'Damaged Dustbin' },
+  { id: 'Missing Dustbin', label: 'Missing Dustbin' },
 ];
 
 const MAX_DESCRIPTION = 500;
@@ -21,30 +21,28 @@ function authHeaders() {
   };
 }
 
-export default function ComplaintSubmitForm({ user, onComplaintSubmitted }) {
-  const [step, setStep] = useState(1);
+export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formState, onFormStateChange }) {
+  const [step, setStep] = useState(() => formState?.step || 1);
 
-  const [photoFile, setPhotoFile] = useState(null);
-  const [photoPreview, setPhotoPreview] = useState(null);
-  const [photoUrl, setPhotoUrl] = useState('');
+  const [photos, setPhotos] = useState(() => formState?.photos || []);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
 
-  const [gpsCoords, setGpsCoords] = useState({ lat: 31.585075, lng: 74.311270 });
-  const [address, setAddress] = useState('Tibbi City Police Station, Katri Shams Pir, Urban Lahore, Walled City of Lahore, Lahore, Lahore City Tehsil, Lahore District, Lahore Division, Punjab, 54100, Pakistan');
+  const [gpsCoords, setGpsCoords] = useState(() => formState?.gpsCoords || { lat: 31.585075, lng: 74.311270 });
+  const [address, setAddress] = useState(() => formState?.address || 'Tibbi City Police Station, Katri Shams Pir, Urban Lahore, Walled City of Lahore, Lahore, Lahore City Tehsil, Lahore District, Lahore Division, Punjab, 54100, Pakistan');
   const [gpsLoading, setGpsLoading] = useState(false);
   const [gpsError, setGpsError] = useState('');
-  const [dateTime] = useState(() => new Date('2026-07-14T19:01:00Z'));
+  const [dateTime, setDateTime] = useState(() => formState?.dateTime || new Date());
 
   const [corporations, setCorporations] = useState([]);
-  const [selectedCorporation, setSelectedCorporation] = useState('');
+  const [selectedCorporation, setSelectedCorporation] = useState(() => formState?.selectedCorporation || '');
   const [wards, setWards] = useState([]);
-  const [selectedWard, setSelectedWard] = useState('');
+  const [selectedWard, setSelectedWard] = useState(() => formState?.selectedWard || '');
   const [loadingCorporations, setLoadingCorporations] = useState(true);
   const [loadingWards, setLoadingWards] = useState(false);
 
-  const [category, setCategory] = useState('');
-  const [description, setDescription] = useState('');
+  const [category, setCategory] = useState(() => formState?.category || '');
+  const [description, setDescription] = useState(() => formState?.description || '');
 
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -134,85 +132,114 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted }) {
     return () => { cancelled = true; };
   }, [selectedCorporation]);
 
+  const syncFormState = useCallback((patch) => {
+    if (typeof onFormStateChange === 'function') {
+      onFormStateChange((prev) => ({ ...prev, ...patch }));
+    }
+  }, [onFormStateChange]);
+
   const handlePhotoSelect = useCallback(async (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(event.target.files || []);
+    if (!files.length) return;
 
-    if (!file.type.startsWith('image/')) {
-      setUploadError('Please select a valid image file');
-      return;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      setUploadError('Image must be under 10MB');
-      return;
+    for (const file of files) {
+      if (!file.type.startsWith('image/')) {
+        setUploadError('Please select valid image files');
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        setUploadError('Each image must be under 10MB');
+        return;
+      }
     }
 
-    setPhotoFile(file);
-    setPhotoPreview(URL.createObjectURL(file));
     setUploadError('');
     setError('');
-
     setUploading(true);
+
     try {
-      const formData = new FormData();
-      formData.append('file', file);
+      const uploadPromises = files.map(async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await fetch('/api/upload', { method: 'POST', body: formData });
+        const payload = await safeParseJsonResponse(res).catch(() => ({}));
+        if (!res.ok) throw new Error(payload?.message || 'Upload failed');
+        return {
+          url: payload?.data?.photoUrl || payload?.data?.url || payload?.data?.filePath || '',
+          filename: payload?.data?.photoFilename || payload?.data?.filename || '',
+          preview: URL.createObjectURL(file),
+        };
+      });
 
-      const res = await fetch('/api/upload', { method: 'POST', body: formData });
-      const payload = await safeParseJsonResponse(res).catch(() => ({}));
-      if (!res.ok) throw new Error(payload?.message || 'Upload failed');
-
-      setPhotoUrl(payload?.data?.photoUrl || payload?.data?.url || payload?.data?.filePath || '');
+      const uploaded = await Promise.all(uploadPromises);
+      setPhotos((prev) => {
+        const next = [...prev, ...uploaded];
+        syncFormState({ photos: next });
+        return next;
+      });
     } catch (err) {
       setUploadError(err?.message || 'Failed to upload photo');
-      setPhotoUrl('');
     } finally {
       setUploading(false);
+      if (event.target) event.target.value = '';
     }
   }, []);
 
-  const handleRemovePhoto = useCallback(() => {
-    if (photoPreview) URL.revokeObjectURL(photoPreview);
-    setPhotoFile(null);
-    setPhotoPreview(null);
-    setPhotoUrl('');
-    setUploadError('');
-  }, [photoPreview]);
+  const handleRemovePhoto = useCallback((index) => {
+    setPhotos((prev) => {
+      if (prev[index]?.preview) URL.revokeObjectURL(prev[index].preview);
+      const next = prev.filter((_, i) => i !== index);
+      syncFormState({ photos: next });
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     return () => {
-      if (photoPreview) URL.revokeObjectURL(photoPreview);
+      photos.forEach((p) => { if (p.preview) URL.revokeObjectURL(p.preview); });
     };
-  }, [photoPreview]);
+  }, []);
 
   const canGoNext = () => {
-    if (step === 1) return photoUrl && !uploading;
+    if (step === 1) return photos.length > 0 && !uploading;
     if (step === 2) return selectedCorporation && selectedWard && gpsCoords;
     if (step === 3) return category && !submitting;
     return false;
   };
 
   const handleNext = () => {
-    if (step < 3 && canGoNext()) setStep((s) => s + 1);
+    if (step < 3 && canGoNext()) {
+      const next = step + 1;
+      setStep(next);
+      syncFormState({ step: next });
+    }
   };
 
   const handleBack = () => {
-    if (step > 1) setStep((s) => s - 1);
+    if (step > 1) {
+      const prev = step - 1;
+      setStep(prev);
+      syncFormState({ step: prev });
+    }
   };
 
   const handleSubmit = async () => {
-    if (!photoUrl || !category || !selectedCorporation || !selectedWard || !gpsCoords || submitting) return;
+    if (!photos.length || !category || !selectedCorporation || !selectedWard || !gpsCoords || submitting) return;
 
     setSubmitting(true);
     setError('');
 
     try {
       const body = {
-        photoUrl,
+        photos: photos.map((p) => ({ url: p.url, filename: p.filename })),
+        photoUrl: photos[0]?.url || '',
+        photoFilename: photos[0]?.filename || '',
         latitude: gpsCoords.lat,
         longitude: gpsCoords.lng,
         address,
-        corporation: selectedCorporation,
-        ward: selectedWard,
+        dateCaptured: dateTime.toISOString(),
+        corporationId: selectedCorporation,
+        wardId: selectedWard,
         category,
         description: description.trim(),
         reportedBy: user?._id,
@@ -297,46 +324,50 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted }) {
           {step === 1 && (
             <div className="step-inner">
               <h3>Photo Evidence</h3>
-              <p className="step-hint">Take a photo or upload an image of the issue</p>
+              <p className="step-hint">Take photos or upload images of the issue (up to 5)</p>
 
               <input
                 ref={(el) => { el && (el.value = ''); }}
                 type="file"
                 accept="image/*"
                 capture="environment"
+                multiple
                 className="file-input"
                 onChange={handlePhotoSelect}
                 disabled={uploading}
               />
 
-              {!photoPreview ? (
+              {photos.length > 0 && (
+                <div className="photos-grid">
+                  {photos.map((photo, idx) => (
+                    <div key={idx} className="preview-wrapper">
+                      <img src={photo.preview || photo.url} alt={`Evidence ${idx + 1}`} className="preview-image" />
+                      <button type="button" className="remove-btn" onClick={() => handleRemovePhoto(idx)}>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                          <path d="M6 6l8 8M14 6l-8 8" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {photos.length < 5 && (
                 <label className="upload-area">
-                  <input type="file" accept="image/*" capture="environment" onChange={handlePhotoSelect} disabled={uploading} />
+                  <input type="file" accept="image/*" capture="environment" multiple onChange={handlePhotoSelect} disabled={uploading} />
                   <div className="upload-placeholder">
-                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                      <rect width="48" height="48" rx="12" fill="#d1fae5" />
-                      <path d="M24 16v16M16 24h16" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" />
-                    </svg>
-                    <span>Tap to take photo or choose from gallery</span>
+                    {uploading ? (
+                      <span className="spinner" />
+                    ) : (
+                      <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                        <rect width="48" height="48" rx="12" fill="#d1fae5" />
+                        <path d="M24 16v16M16 24h16" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" />
+                      </svg>
+                    )}
+                    <span>{uploading ? 'Uploading...' : 'Tap to add more photos'}</span>
+                    {photos.length > 0 && <span className="photo-count">{photos.length}/5 added</span>}
                   </div>
                 </label>
-              ) : (
-                <div className="preview-wrapper">
-                  <img src={photoPreview} alt="Complaint preview" className="preview-image" />
-                  {uploading && (
-                    <div className="preview-overlay">
-                      <span className="spinner" />
-                      <span>Uploading...</span>
-                    </div>
-                  )}
-                  {!uploading && (
-                    <button type="button" className="remove-btn" onClick={handleRemovePhoto}>
-                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M6 6l8 8M14 6l-8 8" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
-                      </svg>
-                    </button>
-                  )}
-                </div>
               )}
 
               {uploadError && <p className="field-error">{uploadError}</p>}
@@ -347,25 +378,110 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted }) {
             <div className="step-inner">
               <h3>Location &amp; Details</h3>
 
-              <div className="info-block">
-                <div className="info-row">
-                  <span className="info-label">GPS Coordinates</span>
-                  {gpsLoading ? (
-                    <span className="info-value">Detecting location...</span>
-                  ) : gpsCoords ? (
-                    <span className="info-value">{gpsCoords.lat.toFixed(6)}, {gpsCoords.lng.toFixed(6)}</span>
-                  ) : (
-                    <span className="info-value info-error">{gpsError || 'Unavailable'}</span>
-                  )}
+              <div className="editable-fields">
+                <div className="field">
+                  <div className="field-header">
+                    <span className="field-label">GPS Coordinates</span>
+                    <button
+                      type="button"
+                      className="locate-btn"
+                      onClick={() => {
+                        if (!navigator.geolocation) return;
+                        setGpsLoading(true);
+                        setGpsError('');
+                        navigator.geolocation.getCurrentPosition(
+                          async (position) => {
+                            const lat = position.coords.latitude;
+                            const lng = position.coords.longitude;
+                            setGpsCoords({ lat, lng });
+                            syncFormState({ gpsCoords: { lat, lng } });
+                            try {
+                              const res = await fetch(
+                                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+                              );
+                              const data = await res.json();
+                              const newAddress = data?.display_name || 'Address not available';
+                              setAddress(newAddress);
+                              syncFormState({ address: newAddress });
+                            } catch {
+                              setAddress('Unable to fetch address');
+                            }
+                            setGpsLoading(false);
+                          },
+                          (err) => {
+                            setGpsError(err.message || 'Unable to retrieve location');
+                            setGpsLoading(false);
+                          },
+                          { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+                        );
+                      }}
+                      disabled={gpsLoading}
+                    >
+                      {gpsLoading ? 'Locating...' : 'Locate Me'}
+                    </button>
+                  </div>
+                  {gpsError && <p className="field-error">{gpsError}</p>}
+                  <div className="gps-inputs">
+                    <label className="field">
+                      <span className="field-label">Latitude</span>
+                      <input
+                        type="number"
+                        step="any"
+                        value={gpsCoords?.lat ?? ''}
+                        onChange={(e) => {
+                          const lat = parseFloat(e.target.value) || 0;
+                          const newCoords = { ...gpsCoords, lat };
+                          setGpsCoords(newCoords);
+                          syncFormState({ gpsCoords: newCoords });
+                        }}
+                        placeholder="e.g. 31.585075"
+                      />
+                    </label>
+                    <label className="field">
+                      <span className="field-label">Longitude</span>
+                      <input
+                        type="number"
+                        step="any"
+                        value={gpsCoords?.lng ?? ''}
+                        onChange={(e) => {
+                          const lng = parseFloat(e.target.value) || 0;
+                          const newCoords = { ...gpsCoords, lng };
+                          setGpsCoords(newCoords);
+                          syncFormState({ gpsCoords: newCoords });
+                        }}
+                        placeholder="e.g. 74.311270"
+                      />
+                    </label>
+                  </div>
                 </div>
-                <div className="info-row">
-                  <span className="info-label">Address</span>
-                  <span className="info-value">{gpsLoading ? 'Loading...' : address || 'Not available'}</span>
-                </div>
-                <div className="info-row">
-                  <span className="info-label">Date &amp; Time</span>
-                  <span className="info-value">{formatDateTime(dateTime)}</span>
-                </div>
+
+                <label className="field">
+                  <span className="field-label">Address</span>
+                  <textarea
+                    value={address}
+                    onChange={(e) => {
+                      setAddress(e.target.value);
+                      syncFormState({ address: e.target.value });
+                    }}
+                    placeholder="Enter the address"
+                    rows={2}
+                  />
+                </label>
+
+                <label className="field">
+                  <span className="field-label">Date &amp; Time</span>
+                  <input
+                    type="datetime-local"
+                    value={toDateTimeLocalValue(dateTime)}
+                    onChange={(e) => {
+                      const newDate = new Date(e.target.value);
+                      if (!isNaN(newDate.getTime())) {
+                        setDateTime(newDate);
+                        syncFormState({ dateTime: newDate });
+                      }
+                    }}
+                  />
+                </label>
               </div>
 
               <div className="field-group">
@@ -373,7 +489,10 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted }) {
                   <span className="field-label">Corporation</span>
                   <select
                     value={selectedCorporation}
-                    onChange={(e) => setSelectedCorporation(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedCorporation(e.target.value);
+                      syncFormState({ selectedCorporation: e.target.value });
+                    }}
                     disabled={loadingCorporations}
                   >
                     <option value="">
@@ -391,7 +510,10 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted }) {
                   <span className="field-label">Ward</span>
                   <select
                     value={selectedWard}
-                    onChange={(e) => setSelectedWard(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedWard(e.target.value);
+                      syncFormState({ selectedWard: e.target.value });
+                    }}
                     disabled={!selectedCorporation || loadingWards}
                   >
                     <option value="">
@@ -418,7 +540,7 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted }) {
                     key={cat.id}
                     type="button"
                     className={`category-chip ${category === cat.id ? 'category-chip--active' : ''}`}
-                    onClick={() => setCategory(cat.id)}
+                    onClick={() => { setCategory(cat.id); syncFormState({ category: cat.id }); }}
                   >
                     {cat.label}
                   </button>
@@ -433,9 +555,12 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted }) {
                 <textarea
                   value={description}
                   onChange={(e) => {
-                    if (e.target.value.length <= MAX_DESCRIPTION) setDescription(e.target.value);
+                    if (e.target.value.length <= MAX_DESCRIPTION) {
+                      setDescription(e.target.value);
+                      syncFormState({ description: e.target.value });
+                    }
                   }}
-                  placeholder="Describe the issue in detail (optional)"
+                  placeholder="Describe the issue in detail"
                   rows={4}
                 />
               </div>
@@ -594,11 +719,27 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted }) {
           font-weight: 500;
         }
 
+        .photo-count {
+          font-size: 0.8rem;
+          color: #64748b;
+          font-weight: 400;
+        }
+
         .preview-wrapper {
           position: relative;
           border-radius: 1rem;
           overflow: hidden;
           background: #f0fdf4;
+        }
+
+        .photos-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+          gap: 0.75rem;
+        }
+
+        .photos-grid .preview-wrapper {
+          aspect-ratio: 1;
         }
 
         .preview-image {
@@ -698,6 +839,41 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted }) {
           color: #dc2626;
         }
 
+        .editable-fields {
+          display: grid;
+          gap: 1rem;
+        }
+
+        .gps-inputs {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.75rem;
+        }
+
+        .locate-btn {
+          border: none;
+          border-radius: 0.5rem;
+          padding: 0.35rem 0.75rem;
+          font-size: 0.8rem;
+          font-weight: 600;
+          cursor: pointer;
+          background: #f0fdf4;
+          color: #059669;
+          border: 1.5px solid #d1fae5;
+          transition: all 0.2s ease;
+          font-family: inherit;
+        }
+
+        .locate-btn:hover:not(:disabled) {
+          background: #d1fae5;
+          border-color: #059669;
+        }
+
+        .locate-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
         .field-group {
           display: grid;
           gap: 1rem;
@@ -726,6 +902,7 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted }) {
           color: #94a3b8;
         }
 
+        input,
         select,
         textarea {
           width: 100%;
@@ -740,11 +917,13 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted }) {
           font-family: inherit;
         }
 
+        input:hover:not(:disabled),
         select:hover:not(:disabled),
         textarea:hover:not(:disabled) {
           border-color: rgba(5, 150, 105, 0.4);
         }
 
+        input:focus,
         select:focus,
         textarea:focus {
           outline: none;
@@ -752,6 +931,7 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted }) {
           box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.12);
         }
 
+        input:disabled,
         select:disabled {
           background: #f1f5f9;
           color: #94a3b8;
@@ -919,5 +1099,17 @@ function formatDateTime(date) {
     }).format(date);
   } catch {
     return date.toLocaleString();
+  }
+}
+
+function toDateTimeLocalValue(date) {
+  if (!date) return '';
+  try {
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return '';
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  } catch {
+    return '';
   }
 }

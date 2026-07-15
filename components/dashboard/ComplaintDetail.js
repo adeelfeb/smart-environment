@@ -439,13 +439,13 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
               {complaint.corporation && (
                 <div className="cd-info-row">
                   <Building2 size={14} className="cd-icon" />
-                  <span>{complaint.corporation}</span>
+                  <span>{typeof complaint.corporation === 'object' ? complaint.corporation.name || '—' : complaint.corporation}</span>
                 </div>
               )}
               {complaint.ward && (
                 <div className="cd-info-row">
                   <Landmark size={14} className="cd-icon" />
-                  <span>Ward {complaint.ward}</span>
+                  <span>Ward {typeof complaint.ward === 'object' ? complaint.ward.name || complaint.ward.wardNumber || '—' : complaint.ward}</span>
                 </div>
               )}
             </div>
