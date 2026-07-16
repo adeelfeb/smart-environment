@@ -289,10 +289,17 @@ export default function UserOverviewTable({ currentUser = null }) {
     };
   }, []);
 
+  const filteredRoleOptions = useMemo(() => {
+    if (normalizedRole === 'superadmin') {
+      return roleOptions.filter((option) => option.value.toLowerCase() !== 'developer');
+    }
+    return roleOptions;
+  }, [roleOptions, normalizedRole]);
+
   const editRoleOptions = useMemo(() => {
     const seen = new Set();
     const options = [];
-    roleOptions.forEach((option) => {
+    filteredRoleOptions.forEach((option) => {
       const value = option.value.toLowerCase();
       if (seen.has(value)) return;
       seen.add(value);
@@ -305,7 +312,7 @@ export default function UserOverviewTable({ currentUser = null }) {
       }
     }
     return options;
-  }, [roleOptions, editingUser]);
+  }, [filteredRoleOptions, editingUser]);
 
   const columnDefs = useMemo(
     () => [
@@ -868,7 +875,14 @@ export default function UserOverviewTable({ currentUser = null }) {
     [canEditUsers, createForm, loadRoles, normalizeUser]
   );
 
-  const isEmpty = !isLoading && !error && rowData.length === 0;
+  const displayRowData = useMemo(() => {
+    if (normalizedRole === 'superadmin') {
+      return rowData.filter((user) => user.role !== 'developer');
+    }
+    return rowData;
+  }, [rowData, normalizedRole]);
+
+  const isEmpty = !isLoading && !error && displayRowData.length === 0;
   const editingId = editingUser?.id || null;
 
   return (
@@ -953,7 +967,7 @@ export default function UserOverviewTable({ currentUser = null }) {
                 onChange={handleCreateFieldChange}
                 disabled={isCreating}
               >
-                {roleOptions.map((option) => (
+                {filteredRoleOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
@@ -1064,7 +1078,7 @@ export default function UserOverviewTable({ currentUser = null }) {
         <div className={styles.cardListWrapper} aria-live="polite">
           {!isEmpty && (
             <ul className={styles.cardList}>
-              {rowData.map((user) => (
+              {displayRowData.map((user) => (
                 <li key={user.id} className={styles.cardItem}>
                   <div className={styles.cardRow}>
                     <span className={styles.cardLabel}>Name</span>
@@ -1152,7 +1166,7 @@ export default function UserOverviewTable({ currentUser = null }) {
           <div className={`ag-theme-quartz ${styles.grid}`}>
             {typeof window !== 'undefined' && (
               <AgGridReact
-                rowData={rowData}
+                rowData={displayRowData}
                 columnDefs={columnDefs}
                 defaultColDef={defaultColDef}
                 enableCellTextSelection
