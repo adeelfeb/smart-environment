@@ -147,8 +147,8 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
         setUploadError('Please select valid image files');
         return;
       }
-      if (file.size > 10 * 1024 * 1024) {
-        setUploadError('Each image must be under 10MB');
+      if (file.size > 20 * 1024 * 1024) {
+        setUploadError('Each image must be under 20MB');
         return;
       }
     }
