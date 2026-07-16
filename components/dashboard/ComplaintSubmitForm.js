@@ -172,11 +172,8 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
       });
 
       const uploaded = await Promise.all(uploadPromises);
-      setPhotos((prev) => {
-        const next = [...prev, ...uploaded];
-        syncFormState({ photos: next });
-        return next;
-      });
+      setPhotos((prev) => [...prev, ...uploaded]);
+      syncFormState({ photos: [...photos, ...uploaded] });
     } catch (err) {
       setUploadError(err?.message || 'Failed to upload photo');
     } finally {
@@ -188,10 +185,9 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
   const handleRemovePhoto = useCallback((index) => {
     setPhotos((prev) => {
       if (prev[index]?.preview) URL.revokeObjectURL(prev[index].preview);
-      const next = prev.filter((_, i) => i !== index);
-      syncFormState({ photos: next });
-      return next;
+      return prev.filter((_, i) => i !== index);
     });
+    syncFormState({ photos: photos.filter((_, i) => i !== index) });
   }, []);
 
   useEffect(() => {
