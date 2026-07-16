@@ -14,10 +14,10 @@ export function middleware(request) {
   return NextResponse.next();
 }
 
-// Optional: Configure which routes the middleware runs on
-// If not specified, middleware runs on all routes
-// export const config = {
-//   matcher: ['/dashboard/:path*', '/api/:path*']
-// }
+export const config = {
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)',
+  ],
+}
 
 

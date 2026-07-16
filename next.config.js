@@ -7,14 +7,6 @@ const nextConfig = {
   // Ensure dynamic routes are handled at runtime, not during build
   // Dynamic routes with getServerSideProps will be server-rendered
   
-  // Configure output file tracing to prevent .nft.json errors
-  // Exclude all files from tracing since we're not using serverless deployment
-  outputFileTracingExcludes: {
-    '*': [
-      'node_modules/**/*',
-    ],
-  },
-  
   // Generate stable build ID to prevent cache issues
   // Using a stable ID based on environment or timestamp only for production builds
   generateBuildId: async () => {
@@ -48,10 +40,6 @@ const nextConfig = {
     // Optimize package imports
     optimizePackageImports: ['ag-grid-community', 'ag-grid-react'],
   },
-
-  // Next.js 16 uses Turbopack by default, but we have webpack config
-  // Explicitly use webpack to avoid conflicts
-  turbopack: {},
 
   images: {
     formats: ['image/avif', 'image/webp'],
