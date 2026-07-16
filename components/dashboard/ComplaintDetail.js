@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   ArrowLeft,
   MapPin,
@@ -78,6 +78,68 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
   const [verifyLoading, setVerifyLoading] = useState(false);
   const [verifyPreview, setVerifyPreview] = useState(null);
   const fileInputRef = useRef(null);
+  const mapRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+
+  useEffect(() => {
+    const loc = getLocation(complaint);
+    if (!loc.latitude || !loc.longitude || !mapRef.current || mapInstanceRef.current) return;
+
+    const loadLeaflet = () => new Promise((resolve) => {
+      if (window.L) { resolve(); return; }
+      const existingCSS = document.querySelector('link[href*="leaflet/1.9.4/dist/leaflet.css"]');
+      if (!existingCSS) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+        document.head.appendChild(link);
+      }
+      const existingJS = document.querySelector('script[src*="leaflet/1.9.4/dist/leaflet.js"]');
+      if (existingJS) { existingJS.onload = resolve; return; }
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.onload = resolve;
+      document.head.appendChild(script);
+    });
+
+    let map;
+    loadLeaflet().then(() => {
+      if (!mapRef.current || mapInstanceRef.current) return;
+      map = window.L.map(mapRef.current, {
+        center: [loc.latitude, loc.longitude],
+        zoom: 15,
+        zoomControl: true,
+        attributionControl: true,
+        scrollWheelZoom: false,
+      });
+      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19,
+      }).addTo(map);
+
+      const icon = window.L.divIcon({
+        html: '<div style="background:#dc2626;width:28px;height:28px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>',
+        className: '',
+        iconSize: [28, 28],
+        iconAnchor: [14, 28],
+        popupAnchor: [0, -28],
+      });
+      window.L.marker([loc.latitude, loc.longitude], { icon })
+        .bindPopup(`<strong>${complaint?.category || 'Complaint'}</strong><br/>${loc.address || ''}`)
+        .openPopup()
+        .addTo(map);
+
+      mapInstanceRef.current = map;
+      setTimeout(() => map.invalidateSize(), 100);
+    });
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, [complaint]);
 
   const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
 
@@ -313,16 +375,6 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
 
   const formatDate = (d) => (d ? new Date(d).toLocaleString() : '—');
 
-  const buildMapUrl = (lat, lng) => {
-    if (!lat || !lng) return null;
-    return `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=15&size=400x200&maptype=roadmap&markers=color:red%7C${lat},${lng}&style=feature:all|element:labels|visibility:on`;
-  };
-
-  const buildOSMUrl = (lat, lng) => {
-    if (!lat || !lng) return null;
-    return `https://staticmap.openstreetmap.de/staticmap.php?center=${lat},${lng}&zoom=15&size=400x200&markers=${lat},${lng},red-pushpin`;
-  };
-
   const statusIndex = complaint ? STATUS_OPTIONS.indexOf(complaint.status) : -1;
   const remarks = complaint?.adminRemarks || [];
   const timeline = complaint?.adminRemarks?.filter(r => r.status) || [];
@@ -438,17 +490,7 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
             <div className="cd-detail-card">
               <span className="cd-detail-label">Map</span>
               <div className="cd-map-container">
-                <img
-                  src={buildOSMUrl(getLocation(complaint).latitude, getLocation(complaint).longitude)}
-                  alt="Complaint location map"
-                  className="cd-map-image"
-                  onError={(e) => {
-                    e.target.src = `https://maps.googleapis.com/maps/api/staticmap?center=${getLocation(complaint).latitude},${getLocation(complaint).longitude}&zoom=15&size=400x200&maptype=roadmap&markers=color:red%7C${getLocation(complaint).latitude},${getLocation(complaint).longitude}`;
-                  }}
-                />
-                <div className="cd-map-overlay">
-                  <MapPin size={20} className="cd-map-pin" />
-                </div>
+                <div ref={mapRef} className="cd-map-element" />
                 <a
                   href={`https://www.google.com/maps?q=${getLocation(complaint).latitude},${getLocation(complaint).longitude}`}
                   target="_blank"
@@ -875,27 +917,11 @@ const styles = `
     border-radius: 0.75rem;
     overflow: hidden;
     background: #f1f5f9;
-    min-height: 180px;
   }
 
-  .cd-map-image {
+  .cd-map-element {
     width: 100%;
-    height: 200px;
-    object-fit: cover;
-    display: block;
-  }
-
-  .cd-map-overlay {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -100%);
-    pointer-events: none;
-  }
-
-  .cd-map-pin {
-    color: #dc2626;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    height: 240px;
   }
 
   .cd-map-link {
