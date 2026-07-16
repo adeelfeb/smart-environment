@@ -21,8 +21,11 @@ export const metadata = {
   description: siteTagline,
   keywords: 'waste complaint, environment activists, GPS geotag, waste management, complaint tracking',
   icons: {
-    icon: '/favicon.svg',
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
     apple: '/favicon.svg',
+    shortcut: '/favicon.svg',
   },
   openGraph: {
     title: `${siteName} | Waste Complaint & Monitoring System`,
