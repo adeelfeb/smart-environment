@@ -15,26 +15,33 @@ function sanitizeUser(userDoc) {
 }
 
 export default async function handler(req, res) {
-  if (await applyCors(req, res)) return;
+  try {
+    if (await applyCors(req, res)) return;
 
-  if (req.method !== 'GET') {
-    res.setHeader('Allow', ['GET']);
-    return jsonError(res, 405, `Method ${req.method} not allowed`);
+    if (req.method !== 'GET') {
+      res.setHeader('Allow', ['GET']);
+      return jsonError(res, 405, `Method ${req.method} not allowed`);
+    }
+
+    const user = await getUserFromRequest(req);
+    
+    if (!user) {
+      return jsonSuccess(res, 200, 'Ok', { user: null });
+    }
+
+    // Extract token from request (from cookies or Authorization header)
+    const token = extractTokenFromRequest(req);
+    
+    // Return user and token so frontend can store token in localStorage
+    return jsonSuccess(res, 200, 'Ok', {
+      user: sanitizeUser(user),
+      token: token || null,
+    });
+  } catch (err) {
+    console.error('[Me API] Unhandled error:', err);
+    if (!res.headersSent) {
+      return jsonError(res, 200, 'Ok', { user: null });
+    }
   }
-
-  const user = await getUserFromRequest(req);
-  
-  if (!user) {
-    return jsonSuccess(res, 200, 'Ok', { user: null });
-  }
-
-  // Extract token from request (from cookies or Authorization header)
-  const token = extractTokenFromRequest(req);
-  
-  // Return user and token so frontend can store token in localStorage
-  return jsonSuccess(res, 200, 'Ok', {
-    user: sanitizeUser(user),
-    token: token || null, // Include token if available
-  });
 }
 

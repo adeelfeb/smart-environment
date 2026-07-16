@@ -50,7 +50,16 @@ async function loadAllowedOrigins() {
   const defaults = parseDefaultOrigins();
 
   try {
-    await connectDB();
+    const dbResult = await connectDB();
+    if (!dbResult.success) {
+      const normalized = new Set(defaults);
+      cachedOrigins = {
+        normalized,
+        raw: defaults,
+        expiresAt: now + CORS_CACHE_TTL_MS / 2,
+      };
+      return cachedOrigins;
+    }
     const records = await AllowedOrigin.find({ isActive: true })
       .select('origin normalizedOrigin')
       .lean()
