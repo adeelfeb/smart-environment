@@ -249,7 +249,7 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
       const payload = await safeParseJsonResponse(res).catch(() => ({}));
       if (!res.ok) throw new Error(payload?.message || 'Failed to submit complaint');
 
-      const id = payload?.data?.complaintId || payload?.data?._id || payload?.data?.id || '';
+      const id = payload?.data?.complaint?.complaintId || payload?.data?.complaint?._id || payload?.data?.complaint?.id || payload?.data?.complaintId || payload?.data?._id || payload?.data?.id || '';
       setComplaintId(id);
       setSubmitted(true);
 
@@ -1042,16 +1042,26 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
 
         @media (max-width: 640px) {
           .complaint-form {
-            padding: 1rem 0.5rem;
+            padding: 0.5rem;
+            min-height: auto;
+            overflow-y: visible;
+            flex: none;
           }
 
           .form-card {
-            padding: 1.25rem;
-            border-radius: 1rem;
+            padding: 1rem;
+            gap: 1rem;
+            box-shadow: none;
+            border: 1px solid rgba(16, 185, 129, 0.15);
+            background: #ffffff;
           }
 
           h2 {
             font-size: 1.25rem;
+          }
+
+          .step-content {
+            min-height: auto;
           }
 
           .field-group {

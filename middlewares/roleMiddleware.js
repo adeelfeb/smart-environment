@@ -10,8 +10,17 @@ export default function roleMiddleware(allowedRoles = []) {
     if (!normalized.length) {
       return true;
     }
+    const userRoleNormalized = typeof req.user.role === 'string' 
+      ? req.user.role.trim().toLowerCase().replace(/[\s_-]+/g, '') 
+      : '';
+    const normalizedAllowed = normalized.map(r => 
+      typeof r === 'string' ? r.trim().toLowerCase().replace(/[\s_-]+/g, '') : ''
+    );
+
     // Grant full access to superadmin and developer roles
-    const hasAccess = normalized.includes(req.user.role) || req.user.role === 'superadmin' || req.user.role === 'developer';
+    const hasAccess = normalizedAllowed.includes(userRoleNormalized) || 
+                      userRoleNormalized === 'superadmin' || 
+                      userRoleNormalized === 'developer';
     if (!hasAccess) {
       jsonError(res, 403, 'Insufficient role permissions');
       return false;

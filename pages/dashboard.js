@@ -847,6 +847,20 @@ export default function Dashboard({ user }) {
             scrollbar-color: rgba(148, 163, 184, 0.6) rgba(241, 245, 249, 0.8);
           }
 
+          @media (max-width: 768px) {
+            .section-custom {
+              border-radius: 0;
+              border: none;
+              background: transparent;
+              box-shadow: none;
+              overflow: visible;
+              flex: none;
+            }
+            .section {
+              gap: 0.5rem;
+            }
+          }
+
           .empty-state {
             display: flex;
             flex-direction: column;
