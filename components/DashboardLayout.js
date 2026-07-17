@@ -863,7 +863,7 @@ export default function DashboardLayout({
           height: 16px;
           padding: 0 4px;
           border-radius: 999px;
-          background: #ef4444;
+          background: #10b981;
           color: #fff;
           font-size: 0.6rem;
           font-weight: 700;
@@ -934,7 +934,7 @@ export default function DashboardLayout({
           gap: 0.5rem;
           width: 100%;
           padding: 0.5rem 0.5rem;
-          border: none;
+          border: 1px solid rgba(148, 163, 184, 0.25);
           border-radius: 10px;
           background: transparent;
           cursor: pointer;
