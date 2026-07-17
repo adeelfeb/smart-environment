@@ -1035,6 +1035,11 @@ export default function ComplaintHistory({ user, onSelectComplaint }) {
           .complaint-history-pagination {
             gap: 0.25rem;
           }
+
+          .complaint-history-delete-btn {
+            font-size: 0.75rem;
+            padding: 0.35rem 0.75rem;
+          }
         }
 
         @media (max-width: 480px) {
@@ -1049,6 +1054,17 @@ export default function ComplaintHistory({ user, onSelectComplaint }) {
             height: 2rem;
             min-width: 2rem;
             font-size: 0.8rem;
+          }
+
+          .complaint-history-delete-btn {
+            font-size: 0.7rem;
+            padding: 0.3rem 0.6rem;
+          }
+
+          .complaint-history-delete-confirm {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
           }
         }
       `}</style>

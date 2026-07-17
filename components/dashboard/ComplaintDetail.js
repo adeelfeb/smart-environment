@@ -14,6 +14,8 @@ import {
   AlertTriangle,
   Clock,
   Image as ImageIcon,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { safeParseJsonResponse } from '../../utils/safeJsonResponse';
 
@@ -77,9 +79,11 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
   const [verifyFile, setVerifyFile] = useState(null);
   const [verifyLoading, setVerifyLoading] = useState(false);
   const [verifyPreview, setVerifyPreview] = useState(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const fileInputRef = useRef(null);
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
+  const imageScrollRef = useRef(null);
 
   useEffect(() => {
     const loc = getLocation(complaint);
@@ -433,11 +437,62 @@ export default function ComplaintDetail({ complaint: complaintProp, user, onBack
 
         {complaint.photoUrl && (
           <div className="cd-photo-section">
-            <img
-              src={complaint.photoUrl}
-              alt={`Complaint ${getDisplayId(complaint)} photo`}
-              className="cd-photo"
-            />
+            <div className="cd-photo-scroll" ref={imageScrollRef}>
+              {(Array.isArray(complaint.photoUrl) ? complaint.photoUrl : [complaint.photoUrl]).map((url, idx) => (
+                <div
+                  key={idx}
+                  className="cd-photo-item"
+                  onClick={() => window.open(url, '_blank')}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') window.open(url, '_blank');
+                  }}
+                >
+                  <img
+                    src={url}
+                    alt={`Complaint ${getDisplayId(complaint)} photo ${idx + 1}`}
+                    className="cd-photo"
+                    loading="lazy"
+                  />
+                  <div className="cd-photo-overlay">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                      <polyline points="15 3 21 3 21 9"></polyline>
+                      <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                    <span>Open in new tab</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {(Array.isArray(complaint.photoUrl) ? complaint.photoUrl : [complaint.photoUrl]).length > 1 && (
+              <div className="cd-photo-nav">
+                <button
+                  type="button"
+                  className="cd-photo-nav-btn"
+                  onClick={() => {
+                    const scrollEl = imageScrollRef.current;
+                    if (scrollEl) scrollEl.scrollBy({ left: -200, behavior: 'smooth' });
+                  }}
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                <span className="cd-photo-count">
+                  {Array.isArray(complaint.photoUrl) ? complaint.photoUrl.length : 1} photo(s)
+                </span>
+                <button
+                  type="button"
+                  className="cd-photo-nav-btn"
+                  onClick={() => {
+                    const scrollEl = imageScrollRef.current;
+                    if (scrollEl) scrollEl.scrollBy({ left: 200, behavior: 'smooth' });
+                  }}
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -848,16 +903,109 @@ const styles = `
 
   .cd-photo-section {
     width: 100%;
-    overflow: hidden;
     border-radius: 0.75rem;
+  }
+
+  .cd-photo-scroll {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.6) rgba(241, 245, 249, 0.8);
+    padding-bottom: 0.5rem;
+  }
+
+  .cd-photo-scroll::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .cd-photo-scroll::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+  }
+
+  .cd-photo-scroll::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+    border-radius: 3px;
+  }
+
+  .cd-photo-item {
+    flex: 0 0 auto;
+    width: 280px;
+    position: relative;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    cursor: pointer;
+    scroll-snap-align: start;
+    transition: transform 0.2s ease;
+  }
+
+  .cd-photo-item:hover {
+    transform: scale(1.02);
+  }
+
+  .cd-photo-item:hover .cd-photo-overlay {
+    opacity: 1;
   }
 
   .cd-photo {
     width: 100%;
-    max-height: 320px;
+    height: 200px;
     object-fit: cover;
     display: block;
     border-radius: 0.75rem;
+  }
+
+  .cd-photo-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    border-radius: 0.75rem;
+  }
+
+  .cd-photo-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 0.75rem;
+  }
+
+  .cd-photo-nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: white;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .cd-photo-nav-btn:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #334155;
+  }
+
+  .cd-photo-count {
+    font-size: 0.8rem;
+    color: #64748b;
+    font-weight: 500;
   }
 
   .cd-grid {
@@ -1299,7 +1447,7 @@ const styles = `
 
   @media (max-width: 768px) {
     .cd-card {
-      padding: 1.5rem;
+      padding: 1.25rem;
     }
     .cd-grid {
       grid-template-columns: 1fr;
@@ -1314,11 +1462,17 @@ const styles = `
       width: 100%;
       justify-content: center;
     }
+    .cd-photo-item {
+      width: 240px;
+    }
+    .cd-photo {
+      height: 180px;
+    }
   }
 
   @media (max-width: 480px) {
     .cd-card {
-      padding: 1.25rem;
+      padding: 1rem;
       border-radius: 1rem;
     }
     .cd-title {
@@ -1326,6 +1480,15 @@ const styles = `
     }
     .cd-back-btn {
       font-size: 0.9rem;
+    }
+    .cd-photo-item {
+      width: 200px;
+    }
+    .cd-photo {
+      height: 150px;
+    }
+    .cd-photo-overlay span {
+      font-size: 0.75rem;
     }
   }
 `;

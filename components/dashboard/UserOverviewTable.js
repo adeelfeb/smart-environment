@@ -75,53 +75,104 @@ function ActionCellRenderer(params) {
   const isProcessing = deletingId === data?.id || processingId === data?.id;
   const isEditingThisRow = editingId === data?.id;
   const disableActions = !canEditUsers || isProcessing || isSaving;
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+  const dropdownRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleViewClick = (event) => {
     event?.stopPropagation();
+    setIsDropdownOpen(false);
     onView?.(data);
   };
 
   const handleEditClick = (event) => {
     event?.stopPropagation();
+    setIsDropdownOpen(false);
     if (disableActions) return;
     onEdit?.(data);
   };
 
   const handleDeleteClick = (event) => {
     event?.stopPropagation();
+    setIsDropdownOpen(false);
     if (disableActions) return;
     onDelete?.(data);
   };
 
+  const toggleDropdown = (event) => {
+    event?.stopPropagation();
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
   return (
-    <div className={styles.actionButtons}>
+    <div className={styles.actionDropdownContainer} ref={dropdownRef}>
       <button
         type="button"
-        className={`${styles.actionButton} ${styles.actionButtonView}`}
-        onClick={handleViewClick}
-        title="View details"
+        className={styles.actionDropdownTrigger}
+        onClick={toggleDropdown}
+        disabled={isProcessing || isSaving}
+        title="Actions"
       >
-        View
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="12" cy="5" r="1"></circle>
+          <circle cx="12" cy="12" r="1"></circle>
+          <circle cx="12" cy="19" r="1"></circle>
+        </svg>
       </button>
-      {canEditUsers && (
-        <>
+      {isDropdownOpen && (
+        <div className={styles.actionDropdownMenu}>
           <button
             type="button"
-            className={`${styles.actionButton} ${styles.actionButtonSecondary}`}
-            disabled={disableActions}
-            onClick={handleEditClick}
+            className={styles.actionDropdownItem}
+            onClick={handleViewClick}
           >
-            {isSaving && isEditingThisRow ? 'Saving…' : 'Edit'}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            View Details
           </button>
-          <button
-            type="button"
-            className={`${styles.actionButton} ${styles.actionButtonDanger}`}
-            disabled={disableActions}
-            onClick={handleDeleteClick}
-          >
-            {isProcessing ? 'Deleting…' : 'Delete'}
-          </button>
-        </>
+          {canEditUsers && (
+            <>
+              <button
+                type="button"
+                className={styles.actionDropdownItem}
+                disabled={disableActions}
+                onClick={handleEditClick}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                {isSaving && isEditingThisRow ? 'Saving…' : 'Edit'}
+              </button>
+              <div className={styles.actionDropdownDivider}></div>
+              <button
+                type="button"
+                className={`${styles.actionDropdownItem} ${styles.actionDropdownItemDanger}`}
+                disabled={disableActions}
+                onClick={handleDeleteClick}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                  <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+                {isProcessing ? 'Deleting…' : 'Delete'}
+              </button>
+            </>
+          )}
+        </div>
       )}
     </div>
   );

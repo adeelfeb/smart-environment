@@ -647,6 +647,15 @@ export default function CitizensManagement({ user }) {
           .cm-grid {
             grid-template-columns: 1fr;
           }
+
+          .cm-card-actions {
+            flex-direction: column;
+          }
+
+          .cm-btn {
+            width: 100%;
+            justify-content: center;
+          }
         }
       `}</style>
     </div>

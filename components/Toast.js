@@ -93,6 +93,8 @@ export function ToastItem({ toast, onRemove }) {
         borderColor: style.borderColor,
       }}
       onClick={handleRemove}
+      role="alert"
+      aria-live="polite"
     >
       <div className="toast-icon" style={{ color: style.iconColor }}>
         {getIcon()}
@@ -118,14 +120,14 @@ export function ToastItem({ toast, onRemove }) {
       <style jsx>{`
         .toast-item {
           display: flex;
-          align-items: flex-start;
-          gap: 0.75rem;
-          padding: 1rem 1.25rem;
-          border-radius: 12px;
+          align-items: center;
+          gap: 0.625rem;
+          padding: 0.625rem 0.875rem;
+          border-radius: 8px;
           border: 1px solid;
-          box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(148, 163, 184, 0.08);
-          min-width: 300px;
-          max-width: 420px;
+          box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(148, 163, 184, 0.08);
+          min-width: 240px;
+          max-width: 360px;
           cursor: pointer;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -135,8 +137,8 @@ export function ToastItem({ toast, onRemove }) {
         }
 
         .toast-item:hover {
-          transform: translateX(-4px);
-          box-shadow: 0 12px 32px rgba(15, 23, 42, 0.2), 0 0 0 1px rgba(148, 163, 184, 0.12);
+          transform: translateX(-2px);
+          box-shadow: 0 6px 16px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(148, 163, 184, 0.12);
         }
 
         .toast-item--exiting {
@@ -147,12 +149,11 @@ export function ToastItem({ toast, onRemove }) {
 
         .toast-icon {
           flex-shrink: 0;
-          width: 24px;
-          height: 24px;
+          width: 20px;
+          height: 20px;
           display: flex;
           align-items: center;
           justify-content: center;
-          margin-top: 2px;
         }
 
         .toast-content {
@@ -162,21 +163,22 @@ export function ToastItem({ toast, onRemove }) {
 
         .toast-title {
           font-weight: 600;
-          font-size: 0.95rem;
-          margin-bottom: 0.25rem;
+          font-size: 0.85rem;
+          margin: 0;
           line-height: 1.3;
         }
 
         .toast-message {
-          font-size: 0.875rem;
+          font-size: 0.8rem;
           color: #475569;
-          line-height: 1.5;
+          line-height: 1.4;
+          margin: 0;
         }
 
         .toast-close {
           flex-shrink: 0;
-          width: 24px;
-          height: 24px;
+          width: 20px;
+          height: 20px;
           border: none;
           background: transparent;
           color: #94a3b8;
@@ -184,10 +186,9 @@ export function ToastItem({ toast, onRemove }) {
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: 6px;
+          border-radius: 4px;
           transition: all 0.2s ease;
           padding: 0;
-          margin-top: -2px;
         }
 
         .toast-close:hover {
@@ -223,17 +224,17 @@ export function ToastItem({ toast, onRemove }) {
 
         @media (max-width: 480px) {
           .toast-item {
-            min-width: 280px;
-            max-width: calc(100vw - 2rem);
-            padding: 0.875rem 1rem;
+            min-width: 200px;
+            max-width: calc(100vw - 1.5rem);
+            padding: 0.5rem 0.75rem;
           }
 
           .toast-title {
-            font-size: 0.875rem;
+            font-size: 0.8rem;
           }
 
           .toast-message {
-            font-size: 0.8125rem;
+            font-size: 0.75rem;
           }
         }
       `}</style>
@@ -253,13 +254,13 @@ export default function ToastContainer({ toasts, onRemove }) {
       <style jsx>{`
         .toast-container {
           position: fixed;
-          top: 1rem;
-          right: 1rem;
+          top: 0.75rem;
+          right: 0.75rem;
           z-index: 10000;
           display: flex;
           flex-direction: column;
-          gap: 0.75rem;
-          max-width: calc(100vw - 2rem);
+          gap: 0.5rem;
+          max-width: calc(100vw - 1.5rem);
           pointer-events: none;
         }
 
@@ -269,9 +270,9 @@ export default function ToastContainer({ toasts, onRemove }) {
 
         @media (max-width: 640px) {
           .toast-container {
-            top: 0.75rem;
-            right: 0.75rem;
-            left: 0.75rem;
+            top: 0.5rem;
+            right: 0.5rem;
+            left: 0.5rem;
             max-width: none;
           }
 
