@@ -934,6 +934,7 @@ export default function DashboardLayout({
           gap: 0.5rem;
           width: 100%;
           padding: 0.5rem 0.5rem;
+          margin-bottom: 0.35rem;
           border: 1px solid rgba(148, 163, 184, 0.25);
           border-radius: 10px;
           background: transparent;
@@ -1019,8 +1020,9 @@ export default function DashboardLayout({
         }
         @media (max-width: 480px) {
           .ix-notif-dropdown {
-            width: calc(100vw - 2rem);
+            width: calc(100vw - 3.5rem);
             right: -0.5rem;
+            margin-left: 1.25rem;
           }
           .ix-topbar-subtitle {
             display: none;
