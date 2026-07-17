@@ -457,7 +457,7 @@ export default function UserOverviewTable({ currentUser = null }) {
         sortable: false,
         filter: false,
         cellRenderer: ActionCellRenderer,
-        suppressMenu: true,
+        suppressHeaderMenuButton: true,
       },
     ],
     [dateFormatter]
@@ -1256,8 +1256,8 @@ export default function UserOverviewTable({ currentUser = null }) {
                 domLayout="autoHeight"
                 pagination
                 paginationPageSize={10}
+                paginationPageSizeSelector={[10, 20, 50, 100]}
                 suppressPaginationPanel={false}
-                suppressRowClickSelection
                 stopEditingWhenCellsLoseFocus
                 context={{
                   onView: handleViewUser,
