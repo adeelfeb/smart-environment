@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Search, Filter, Calendar, ChevronLeft, ChevronRight, Loader2, AlertCircle, MapPin, Building2, FileText, Trash2, X } from 'lucide-react';
+import { Search, Filter, Calendar, ChevronLeft, ChevronRight, Loader2, AlertCircle, MapPin, Building2, FileText, Trash2, X, Image as ImageIcon, Clock } from 'lucide-react';
 import { safeParseJsonResponse } from '../../utils/safeJsonResponse';
 
 const STATUS_OPTIONS = [
@@ -316,6 +316,20 @@ export default function ComplaintHistory({ user, onSelectComplaint }) {
           <ul className="complaint-history-list">
             {filteredComplaints.map((complaint) => {
               const chipStyle = getStatusStyle(complaint.status);
+              const photoUrls = [];
+              if (complaint.photoUrl) {
+                if (Array.isArray(complaint.photoUrl)) {
+                  photoUrls.push(...complaint.photoUrl);
+                } else {
+                  photoUrls.push(complaint.photoUrl);
+                }
+              }
+              if (complaint.photos && Array.isArray(complaint.photos)) {
+                complaint.photos.forEach(p => {
+                  if (p.url && !photoUrls.includes(p.url)) photoUrls.push(p.url);
+                });
+              }
+              const firstPhoto = photoUrls[0];
               return (
                 <li
                   key={complaint._id || complaint.id || complaint.complaintId}
@@ -327,94 +341,134 @@ export default function ComplaintHistory({ user, onSelectComplaint }) {
                     if (e.key === 'Enter' || e.key === ' ') handleCardClick(complaint);
                   }}
                 >
-                  <div className="complaint-history-card-top">
-                    <span className="complaint-history-card-id">
-                      #{complaint.complaintId || complaint.id || complaint._id || 'N/A'}
-                    </span>
-                    <span
-                      className="complaint-history-chip"
-                      style={{
-                        backgroundColor: chipStyle.bg,
-                        color: chipStyle.text,
-                        borderColor: chipStyle.border,
-                      }}
-                    >
-                      {formatStatusLabel(complaint.status)}
-                    </span>
-                  </div>
-
-                  <div className="complaint-history-card-category">
-                    {formatStatusLabel(complaint.category)}
-                  </div>
-
-                  <p className="complaint-history-card-desc">
-                    {complaint.description
-                      ? complaint.description.length > 120
-                        ? complaint.description.slice(0, 120) + '...'
-                        : complaint.description
-                      : 'No description provided.'}
-                  </p>
-
-                  <div className="complaint-history-card-meta">
-                    <span className="complaint-history-card-meta-item">
-                      <Calendar size={14} />
-                      {formatDate(complaint.createdAt || complaint.date)}
-                    </span>
-                    {complaint.ward && (
-                      <span className="complaint-history-card-meta-item">
-                        <MapPin size={14} />
-                        Ward {typeof complaint.ward === 'object' ? complaint.ward.name || complaint.ward.wardNumber || '—' : complaint.ward}
-                      </span>
-                    )}
-                    {complaint.corporation && (
-                      <span className="complaint-history-card-meta-item">
-                        <Building2 size={14} />
-                        {typeof complaint.corporation === 'object' ? complaint.corporation.name || '—' : complaint.corporation}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="complaint-history-card-actions">
-                    {deleteConfirmId === (complaint._id || complaint.id) ? (
-                      <div className="complaint-history-delete-confirm">
-                        <span className="complaint-history-delete-text">Delete this complaint?</span>
-                        <button
-                          type="button"
-                          className="complaint-history-delete-yes"
-                          disabled={deletingId === (complaint._id || complaint.id)}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteComplaint(complaint._id || complaint.id);
+                  <div className="complaint-history-card-receipt">
+                    {/* Receipt Header */}
+                    <div className="receipt-header">
+                      <div className="receipt-title-row">
+                        <span className="complaint-history-card-id">
+                          #{complaint.complaintId || complaint.id || complaint._id || 'N/A'}
+                        </span>
+                        <span
+                          className="complaint-history-chip"
+                          style={{
+                            backgroundColor: chipStyle.bg,
+                            color: chipStyle.text,
+                            borderColor: chipStyle.border,
                           }}
                         >
-                          {deletingId === (complaint._id || complaint.id) ? (
-                            <><Loader2 size={14} className="complaint-history-spinner" /> Deleting...</>
-                          ) : 'Yes, Delete'}
-                        </button>
-                        <button
-                          type="button"
-                          className="complaint-history-delete-no"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setDeleteConfirmId(null);
-                          }}
-                        >
-                          Cancel
-                        </button>
+                          {formatStatusLabel(complaint.status)}
+                        </span>
                       </div>
-                    ) : (
-                      <button
-                        type="button"
-                        className="complaint-history-delete-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setDeleteConfirmId(complaint._id || complaint.id);
-                        }}
-                      >
-                        <Trash2 size={14} />
-                        Delete Record
-                      </button>
-                    )}
+                    </div>
+
+                    <div className="receipt-divider" />
+
+                    {/* Receipt Body */}
+                    <div className="receipt-body">
+                      {firstPhoto && (
+                        <div className="receipt-thumb-wrap">
+                          <img
+                            src={firstPhoto}
+                            alt="Complaint"
+                            className="receipt-thumb"
+                            loading="lazy"
+                          />
+                          {photoUrls.length > 1 && (
+                            <span className="receipt-thumb-count">+{photoUrls.length - 1}</span>
+                          )}
+                        </div>
+                      )}
+                      <div className="receipt-info">
+                        <div className="complaint-history-card-category receipt-category">
+                          {formatStatusLabel(complaint.category)}
+                        </div>
+                        <p className="receipt-desc">
+                          {complaint.description
+                            ? complaint.description.length > 80
+                              ? complaint.description.slice(0, 80) + '...'
+                              : complaint.description
+                            : 'No description provided.'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="receipt-divider receipt-divider--dashed" />
+
+                    {/* Receipt Meta */}
+                    <div className="receipt-meta">
+                      <div className="receipt-meta-row">
+                        <span className="receipt-meta-item">
+                          <Calendar size={11} />
+                          {formatDate(complaint.createdAt || complaint.date)}
+                        </span>
+                        {complaint.ward && (
+                          <span className="receipt-meta-item">
+                            <MapPin size={11} />
+                            Ward {typeof complaint.ward === 'object' ? complaint.ward.name || complaint.ward.wardNumber || '—' : complaint.ward}
+                          </span>
+                        )}
+                      </div>
+                      {complaint.corporation && (
+                        <div className="receipt-meta-row">
+                          <span className="receipt-meta-item">
+                            <Building2 size={11} />
+                            {typeof complaint.corporation === 'object' ? complaint.corporation.name || '—' : complaint.corporation}
+                          </span>
+                          {complaint.priority && (
+                            <span className="receipt-meta-item">
+                              <Clock size={11} />
+                              {complaint.priority}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="receipt-divider" />
+
+                    {/* Receipt Footer Actions */}
+                    <div className="receipt-footer">
+                      {deleteConfirmId === (complaint._id || complaint.id) ? (
+                        <div className="complaint-history-delete-confirm">
+                          <span className="complaint-history-delete-text">Delete this complaint?</span>
+                          <button
+                            type="button"
+                            className="complaint-history-delete-yes"
+                            disabled={deletingId === (complaint._id || complaint.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteComplaint(complaint._id || complaint.id);
+                            }}
+                          >
+                            {deletingId === (complaint._id || complaint.id) ? (
+                              <><Loader2 size={14} className="complaint-history-spinner" /> Deleting...</>
+                            ) : 'Yes, Delete'}
+                          </button>
+                          <button
+                            type="button"
+                            className="complaint-history-delete-no"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteConfirmId(null);
+                            }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          className="complaint-history-delete-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeleteConfirmId(complaint._id || complaint.id);
+                          }}
+                        >
+                          <Trash2 size={13} />
+                          Delete Record
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </li>
               );
@@ -721,12 +775,13 @@ export default function ComplaintHistory({ user, onSelectComplaint }) {
 
         .complaint-history-card {
           background: white;
-          border: 1px solid #e2e8f0;
+          border: 1.5px solid #e2e8f0;
           border-radius: 1rem;
-          padding: 1.25rem 1.5rem;
+          padding: 0;
           cursor: pointer;
           transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+          overflow: hidden;
         }
 
         .complaint-history-card:hover {
@@ -740,15 +795,121 @@ export default function ComplaintHistory({ user, onSelectComplaint }) {
           outline-offset: 2px;
         }
 
-        .complaint-history-card-top {
+        .complaint-history-card-receipt {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .receipt-header {
+          padding: 0.85rem 1rem 0.5rem;
+        }
+
+        .receipt-title-row {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          margin-bottom: 0.5rem;
+          gap: 0.5rem;
+        }
+
+        .receipt-divider {
+          height: 1px;
+          background: linear-gradient(90deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
+          margin: 0 1rem;
+        }
+
+        .receipt-divider--dashed {
+          height: 0;
+          border-top: 1px dashed rgba(16, 185, 129, 0.25);
+          margin: 0.5rem 1rem;
+          background: none;
+        }
+
+        .receipt-body {
+          display: flex;
+          gap: 0.75rem;
+          padding: 0.65rem 1rem;
+          align-items: flex-start;
+        }
+
+        .receipt-thumb-wrap {
+          flex-shrink: 0;
+          width: 64px;
+          height: 64px;
+          border-radius: 0.625rem;
+          overflow: hidden;
+          border: 1.5px solid #d1fae5;
+          position: relative;
+          background: #f0fdf4;
+        }
+
+        .receipt-thumb {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+
+        .receipt-thumb-count {
+          position: absolute;
+          bottom: 2px;
+          right: 2px;
+          background: rgba(2, 32, 26, 0.75);
+          color: #fff;
+          font-size: 0.55rem;
+          font-weight: 700;
+          padding: 1px 5px;
+          border-radius: 4px;
+          line-height: 1.3;
+        }
+
+        .receipt-info {
+          flex: 1;
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 0.3rem;
+        }
+
+        .receipt-category {
+          margin-bottom: 0 !important;
+        }
+
+        .receipt-desc {
+          font-size: 0.78rem;
+          color: #475569;
+          line-height: 1.45;
+          margin: 0;
+        }
+
+        .receipt-meta {
+          padding: 0.35rem 1rem 0.5rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+        }
+
+        .receipt-meta-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.75rem;
+          font-size: 0.7rem;
+          color: #64748b;
+        }
+
+        .receipt-meta-item {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.25rem;
+        }
+
+        .receipt-footer {
+          padding: 0.5rem 1rem 0.75rem;
+          display: flex;
+          justify-content: flex-end;
         }
 
         .complaint-history-card-id {
-          font-size: 0.8rem;
+          font-size: 0.78rem;
           font-weight: 700;
           color: #02201a;
           letter-spacing: 0.02em;
@@ -758,51 +919,44 @@ export default function ComplaintHistory({ user, onSelectComplaint }) {
         .complaint-history-chip {
           display: inline-flex;
           align-items: center;
-          padding: 0.25rem 0.75rem;
+          padding: 0.2rem 0.65rem;
           border-radius: 9999px;
-          font-size: 0.75rem;
+          font-size: 0.68rem;
           font-weight: 600;
           border: 1px solid;
           white-space: nowrap;
-          line-height: 1.4;
+          line-height: 1.3;
         }
 
         .complaint-history-card-category {
           display: inline-block;
-          font-size: 0.8rem;
+          font-size: 0.72rem;
           font-weight: 600;
           color: #059669;
           background: #ecfdf5;
-          padding: 0.2rem 0.625rem;
+          padding: 0.15rem 0.5rem;
           border-radius: 0.375rem;
-          margin-bottom: 0.625rem;
-        }
-
-        .complaint-history-card-desc {
-          font-size: 0.925rem;
-          color: #475569;
-          line-height: 1.55;
-          margin: 0 0 0.75rem 0;
+          margin-bottom: 0.5rem;
         }
 
         .complaint-history-card-meta {
           display: flex;
           flex-wrap: wrap;
           align-items: center;
-          gap: 1rem;
-          font-size: 0.8rem;
+          gap: 0.75rem;
+          font-size: 0.72rem;
           color: #64748b;
         }
 
         .complaint-history-card-meta-item {
           display: inline-flex;
           align-items: center;
-          gap: 0.3rem;
+          gap: 0.25rem;
         }
 
         .complaint-history-card-actions {
-          margin-top: 0.75rem;
-          padding-top: 0.75rem;
+          margin-top: 0.5rem;
+          padding-top: 0.5rem;
           border-top: 1px solid #f1f5f9;
           display: flex;
           justify-content: flex-end;
@@ -993,8 +1147,14 @@ export default function ComplaintHistory({ user, onSelectComplaint }) {
             font-size: 1.4rem;
           }
 
+          .complaint-history {
+            padding: 0.35rem;
+            gap: 1rem;
+          }
+
           .complaint-history-toolbar {
-            padding: 0.875rem 1rem;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
           }
 
           .complaint-history-filters {
@@ -1017,13 +1177,36 @@ export default function ComplaintHistory({ user, onSelectComplaint }) {
           }
 
           .complaint-history-card {
-            padding: 1rem 1.125rem;
+            border-radius: 0.75rem;
           }
 
-          .complaint-history-card-top {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.5rem;
+          .receipt-header {
+            padding: 0.65rem 0.75rem 0.4rem;
+          }
+
+          .receipt-body {
+            padding: 0.5rem 0.75rem;
+          }
+
+          .receipt-thumb-wrap {
+            width: 52px;
+            height: 52px;
+          }
+
+          .receipt-meta {
+            padding: 0.25rem 0.75rem 0.4rem;
+          }
+
+          .receipt-footer {
+            padding: 0.4rem 0.75rem 0.6rem;
+          }
+
+          .receipt-divider {
+            margin: 0 0.75rem;
+          }
+
+          .receipt-divider--dashed {
+            margin: 0.4rem 0.75rem;
           }
 
           .complaint-history-card-meta {
@@ -1044,8 +1227,7 @@ export default function ComplaintHistory({ user, onSelectComplaint }) {
 
         @media (max-width: 480px) {
           .complaint-history-card {
-            padding: 0.875rem 1rem;
-            border-radius: 0.75rem;
+            border-radius: 0.625rem;
           }
 
           .complaint-history-page-btn,

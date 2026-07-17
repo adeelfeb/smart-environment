@@ -668,6 +668,37 @@ export default function DashboardLayout({
         </main>
       </div>
 
+      {/* Mobile Bottom Navigation */}
+      <nav className="ix-bottom-nav">
+        <div className="ix-bottom-nav-scroll">
+          {items.filter(item => item.key !== 'help').map((item, idx) => {
+            const active = item.key === activeNav;
+            return (
+              <button
+                key={item.key}
+                className={`ix-bottom-nav-item${active ? ' ix-bottom-nav-item--active' : ''}`}
+                onClick={() => { onNavSelect?.(item.key); }}
+              >
+                <span className="ix-bottom-nav-icon">{getNavIcon(item.key)}</span>
+                <span className="ix-bottom-nav-label">{item.label}</span>
+              </button>
+            );
+          })}
+          <button
+            className={`ix-bottom-nav-item${activeNav === 'settings' ? ' ix-bottom-nav-item--active' : ''}`}
+            onClick={() => { onOpenSettings?.(); }}
+          >
+            <span className="ix-bottom-nav-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"></path>
+              </svg>
+            </span>
+            <span className="ix-bottom-nav-label">Profile</span>
+          </button>
+        </div>
+      </nav>
+
       <style jsx>{`
         .ix-page {
           height: 100dvh;
@@ -1388,6 +1419,102 @@ export default function DashboardLayout({
           scrollbar-width: thin;
           display: flex;
           flex-direction: column;
+        }
+
+        .ix-bottom-nav {
+          display: none;
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          z-index: 100;
+          background: rgba(255,255,255,0.97);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border-top: 1px solid rgba(16, 185, 129, 0.2);
+          box-shadow: 0 -4px 20px rgba(5, 150, 105, 0.08);
+        }
+        .ix-bottom-nav-scroll {
+          display: flex;
+          overflow-x: auto;
+          overflow-y: hidden;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(16, 185, 129, 0.3) transparent;
+          gap: 0.15rem;
+          padding: 0.35rem 0;
+          padding-bottom: max(0.35rem, env(safe-area-inset-bottom));
+          align-items: center;
+          justify-content: flex-start;
+          flex-wrap: nowrap;
+        }
+        .ix-bottom-nav-scroll::before,
+        .ix-bottom-nav-scroll::after {
+          content: '';
+          flex: 1 1 0;
+          min-width: 0.25rem;
+          pointer-events: none;
+        }
+        .ix-bottom-nav-scroll::-webkit-scrollbar {
+          height: 2px;
+        }
+        .ix-bottom-nav-scroll::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .ix-bottom-nav-scroll::-webkit-scrollbar-thumb {
+          background: rgba(16, 185, 129, 0.3);
+          border-radius: 4px;
+        }
+        .ix-bottom-nav-scroll::-webkit-scrollbar-thumb:hover {
+          background: rgba(16, 185, 129, 0.5);
+        }
+        .ix-bottom-nav-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.15rem;
+          padding: 0.25rem 0.5rem;
+          border: none;
+          background: transparent;
+          cursor: pointer;
+          color: #94a3b8;
+          font-family: inherit;
+          transition: all 160ms ease;
+          min-width: 56px;
+          flex: 0 0 auto;
+          border-radius: 10px;
+        }
+        .ix-bottom-nav-item:active {
+          transform: scale(0.92);
+        }
+        .ix-bottom-nav-icon {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 28px;
+          height: 28px;
+          border-radius: 8px;
+          transition: all 160ms ease;
+        }
+        .ix-bottom-nav-item--active {
+          color: #059669;
+        }
+        .ix-bottom-nav-item--active .ix-bottom-nav-icon {
+          background: rgba(209, 250, 229, 0.8);
+        }
+        .ix-bottom-nav-label {
+          font-size: 0.6rem;
+          font-weight: 600;
+          white-space: nowrap;
+          line-height: 1;
+        }
+        @media (max-width: 767px) {
+          .ix-bottom-nav {
+            display: block;
+          }
+          .ix-page {
+            padding-bottom: 64px;
+          }
         }
 
         @keyframes ix-fade-in {

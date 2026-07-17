@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { X, Plus, Edit, Trash2, Eye, Clock } from 'lucide-react';
 import axios from 'axios';
-import { useRecaptcha } from '../../utils/useRecaptcha';
 
 // Configure axios to send cookies with requests
 axios.defaults.withCredentials = true;
@@ -13,7 +12,6 @@ const STATUS_OPTIONS = [
 ];
 
 export default function BlogManager({ user }) {
-  const { execute: executeRecaptcha, isAvailable: recaptchaAvailable } = useRecaptcha();
   const [blogs, setBlogs] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -243,12 +241,6 @@ export default function BlogManager({ user }) {
       return;
     }
 
-    const recaptchaToken = recaptchaAvailable ? await executeRecaptcha() : null;
-    if (recaptchaAvailable && !recaptchaToken) {
-      setError('Security verification failed. Please refresh and try again.');
-      return;
-    }
-
     try {
       setIsSaving(true);
       setError('');
@@ -257,7 +249,6 @@ export default function BlogManager({ user }) {
       const url = editingBlog ? `/api/blogs/${editingBlog.id}` : '/api/blogs';
       const method = editingBlog ? 'put' : 'post';
       const payload = { ...formData };
-      if (recaptchaToken) payload.recaptchaToken = recaptchaToken;
 
       const config = {
         withCredentials: true,

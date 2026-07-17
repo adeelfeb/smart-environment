@@ -266,37 +266,149 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
   if (submitted) {
     return (
       <div className="complaint-form">
-        <div className="success-card">
-          <div className="success-icon">
-            <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-              <circle cx="32" cy="32" r="32" fill="#d1fae5" />
-              <path d="M20 33l8 8 16-16" stroke="#059669" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+        <div className="success-receipt">
+          <div className="success-receipt-inner">
+            <div className="success-receipt-header">
+              <div className="success-icon">
+                <svg width="56" height="56" viewBox="0 0 64 64" fill="none">
+                  <circle cx="32" cy="32" r="32" fill="#d1fae5" />
+                  <path d="M20 33l8 8 16-16" stroke="#059669" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <h2 className="success-receipt-title">Complaint Submitted</h2>
+              <p className="success-receipt-msg">Your complaint has been successfully registered.</p>
+            </div>
+
+            <div className="success-receipt-divider" />
+
+            {complaintId && (
+              <div className="success-receipt-body">
+                <div className="success-receipt-label">Complaint ID</div>
+                <div className="success-receipt-value">{complaintId}</div>
+              </div>
+            )}
+
+            <div className="success-receipt-divider success-receipt-divider--dashed" />
+
+            <div className="success-receipt-footer">
+              <div className="success-receipt-footer-row">
+                <span>Date</span>
+                <span>{new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+              </div>
+              <div className="success-receipt-footer-row">
+                <span>Status</span>
+                <span className="success-receipt-status-chip">Pending</span>
+              </div>
+            </div>
+
+            <div className="success-receipt-stamp">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <circle cx="20" cy="20" r="18" stroke="#059669" strokeWidth="2" opacity="0.4" />
+                <path d="M13 20l5 5 9-9" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.6" />
+              </svg>
+            </div>
           </div>
-          <h2>Complaint Submitted</h2>
-          <p className="success-message">Your complaint has been successfully registered.</p>
-          {complaintId && <p className="complaint-id">Complaint ID: <strong>{complaintId}</strong></p>}
         </div>
 
         <style jsx>{`
           .complaint-form { display: flex; justify-content: center; padding: 2rem 1rem; overflow-y: auto; flex: 1; scrollbar-width: thin; scrollbar-color: rgba(148, 163, 184, 0.6) rgba(241, 245, 249, 0.8); }
-          .success-card {
+          .success-receipt {
             background: #fff;
             border-radius: 1.25rem;
             box-shadow: 0 4px 24px rgba(2, 32, 26, 0.08);
-            padding: 3rem 2rem;
-            text-align: center;
-            max-width: 480px;
+            padding: 0;
+            max-width: 420px;
             width: 100%;
-            display: grid;
-            gap: 1rem;
-            place-items: center;
+            border: 1.5px solid #d1fae5;
+            position: relative;
+            overflow: hidden;
           }
-          .success-icon { margin-bottom: 0.5rem; }
-          h2 { margin: 0; font-size: 1.5rem; color: #02201a; font-weight: 700; }
-          .success-message { margin: 0; color: #475569; font-size: 1rem; }
-          .complaint-id { margin: 0; color: #059669; font-size: 0.95rem; font-weight: 500; }
-          .complaint-id strong { font-weight: 700; }
+          .success-receipt-inner {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+          }
+          .success-receipt-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.65rem;
+            padding: 1.75rem 1.5rem 1rem;
+            text-align: center;
+          }
+          .success-icon { display: flex; justify-content: center; }
+          .success-receipt-title { margin: 0; font-size: 1.35rem; color: #02201a; font-weight: 700; }
+          .success-receipt-msg { margin: 0; color: #475569; font-size: 0.88rem; }
+          .success-receipt-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.2), transparent);
+            margin: 0 1.5rem;
+          }
+          .success-receipt-divider--dashed {
+            height: 0;
+            border-top: 1px dashed rgba(16, 185, 129, 0.3);
+            background: none;
+            margin: 0.5rem 1.5rem;
+          }
+          .success-receipt-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.75rem 1.5rem;
+          }
+          .success-receipt-label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #94a3b8;
+          }
+          .success-receipt-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #02201a;
+            font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+            letter-spacing: 0.03em;
+          }
+          .success-receipt-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            padding: 0.25rem 1.5rem 1.5rem;
+          }
+          .success-receipt-footer-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.78rem;
+            color: #64748b;
+          }
+          .success-receipt-status-chip {
+            display: inline-flex;
+            padding: 0.15rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fbbf24;
+          }
+          .success-receipt-stamp {
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            opacity: 0.8;
+            transform: rotate(-12deg);
+          }
+          @media (max-width: 640px) {
+            .success-receipt { border-radius: 1rem; }
+            .success-receipt-header { padding: 1.25rem 1rem 0.75rem; }
+            .success-receipt-body { padding: 0.5rem 1rem; }
+            .success-receipt-footer { padding: 0.25rem 1rem 1.25rem; }
+            .success-receipt-divider { margin: 0 1rem; }
+            .success-receipt-divider--dashed { margin: 0.4rem 1rem; }
+          }
         `}</style>
       </div>
     );

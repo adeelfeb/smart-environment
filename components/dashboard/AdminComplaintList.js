@@ -452,71 +452,91 @@ export default function AdminComplaintList({ user, onSelectComplaint }) {
             const sc = STATUS_COLORS[st] || STATUS_COLORS.Pending;
             const pr = (c.priority || 'low').toLowerCase();
             const pc = PRIORITY_COLORS[pr] || PRIORITY_COLORS.low;
+            const photoUrls = [];
+            if (c.photoUrl) {
+              if (Array.isArray(c.photoUrl)) photoUrls.push(...c.photoUrl);
+              else photoUrls.push(c.photoUrl);
+            }
+            if (c.photos && Array.isArray(c.photos)) {
+              c.photos.forEach(p => { if (p.url && !photoUrls.includes(p.url)) photoUrls.push(p.url); });
+            }
+            const firstPhoto = photoUrls[0];
             return (
               <div
                 key={c.id || c._id || i}
                 className="acl-card"
                 onClick={() => onSelectComplaint && onSelectComplaint(c)}
               >
-                <div className="acl-card-header">
-                  <span className="acl-card-id">{c.id || c.complaintId || '—'}</span>
-                  <span className="acl-chip" style={{ background: sc.bg, color: sc.text, borderColor: sc.border }}>
-                    {st}
-                  </span>
-                </div>
-                <div className="acl-card-body">
-                  <div className="acl-card-row"><span className="acl-card-label">Citizen</span><span>{c.citizenName || c.user?.name || '—'}</span></div>
-                  <div className="acl-card-row"><span className="acl-card-label">Type</span><span>{c.type || c.category || '—'}</span></div>
-                  <div className="acl-card-row"><span className="acl-card-label">Ward</span><span>{resolveName(c.ward)}</span></div>
-                  <div className="acl-card-row"><span className="acl-card-label">Corporation</span><span>{resolveName(c.corporation)}</span></div>
-                  <div className="acl-card-row"><span className="acl-card-label">Address</span><span>{resolveAddress(c)}</span></div>
-                  <div className="acl-card-row"><span className="acl-card-label">Date</span><span>{formatDate(c.createdAt)}</span></div>
-                  <div className="acl-card-row">
-                    <span className="acl-card-label">Priority</span>
+                <div className="acl-card-receipt">
+                  <div className="acl-card-header">
+                    <span className="acl-card-id">{c.id || c.complaintId || '—'}</span>
+                    <span className="acl-chip" style={{ background: sc.bg, color: sc.text, borderColor: sc.border }}>
+                      {st}
+                    </span>
+                  </div>
+                  <div className="acl-card-divider" />
+                  <div className="acl-card-receipt-body">
+                    {firstPhoto && (
+                      <div className="acl-card-thumb-wrap">
+                        <img src={firstPhoto} alt="" className="acl-card-thumb" loading="lazy" />
+                        {photoUrls.length > 1 && <span className="acl-card-thumb-count">+{photoUrls.length - 1}</span>}
+                      </div>
+                    )}
+                    <div className="acl-card-receipt-info">
+                      <div className="acl-card-receipt-row"><span className="acl-card-label">Citizen</span><span>{c.citizenName || c.user?.name || '—'}</span></div>
+                      <div className="acl-card-receipt-row"><span className="acl-card-label">Type</span><span>{c.type || c.category || '—'}</span></div>
+                      <div className="acl-card-receipt-row"><span className="acl-card-label">Ward</span><span>{resolveName(c.ward)}</span></div>
+                    </div>
+                  </div>
+                  <div className="acl-card-divider acl-card-divider--dashed" />
+                  <div className="acl-card-receipt-meta">
+                    <span>{resolveName(c.corporation)}</span>
+                    <span>{formatDate(c.createdAt)}</span>
                     <span className="acl-chip acl-chip-sm" style={{ background: pc.bg, color: pc.text }}>{c.priority || 'Low'}</span>
                   </div>
+                  <div className="acl-card-divider" />
+                  {isCreator(c) && (
+                    <div className="acl-card-actions">
+                      {deleteConfirmId === (c._id || c.id) ? (
+                        <div className="acl-delete-confirm">
+                          <span className="acl-delete-text">Delete?</span>
+                          <button
+                            type="button"
+                            className="acl-delete-yes"
+                            disabled={deletingId === (c._id || c.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteComplaint(c._id || c.id);
+                            }}
+                          >
+                            {deletingId === (c._id || c.id) ? 'Deleting...' : 'Yes, Delete'}
+                          </button>
+                          <button
+                            type="button"
+                            className="acl-delete-no"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteConfirmId(null);
+                            }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          className="acl-delete-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeleteConfirmId(c._id || c.id);
+                          }}
+                        >
+                          Delete Record
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
-                {isCreator(c) && (
-                  <div className="acl-card-actions">
-                    {deleteConfirmId === (c._id || c.id) ? (
-                      <div className="acl-delete-confirm">
-                        <span className="acl-delete-text">Delete?</span>
-                        <button
-                          type="button"
-                          className="acl-delete-yes"
-                          disabled={deletingId === (c._id || c.id)}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteComplaint(c._id || c.id);
-                          }}
-                        >
-                          {deletingId === (c._id || c.id) ? 'Deleting...' : 'Yes, Delete'}
-                        </button>
-                        <button
-                          type="button"
-                          className="acl-delete-no"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setDeleteConfirmId(null);
-                          }}
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        className="acl-delete-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setDeleteConfirmId(c._id || c.id);
-                        }}
-                      >
-                        Delete Record
-                      </button>
-                    )}
-                  </div>
-                )}
               </div>
             );
           })
@@ -872,26 +892,98 @@ export default function AdminComplaintList({ user, onSelectComplaint }) {
           }
           .acl-card {
             background: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
             cursor: pointer;
             transition: border-color 0.15s, box-shadow 0.15s;
+            overflow: hidden;
           }
           .acl-card:hover {
             border-color: #10b981;
             box-shadow: 0 2px 8px #10b98118;
           }
+          .acl-card-receipt {
+            display: flex;
+            flex-direction: column;
+          }
           .acl-card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            padding: 0.75rem 0.85rem 0.5rem;
+          }
+          .acl-card-divider {
+            height: 1px;
+            background: linear-gradient(90deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
+            margin: 0 0.85rem;
+          }
+          .acl-card-divider--dashed {
+            height: 0;
+            border-top: 1px dashed rgba(16, 185, 129, 0.25);
+            margin: 0.4rem 0.85rem;
+            background: none;
+          }
+          .acl-card-receipt-body {
+            display: flex;
+            gap: 0.65rem;
+            padding: 0.5rem 0.85rem;
+            align-items: flex-start;
+          }
+          .acl-card-thumb-wrap {
+            flex-shrink: 0;
+            width: 56px;
+            height: 56px;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            border: 1.5px solid #d1fae5;
+            position: relative;
+            background: #f0fdf4;
+          }
+          .acl-card-thumb {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+          }
+          .acl-card-thumb-count {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            background: rgba(2, 32, 26, 0.75);
+            color: #fff;
+            font-size: 0.5rem;
+            font-weight: 700;
+            padding: 1px 4px;
+            border-radius: 3px;
+            line-height: 1.2;
+          }
+          .acl-card-receipt-info {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+          }
+          .acl-card-receipt-row {
+            display: flex;
+            gap: 6px;
+            font-size: 0.72rem;
+            color: #475569;
+            align-items: center;
+          }
+          .acl-card-receipt-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.3rem 0.85rem 0.5rem;
+            font-size: 0.68rem;
+            color: #64748b;
+            align-items: center;
           }
           .acl-card-id {
             font-family: monospace;
             font-weight: 600;
-            font-size: 0.82rem;
+            font-size: 0.78rem;
             color: #02201a;
           }
           .acl-card-body {
@@ -909,11 +1001,14 @@ export default function AdminComplaintList({ user, onSelectComplaint }) {
           .acl-card-label {
             font-weight: 600;
             color: #64748b;
-            font-size: 0.72rem;
+            font-size: 0.65rem;
             text-transform: uppercase;
             letter-spacing: 0.03em;
             flex-shrink: 0;
-            margin-right: 8px;
+            margin-right: 6px;
+          }
+          .acl-card-actions {
+            padding: 0.4rem 0.85rem 0.65rem;
           }
           .acl-filter-group {
             min-width: 120px;

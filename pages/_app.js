@@ -4,7 +4,6 @@ import Head from 'next/head';
 import { Poppins, Cormorant_Garamond } from 'next/font/google';
 import { ToastProvider } from '../components/ToastProvider';
 import ErrorBoundary from '../components/ErrorBoundary';
-import RecaptchaPreloader from '../components/RecaptchaPreloader';
 
 // Same font setup as app/layout.js so header, footer and content match the home page
 const poppins = Poppins({
@@ -34,7 +33,6 @@ export default function App({ Component, pageProps }) {
           <link rel="preconnect" href="https://www.google.com" />
           <link rel="preconnect" href="https://www.gstatic.com" crossOrigin="" />
         </Head>
-        <RecaptchaPreloader />
         <div
           className={`${poppins.variable} ${cormorant.variable} ${poppins.className}`}
           style={{ minHeight: '100vh' }}

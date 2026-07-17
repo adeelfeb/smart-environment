@@ -2,7 +2,7 @@ import Head from 'next/head'
 import { useMemo, useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { Eye, EyeOff, Leaf } from 'lucide-react'
+import { Eye, EyeOff, Leaf, ShieldCheck, Recycle, MapPin } from 'lucide-react'
 import Navbar from '../components/designndev/Navbar'
 import Footer from '../components/designndev/Footer'
 import { AuthCardSkeleton } from '../components/Skeleton'
@@ -333,22 +333,22 @@ export default function LoginPage() {
         <meta name="description" content={`Sign in to your ${siteName} account.`} />
         <meta name="keywords" content="login, sign in, account, ecowatch" />
       </Head>
-      <div className="min-h-screen bg-white relative">
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50 relative">
         <Navbar />
-        <main className="relative z-10 pt-24 pb-20">
-          <div className="max-w-lg mx-auto px-4 sm:px-6 text-center mb-10">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-100 mb-6">
-              <Leaf className="w-7 h-7 text-emerald-600" />
+        <main className="relative z-10 pt-16 pb-24">
+          <div className="max-w-lg mx-auto px-4 sm:px-6 text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-200/50 mb-5">
+              <Recycle className="w-8 h-8 text-white" />
             </div>
-            <h1 className="font-heading text-3xl md:text-4xl font-semibold text-gray-900 mb-3 normal-case">
+            <h1 className="font-heading text-3xl md:text-4xl font-bold text-gray-900 mb-2 normal-case tracking-tight">
               Welcome Back
             </h1>
-            <p className="text-gray-500 text-base md:text-lg">
+            <p className="text-gray-500 text-sm md:text-base">
               Sign in to manage waste reports and track complaint resolution.
             </p>
           </div>
           <div className="max-w-md mx-auto px-4">
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-xl p-6 md:p-8">
+            <div className="bg-white/80 backdrop-blur-lg rounded-3xl border border-emerald-100/60 shadow-xl shadow-emerald-900/5 p-5 md:p-8">
               {error && (
                 <div
                   className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm mb-6"
@@ -457,12 +457,27 @@ export default function LoginPage() {
                 </>
               )}
 
-              <footer className="mt-8 pt-6 border-t border-gray-100 flex flex-wrap justify-center items-center gap-2 text-sm text-gray-500">
+              <footer className="mt-6 pt-5 border-t border-emerald-100/60 flex flex-wrap justify-center items-center gap-2 text-sm text-gray-500">
                 <span>Need an account?</span>
                 <Link href="/signup" className="font-semibold text-emerald-600 hover:text-emerald-700 transition-colors">
                   Create one here
                 </Link>
               </footer>
+            </div>
+
+            <div className="mt-6 grid grid-cols-3 gap-3 max-w-md mx-auto">
+              <div className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/60 border border-emerald-100/40">
+                <ShieldCheck className="w-5 h-5 text-emerald-500" />
+                <span className="text-[0.6rem] font-medium text-gray-500 text-center leading-tight">Secure &amp; Encrypted</span>
+              </div>
+              <div className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/60 border border-emerald-100/40">
+                <MapPin className="w-5 h-5 text-emerald-500" />
+                <span className="text-[0.6rem] font-medium text-gray-500 text-center leading-tight">Track in Real-Time</span>
+              </div>
+              <div className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/60 border border-emerald-100/40">
+                <Recycle className="w-5 h-5 text-emerald-500" />
+                <span className="text-[0.6rem] font-medium text-gray-500 text-center leading-tight">Eco-Friendly Reports</span>
+              </div>
             </div>
           </div>
         </main>
