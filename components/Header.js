@@ -15,6 +15,9 @@ export default function Header({
               <img 
                 src="/logo.svg" 
                 alt="Design n Dev Logo" 
+                width={180}
+                height={48}
+                loading="eager"
                 className="logo-img"
               />
             </Link>

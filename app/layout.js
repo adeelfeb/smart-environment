@@ -38,7 +38,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${poppins.variable} ${cormorant.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${poppins.variable} ${cormorant.variable}`} suppressHydrationWarning data-scroll-behavior="smooth">
       <body className={`${poppins.className} antialiased relative min-h-screen`} suppressHydrationWarning>
         {/* Static full-viewport background – all pages share this */}
         <div

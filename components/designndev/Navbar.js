@@ -98,6 +98,9 @@ export default function Navbar() {
                   <img
                     src="/logo.svg"
                     alt="EcoWatch"
+                    width={180}
+                    height={48}
+                    loading="eager"
                     className="h-8 sm:h-9 md:h-10 w-auto"
                   />
                 </Link>
