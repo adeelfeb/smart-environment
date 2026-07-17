@@ -463,6 +463,7 @@ export default function Dashboard({ user }) {
       const hashPart = key ? `#${key}` : '';
       window.history.replaceState(null, '', `${basePath}${hashPart}`);
     }
+    window.dispatchEvent(new Event('hashchange'));
   }, []);
 
   const sectionParam = router.query?.section;
