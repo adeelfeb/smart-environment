@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import dynamic from 'next/dynamic';
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
 import Modal from '../Modal';
@@ -75,52 +76,125 @@ function ActionCellRenderer(params) {
   const isProcessing = deletingId === data?.id || processingId === data?.id;
   const isEditingThisRow = editingId === data?.id;
   const disableActions = !canEditUsers || isProcessing || isSaving;
-  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
-  const dropdownRef = React.useRef(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const buttonRef = useRef(null);
+  const menuRef = useRef(null);
+  const [dropdownStyle, setDropdownStyle] = useState({});
 
-  React.useEffect(() => {
+  useEffect(() => {
+    if (!isDropdownOpen) return;
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      const inButton = buttonRef.current?.contains(event.target);
+      const inMenu = menuRef.current?.contains(event.target);
+      if (!inButton && !inMenu) {
         setIsDropdownOpen(false);
       }
     };
+    const handleScroll = () => {
+      setIsDropdownOpen(false);
+    };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    document.addEventListener('scroll', handleScroll, true);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('scroll', handleScroll, true);
+    };
+  }, [isDropdownOpen]);
+
+  const toggleDropdown = (event) => {
+    event.stopPropagation();
+    if (isDropdownOpen) {
+      setIsDropdownOpen(false);
+      return;
+    }
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setDropdownStyle({
+        top: rect.bottom + 4,
+        right: window.innerWidth - rect.right,
+      });
+    }
+    setIsDropdownOpen(true);
+  };
 
   const handleViewClick = (event) => {
-    event?.stopPropagation();
+    event.stopPropagation();
     setIsDropdownOpen(false);
     onView?.(data);
   };
 
   const handleEditClick = (event) => {
-    event?.stopPropagation();
+    event.stopPropagation();
     setIsDropdownOpen(false);
     if (disableActions) return;
     onEdit?.(data);
   };
 
   const handleDeleteClick = (event) => {
-    event?.stopPropagation();
+    event.stopPropagation();
     setIsDropdownOpen(false);
     if (disableActions) return;
     onDelete?.(data);
   };
 
-  const toggleDropdown = (event) => {
-    event?.stopPropagation();
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
-  return (
-    <div className={styles.actionDropdownContainer} ref={dropdownRef}>
+  const dropdownMenu = (
+    <div ref={menuRef} className={styles.actionDropdownMenu} style={{ position: 'fixed', ...dropdownStyle }}>
       <button
         type="button"
+        className={styles.actionDropdownItem}
+        onClick={handleViewClick}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+        View Details
+      </button>
+      {canEditUsers && (
+        <>
+          <button
+            type="button"
+            className={styles.actionDropdownItem}
+            disabled={disableActions}
+            onClick={handleEditClick}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            {isSaving && isEditingThisRow ? 'Saving…' : 'Edit'}
+          </button>
+          <div className={styles.actionDropdownDivider}></div>
+          <button
+            type="button"
+            className={`${styles.actionDropdownItem} ${styles.actionDropdownItemDanger}`}
+            disabled={disableActions}
+            onClick={handleDeleteClick}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              <line x1="10" y1="11" x2="10" y2="17"></line>
+              <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+            {isProcessing ? 'Deleting…' : 'Delete'}
+          </button>
+        </>
+      )}
+    </div>
+  );
+
+  return (
+    <div className={styles.actionDropdownContainer}>
+      <button
+        type="button"
+        ref={buttonRef}
         className={styles.actionDropdownTrigger}
         onClick={toggleDropdown}
         disabled={isProcessing || isSaving}
         title="Actions"
+        aria-haspopup="true"
+        aria-expanded={isDropdownOpen}
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="12" cy="5" r="1"></circle>
@@ -128,52 +202,7 @@ function ActionCellRenderer(params) {
           <circle cx="12" cy="19" r="1"></circle>
         </svg>
       </button>
-      {isDropdownOpen && (
-        <div className={styles.actionDropdownMenu}>
-          <button
-            type="button"
-            className={styles.actionDropdownItem}
-            onClick={handleViewClick}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-            View Details
-          </button>
-          {canEditUsers && (
-            <>
-              <button
-                type="button"
-                className={styles.actionDropdownItem}
-                disabled={disableActions}
-                onClick={handleEditClick}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                </svg>
-                {isSaving && isEditingThisRow ? 'Saving…' : 'Edit'}
-              </button>
-              <div className={styles.actionDropdownDivider}></div>
-              <button
-                type="button"
-                className={`${styles.actionDropdownItem} ${styles.actionDropdownItemDanger}`}
-                disabled={disableActions}
-                onClick={handleDeleteClick}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polyline points="3 6 5 6 21 6"></polyline>
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                  <line x1="10" y1="11" x2="10" y2="17"></line>
-                  <line x1="14" y1="11" x2="14" y2="17"></line>
-                </svg>
-                {isProcessing ? 'Deleting…' : 'Delete'}
-              </button>
-            </>
-          )}
-        </div>
-      )}
+      {isDropdownOpen && typeof document !== 'undefined' && createPortal(dropdownMenu, document.body)}
     </div>
   );
 }
@@ -966,21 +995,21 @@ export default function UserOverviewTable({ currentUser = null }) {
             onClick={handleToggleCreate}
             disabled={isCreating}
           >
-            {isCreateOpen ? 'Close Create Form' : 'New User'}
+            New User
           </button>
         </div>
       )}
 
-      {canEditUsers && isCreateOpen && (
-        <form className={`${styles.editPanel} ${styles.createPanel}`} onSubmit={handleSubmitCreate}>
-          <div className={styles.editPanelHeader}>
-            <div className={styles.editPanelHeaderText}>
-              <span className={styles.editPanelTitle}>Create New User</span>
-              <p className={styles.panelDescription}>
-                Add a user by assigning their role and temporary password. They can update their details after logging in.
-              </p>
-            </div>
-          </div>
+      <Modal
+        isOpen={canEditUsers && isCreateOpen}
+        onClose={handleToggleCreate}
+        title="Create New User"
+        size="md"
+      >
+        <p style={{ margin: '0 0 1rem', fontSize: '0.925rem', color: '#64748b', lineHeight: 1.5 }}>
+          Add a user by assigning their role and temporary password. They can update their details after logging in.
+        </p>
+        <form onSubmit={handleSubmitCreate}>
           {createError && (
             <div className={`${styles.inlineFeedback} ${styles.inlineFeedbackError}`}>{createError}</div>
           )}
@@ -1123,7 +1152,7 @@ export default function UserOverviewTable({ currentUser = null }) {
             </button>
           </div>
         </form>
-      )}
+      </Modal>
 
       {isCompact ? (
         <div className={styles.cardListWrapper} aria-live="polite">
@@ -1246,119 +1275,121 @@ export default function UserOverviewTable({ currentUser = null }) {
         </div>
       )}
 
-      {canEditUsers && editingUser && (
-        <form className={styles.editPanel} onSubmit={handleSubmitEdit}>
-          <div className={styles.editPanelHeader}>
-            <span className={styles.editPanelTitle}>
-              Edit {editingUser.name || editingUser.email || 'user'}
-            </span>
-          </div>
-          {roleLoadError && (
-            <div className={`${styles.inlineFeedback} ${styles.inlineFeedbackError}`}>
-              {roleLoadError}
-              <button
-                type="button"
-                className={styles.inlineRetryButton}
-                onClick={loadRoles}
-                disabled={isLoadingRoles}
-              >
-                Retry
-              </button>
-            </div>
-          )}
-          {isLoadingRoles && (
-            <div className={`${styles.inlineFeedback} ${styles.inlineFeedbackInfo}`}>
-              Loading role options…
-            </div>
-          )}
-          {isSaving && (
-            <div className={`${styles.inlineFeedback} ${styles.feedbackInfo}`}>
-              Saving changes…
-            </div>
-          )}
-          <div className={styles.editFormGrid}>
-            <label className={styles.editField}>
-              <span>Name</span>
-              <input
-                type="text"
-                name="name"
-                value={editForm.name}
-                onChange={handleEditFieldChange}
-                disabled={isSaving}
-                required
-              />
-            </label>
-            {editForm.username ? (
+      <Modal
+        isOpen={canEditUsers && Boolean(editingUser)}
+        onClose={handleCancelEdit}
+        title={`Edit ${editingUser?.name || editingUser?.email || 'User'}`}
+        size="md"
+      >
+        {editingUser && (
+          <form onSubmit={handleSubmitEdit}>
+            {roleLoadError && (
+              <div className={`${styles.inlineFeedback} ${styles.inlineFeedbackError}`}>
+                {roleLoadError}
+                <button
+                  type="button"
+                  className={styles.inlineRetryButton}
+                  onClick={loadRoles}
+                  disabled={isLoadingRoles}
+                >
+                  Retry
+                </button>
+              </div>
+            )}
+            {isLoadingRoles && (
+              <div className={`${styles.inlineFeedback} ${styles.inlineFeedbackInfo}`}>
+                Loading role options…
+              </div>
+            )}
+            {isSaving && (
+              <div className={`${styles.inlineFeedback} ${styles.feedbackInfo}`}>
+                Saving changes…
+              </div>
+            )}
+            <div className={styles.editFormGrid}>
               <label className={styles.editField}>
-                <span>Username</span>
+                <span>Name</span>
                 <input
                   type="text"
-                  name="username"
-                  value={editForm.username}
-                  disabled
-                  title="Username cannot be changed"
-                  style={{ cursor: 'not-allowed', opacity: 0.7 }}
+                  name="name"
+                  value={editForm.name}
+                  onChange={handleEditFieldChange}
+                  disabled={isSaving}
+                  required
                 />
-                <small style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.25rem' }}>
-                  Username cannot be changed
-                </small>
               </label>
-            ) : null}
-            <label className={styles.editField}>
-              <span>Email {ROLES_WITH_USERNAME.includes(editForm.role) ? '(Optional)' : ''}</span>
-              <input
-                type="email"
-                name="email"
-                value={editForm.email}
-                onChange={handleEditFieldChange}
+              {editForm.username ? (
+                <label className={styles.editField}>
+                  <span>Username</span>
+                  <input
+                    type="text"
+                    name="username"
+                    value={editForm.username}
+                    disabled
+                    title="Username cannot be changed"
+                    style={{ cursor: 'not-allowed', opacity: 0.7 }}
+                  />
+                  <small style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.25rem' }}>
+                    Username cannot be changed
+                  </small>
+                </label>
+              ) : null}
+              <label className={styles.editField}>
+                <span>Email {ROLES_WITH_USERNAME.includes(editForm.role) ? '(Optional)' : ''}</span>
+                <input
+                  type="email"
+                  name="email"
+                  value={editForm.email}
+                  onChange={handleEditFieldChange}
+                  disabled={isSaving}
+                  required={!ROLES_WITH_USERNAME.includes(editForm.role)}
+                />
+              </label>
+              <label className={styles.editField}>
+                <span>Role</span>
+                <select
+                  name="role"
+                  value={editForm.role}
+                  onChange={handleEditFieldChange}
+                  disabled={isSaving}
+                  required
+                >
+                  {editRoleOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className={styles.editField}>
+                <span>New Password</span>
+                <input
+                  type="password"
+                  name="newPassword"
+                  value={editForm.newPassword}
+                  onChange={handleEditFieldChange}
+                  disabled={isSaving}
+                  placeholder="Leave blank to keep current password"
+                  minLength={5}
+                />
+              </label>
+            </div>
+            <div className={styles.editActions}>
+              <button type="submit" className={styles.primaryButton} disabled={isSaving}>
+                Save changes
+              </button>
+              <button
+                type="button"
+                className={styles.secondaryButton}
+                onClick={handleCancelEdit}
                 disabled={isSaving}
-                required={!ROLES_WITH_USERNAME.includes(editForm.role)}
-              />
-            </label>
-            <label className={styles.editField}>
-              <span>Role</span>
-              <select
-                name="role"
-                value={editForm.role}
-                onChange={handleEditFieldChange}
-                disabled={isSaving}
-                required
               >
-                {editRoleOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className={styles.editField}>
-              <span>New Password</span>
-              <input
-                type="password"
-                name="newPassword"
-                value={editForm.newPassword}
-                onChange={handleEditFieldChange}
-                disabled={isSaving}
-                placeholder="Leave blank to keep current password"
-                minLength={5}
-              />
-            </label>
-          </div>
-          <div className={styles.editActions}>
-            <button type="submit" className={styles.primaryButton} disabled={isSaving}>
-              Save changes
-            </button>
-            <button
-              type="button"
-              className={styles.secondaryButton}
-              onClick={handleCancelEdit}
-              disabled={isSaving}
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      )}
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
+      </Modal>
     </div>
   );
 }
