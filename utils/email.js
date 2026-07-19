@@ -1,16 +1,20 @@
 import axios from 'axios';
 import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import { env } from '../lib/config';
 import { logger } from './logger';
 
 /**
- * Email utility for sending emails via SMTP2Go
+ * Email utility for sending emails
  * 
- * Supports both:
- * 1. REST API (requires SMTP2GO_API_KEY)
- * 2. SMTP Protocol (requires SMTP_USERNAME, SMTP_PASSWORD, SMTP_HOST, SMTP_PORT)
+ * Supports three providers (in order of priority):
+ * 1. Resend (requires RESEND_API_KEY) - Recommended for development
+ * 2. SMTP2Go REST API (requires SMTP2GO_API_KEY)
+ * 3. SMTP Protocol (requires SMTP_USERNAME, SMTP_PASSWORD, SMTP_HOST, SMTP_PORT)
  * 
  * Environment variables:
+ * - RESEND_API_KEY: Your Resend API key (preferred for development)
+ * - RESEND_FROM_EMAIL: The sender email address for Resend
  * - SMTP2GO_API_KEY: Your SMTP2Go API key (for REST API)
  * - SMTP2GO_FROM_EMAIL: The sender email address
  * - SMTP2GO_FROM_NAME: The sender name (optional)
@@ -22,6 +26,78 @@ import { logger } from './logger';
  */
 
 const SMTP2GO_API_URL = 'https://api.smtp2go.com/v3/email/send';
+
+/**
+ * Send email using Resend API (recommended for development)
+ */
+async function sendEmailViaResend({ to, subject, htmlBody, textBody, from, fromName }) {
+  const apiKey = env.RESEND_API_KEY;
+  const defaultFrom = env.RESEND_FROM_EMAIL || env.SMTP_FROM;
+  const defaultFromName = env.RESEND_FROM_NAME || 'The Server';
+
+  if (!apiKey || apiKey.trim() === '') {
+    logger.error('RESEND_API_KEY is not configured. Check your .env file.');
+    throw new Error('RESEND_API_KEY is not configured. Please add it to your .env or .env.local file.');
+  }
+
+  if (!defaultFrom || defaultFrom.trim() === '') {
+    logger.error('RESEND_FROM_EMAIL is not configured. Check your .env file.');
+    throw new Error('RESEND_FROM_EMAIL is not configured. Please add it to your .env or .env.local file.');
+  }
+
+  // Normalize 'to' to array
+  const recipients = Array.isArray(to) ? to : [to];
+
+  // Validate recipients
+  if (recipients.length === 0) {
+    throw new Error('At least one recipient email is required');
+  }
+
+  const resend = new Resend(apiKey);
+
+  try {
+    if (process.env.NODE_ENV === 'development') {
+      logger.info(`Sending email via Resend to: ${recipients.join(', ')}`);
+    }
+    
+    const { data, error } = await resend.emails.send({
+      from: fromName 
+        ? `${fromName} <${from || defaultFrom}>` 
+        : (from || defaultFrom),
+      to: recipients,
+      subject: subject,
+      html: htmlBody,
+      ...(textBody && { text: textBody }),
+    });
+
+    if (error) {
+      throw new Error(error.message || 'Resend API error');
+    }
+
+    if (data && data.id) {
+      if (process.env.NODE_ENV === 'development') {
+        logger.info(`Email sent successfully via Resend. Message ID: ${data.id}`);
+      }
+      return {
+        success: true,
+        messageId: data.id,
+        data: data,
+      };
+    }
+
+    throw new Error('Unexpected response format from Resend');
+  } catch (error) {
+    logger.error('Failed to send email via Resend:', error.message);
+    
+    if (error.message.includes('401') || error.message.includes('unauthorized')) {
+      throw new Error('Resend API authentication failed - Check your RESEND_API_KEY');
+    } else if (error.message.includes('422') || error.message.includes('validation')) {
+      throw new Error('Resend validation error - Verify your RESEND_FROM_EMAIL is verified in Resend dashboard');
+    }
+    
+    throw new Error(`Failed to send email via Resend: ${error.message}`);
+  }
+}
 
 /**
  * Send email using SMTP protocol (fallback when API key is not available)
@@ -211,33 +287,46 @@ export async function sendEmail({
   fromName,
 }) {
 
-  // Try REST API first if API key is available
+  // Try Resend first (recommended for development)
+  if (env.RESEND_API_KEY && env.RESEND_API_KEY.trim() !== '') {
+    try {
+      return await sendEmailViaResend({ to, subject, htmlBody, textBody, from, fromName });
+    } catch (error) {
+      logger.warn('Resend failed, falling back to SMTP2Go:', error.message);
+      // Fall through to SMTP2Go if Resend fails
+    }
+  }
+
+  // Try SMTP2Go REST API if Resend is not available or failed
   if (env.SMTP2GO_API_KEY && env.SMTP2GO_API_KEY.trim() !== '') {
     try {
       return await sendEmailViaAPI({ to, subject, htmlBody, textBody, from, fromName });
     } catch (error) {
-      logger.warn('REST API failed, falling back to SMTP:', error.message);
+      logger.warn('SMTP2Go API failed, falling back to SMTP:', error.message);
       // Fall through to SMTP if API fails
     }
   }
 
-  // Fall back to SMTP protocol if API key is not available or API failed
+  // Fall back to SMTP protocol if other methods are not available or failed
   if (env.SMTP_USERNAME && env.SMTP_USERNAME.trim() !== '' &&
       env.SMTP_PASSWORD && env.SMTP_PASSWORD.trim() !== '') {
     return await sendEmailViaSMTP({ to, subject, htmlBody, textBody, from, fromName });
   }
 
-  // If neither method is configured, throw helpful error with debug info
+  // If no method is configured, throw helpful error with debug info
   const errorMsg =
-    'Email configuration missing. Please configure either:\n' +
-    '1. SMTP2GO_API_KEY (for REST API), or\n' +
-    '2. SMTP_USERNAME and SMTP_PASSWORD (for SMTP protocol)\n\n' +
+    'Email configuration missing. Please configure one of the following:\n' +
+    '1. RESEND_API_KEY (recommended for development), or\n' +
+    '2. SMTP2GO_API_KEY (for REST API), or\n' +
+    '3. SMTP_USERNAME and SMTP_PASSWORD (for SMTP protocol)\n\n' +
     'Current status:\n' +
+    `- RESEND_API_KEY: ${env.RESEND_API_KEY ? 'Set' : 'NOT SET'}\n` +
     `- SMTP2GO_API_KEY: ${env.SMTP2GO_API_KEY ? 'Set' : 'NOT SET'}\n` +
     `- SMTP_USERNAME: ${env.SMTP_USERNAME ? 'Set' : 'NOT SET'}\n` +
     `- SMTP_PASSWORD: ${env.SMTP_PASSWORD ? 'Set' : 'NOT SET'}\n` +
     `- SMTP_FROM: ${env.SMTP_FROM ? 'Set' : 'NOT SET'}\n` +
-    `- SMTP2GO_FROM_EMAIL: ${env.SMTP2GO_FROM_EMAIL || 'NOT SET'}\n\n` +
+    `- SMTP2GO_FROM_EMAIL: ${env.SMTP2GO_FROM_EMAIL || 'NOT SET'}\n` +
+    `- RESEND_FROM_EMAIL: ${env.RESEND_FROM_EMAIL || 'NOT SET'}\n\n` +
     'Please check your .env or .env.local file and restart the server.';
 
   logger.error('Email configuration error:', errorMsg);

@@ -196,7 +196,65 @@ MONGODB_URI=mongodb://127.0.0.1:27017/proofresponse
 JWT_SECRET=your_secret_key
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
 SUPERADMIN_SETUP_TOKEN=bootstrap_token_for_first_superadmin
+
+# Email Configuration (choose ONE provider)
+# Option 1: Resend (Recommended for development)
+RESEND_API_KEY=your_resend_api_key
+RESEND_FROM_EMAIL=onboarding@resend.dev
+
+# Option 2: SMTP2Go (Alternative)
+# SMTP2GO_API_KEY=your_smtp2go_api_key
+# SMTP2GO_FROM_EMAIL=your_email@domain.com
+
+# Option 3: SMTP Protocol (Fallback)
+# SMTP_USERNAME=your_smtp_username
+# SMTP_PASSWORD=your_smtp_password
+# SMTP_FROM=noreply@yourdomain.com
 ```
+
+**Email Provider Setup:**
+
+#### Resend (Recommended)
+
+1. Sign up at [resend.com](https://resend.com) (free tier available)
+2. Go to API Keys and create a new key
+3. Add to your `.env` file:
+   ```env
+   RESEND_API_KEY=re_xxxxxxxxxxxxxxxx
+   RESEND_FROM_EMAIL=onboarding@resend.dev
+   ```
+
+> **Note:** For development, Resend allows you to use `onboarding@resend.dev` as the sender email without domain verification. This is perfect for testing the signup flow.
+
+#### SMTP2Go (Alternative)
+
+1. Sign up at [smtp2go.com](https://app.smtp2go.com)
+2. Get your API key from Settings > API
+3. Add to your `.env` file:
+   ```env
+   SMTP2GO_API_KEY=your_api_key
+   SMTP2GO_FROM_EMAIL=your_verified_email@domain.com
+   ```
+
+#### SMTP Protocol (Fallback)
+
+Use any SMTP server credentials (Gmail, Outlook, etc.):
+```env
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=your_email@gmail.com
+SMTP_PASSWORD=your_app_password
+SMTP_FROM=your_email@gmail.com
+```
+
+**Email Provider Priority:**
+
+The email service tries providers in this order:
+1. **Resend** (if `RESEND_API_KEY` is set)
+2. **SMTP2Go API** (if `SMTP2GO_API_KEY` is set)
+3. **SMTP Protocol** (if `SMTP_USERNAME` and `SMTP_PASSWORD` are set)
+
+You can now test the signup flow and receive OTP emails!
 
 Run server:
 
