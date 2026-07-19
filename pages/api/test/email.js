@@ -17,26 +17,46 @@ export default async function handler(req, res) {
     return jsonError(res, 405, `Method ${req.method} not allowed`);
   }
 
-  // Check if required environment variables are set (using config file)
-  const apiKey = env.SMTP2GO_API_KEY;
-  const fromEmail = env.SMTP2GO_FROM_EMAIL;
-  const fromName = env.SMTP2GO_FROM_NAME || 'The Server';
+  // Check which email provider is configured
+  const resendApiKey = env.RESEND_API_KEY;
+  const resendFromEmail = env.RESEND_FROM_EMAIL;
+  const smtp2goApiKey = env.SMTP2GO_API_KEY;
+  const smtp2goFromEmail = env.SMTP2GO_FROM_EMAIL;
+  const smtpUsername = env.SMTP_USERNAME;
+  const smtpPassword = env.SMTP_PASSWORD;
 
-  const missing = [];
-  if (!apiKey) missing.push('SMTP2GO_API_KEY');
-  if (!fromEmail) missing.push('SMTP2GO_FROM_EMAIL');
+  // Determine which provider will be used (same order as email.js)
+  let activeProvider = null;
+  let fromEmail = null;
+  let fromName = null;
 
-  if (missing.length > 0) {
+  if (resendApiKey && resendApiKey.trim() !== '') {
+    activeProvider = 'Resend';
+    fromEmail = resendFromEmail || env.SMTP_FROM;
+    fromName = env.RESEND_FROM_NAME || 'The Server';
+  } else if (smtp2goApiKey && smtp2goApiKey.trim() !== '') {
+    activeProvider = 'SMTP2Go';
+    fromEmail = smtp2goFromEmail || env.SMTP_FROM;
+    fromName = env.SMTP2GO_FROM_NAME || 'The Server';
+  } else if (smtpUsername && smtpUsername.trim() !== '' && smtpPassword && smtpPassword.trim() !== '') {
+    activeProvider = 'SMTP';
+    fromEmail = env.SMTP_FROM;
+    fromName = 'The Server';
+  }
+
+  if (!activeProvider) {
     return jsonError(
       res,
       500,
-      `Missing required environment variables: ${missing.join(', ')}. Please check your .env.local file.`,
+      'No email provider configured. Please configure one of: RESEND_API_KEY, SMTP2GO_API_KEY, or SMTP_USERNAME/SMTP_PASSWORD in your .env file.',
       {
-        missing,
         configured: {
-          SMTP2GO_API_KEY: apiKey ? '✅ Set' : '❌ Missing',
-          SMTP2GO_FROM_EMAIL: fromEmail ? '✅ Set' : '❌ Missing',
-          SMTP2GO_FROM_NAME: fromName || 'Using default: "The Server"',
+          RESEND_API_KEY: resendApiKey ? '✅ Set' : '❌ Missing',
+          RESEND_FROM_EMAIL: resendFromEmail ? '✅ Set' : '❌ Missing',
+          SMTP2GO_API_KEY: smtp2goApiKey ? '✅ Set' : '❌ Missing',
+          SMTP2GO_FROM_EMAIL: smtp2goFromEmail ? '✅ Set' : '❌ Missing',
+          SMTP_USERNAME: smtpUsername ? '✅ Set' : '❌ Missing',
+          SMTP_PASSWORD: smtpPassword ? '✅ Set' : '❌ Missing',
         },
       }
     );
@@ -55,7 +75,7 @@ export default async function handler(req, res) {
 
   try {
     const testSubject = subject || 'Test Email from Your Application';
-    const testMessage = message || 'This is a test email to verify your SMTP2Go configuration is working correctly.';
+    const testMessage = message || `This is a test email to verify your ${activeProvider} configuration is working correctly.`;
 
     const htmlBody = `
       <!DOCTYPE html>
@@ -69,13 +89,13 @@ export default async function handler(req, res) {
         <div style="background-color: #f4f4f4; padding: 20px; border-radius: 5px;">
           <h2 style="color: #333; margin-top: 0;">Test Email</h2>
           <p>${testMessage}</p>
-          <p>If you received this email, your SMTP2Go configuration is working correctly! ✅</p>
+          <p>If you received this email, your ${activeProvider} configuration is working correctly! ✅</p>
           <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
           <p style="font-size: 12px; color: #777;">
             <strong>Configuration Details:</strong><br>
+            Provider: ${activeProvider}<br>
             From Email: ${fromEmail}<br>
-            From Name: ${fromName}<br>
-            API Key: ${apiKey.substring(0, 10)}... (hidden)
+            From Name: ${fromName}
           </p>
         </div>
       </body>
@@ -87,10 +107,11 @@ Test Email
 
 ${testMessage}
 
-If you received this email, your SMTP2Go configuration is working correctly! ✅
+If you received this email, your ${activeProvider} configuration is working correctly! ✅
 
 ---
 Configuration Details:
+Provider: ${activeProvider}
 From Email: ${fromEmail}
 From Name: ${fromName}
     `;
@@ -102,25 +123,29 @@ From Name: ${fromName}
       textBody,
     });
 
-    logger.info(`Test email sent successfully to: ${to}`);
+    logger.info(`Test email sent successfully to: ${to} via ${activeProvider}`);
 
     return jsonSuccess(res, 200, 'Test email sent successfully!', {
       recipient: to,
       messageId: result.messageId,
+      provider: activeProvider,
       configuration: {
         fromEmail,
         fromName,
-        apiKeyConfigured: true,
       },
     });
   } catch (error) {
     logger.error('Test email failed:', error.message);
     return jsonError(res, 500, 'Failed to send test email', {
       error: error.message,
+      provider: activeProvider,
       configuration: {
-        SMTP2GO_API_KEY: apiKey ? '✅ Set' : '❌ Missing',
-        SMTP2GO_FROM_EMAIL: fromEmail ? '✅ Set' : '❌ Missing',
-        SMTP2GO_FROM_NAME: fromName || 'Using default',
+        RESEND_API_KEY: resendApiKey ? '✅ Set' : '❌ Missing',
+        RESEND_FROM_EMAIL: resendFromEmail ? '✅ Set' : '❌ Missing',
+        SMTP2GO_API_KEY: smtp2goApiKey ? '✅ Set' : '❌ Missing',
+        SMTP2GO_FROM_EMAIL: smtp2goFromEmail ? '✅ Set' : '❌ Missing',
+        SMTP_USERNAME: smtpUsername ? '✅ Set' : '❌ Missing',
+        SMTP_PASSWORD: smtpPassword ? '✅ Set' : '❌ Missing',
       },
     });
   }
