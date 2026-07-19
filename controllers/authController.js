@@ -112,72 +112,74 @@ export async function signup(req, res) {
     }
     
     if (existing) {
-      // If user exists but email is not verified, allow resending OTP
+      // If user exists but email is not verified, mark as verified and log them in
       if (!existing.isEmailVerified) {
-        const otp = generateOTP();
-        const otpExpires = generateOTPExpiry();
-        
-        existing.otp = otp;
-        existing.otpExpires = otpExpires;
+        existing.isEmailVerified = true;
+        existing.otp = null;
+        existing.otpExpires = null;
         await existing.save();
-        
-        // Send email asynchronously - don't block response
-        sendEmailAsync(
-          () => sendOTPEmail(emailTrimmed, otp, existing.name || nameTrimmed),
-          'signup-resend-otp'
-        );
-        
-        // Only log in development
-        if (process.env.NODE_ENV === 'development' && startTime) {
-          logger.info(`[Signup] Resent OTP to existing user: ${Date.now() - startTime}ms total`);
+
+        await ensureUserHasRole(existing);
+
+        const token = signToken({ id: existing._id, role: existing.role });
+        if (!token) {
+          return jsonError(res, 503, 'Authentication service is currently unavailable. Please try again later.', null, 'TOKEN_SIGN_FAILED');
         }
-        
-        return jsonSuccess(res, 200, 'Verification code sent to your email. Please check your inbox.', {
-          email: emailTrimmed,
-          message: 'Please verify your email to complete registration',
-          requiresVerification: true,
+        setAuthCookie(res, token, req);
+
+        // Send welcome email asynchronously
+        sendEmailAsync(
+          () => sendWelcomeEmail(emailTrimmed, existing.name || nameTrimmed),
+          'signup-welcome-existing'
+        );
+
+        if (process.env.NODE_ENV === 'development' && startTime) {
+          logger.info(`[Signup] Existing unverified user verified and logged in: ${Date.now() - startTime}ms total`);
+        }
+
+        return jsonSuccess(res, 200, 'Account created successfully!', {
+          user: sanitizeUser(existing),
+          token,
         });
       }
       return jsonError(res, 409, 'An account with this email already exists. Please sign in instead.');
     }
-    
-    // Generate OTP for new user
-    const otp = generateOTP();
-    const otpExpires = generateOTPExpiry();
-    
+
     const baseRole = await ensureRole('citizen', 'Default role for new users');
-    
+
     const user = await User.create({
       name: nameTrimmed,
       email: emailTrimmed,
       password,
       role: baseRole.name,
       roleRef: baseRole._id,
-      isEmailVerified: false,
-      otp,
-      otpExpires,
+      isEmailVerified: true,
     });
-    
-    // Send OTP email asynchronously - don't block response
-    // User is already created, email will be sent in background
+
+    await ensureUserHasRole(user);
+
+    const token = signToken({ id: user._id, role: user.role });
+    if (!token) {
+      return jsonError(res, 503, 'Authentication service is currently unavailable. Please try again later.', null, 'TOKEN_SIGN_FAILED');
+    }
+    setAuthCookie(res, token, req);
+
+    // Send welcome email asynchronously
     sendEmailAsync(
-      () => sendOTPEmail(emailTrimmed, otp, nameTrimmed),
-      'signup-new-user'
+      () => sendWelcomeEmail(emailTrimmed, nameTrimmed),
+      'signup-welcome'
     );
-    
-    // Only log in development
+
     if (process.env.NODE_ENV === 'development' && startTime) {
       logger.info(`[Signup] Success - user created: ${Date.now() - startTime}ms total`, {
         userId: user._id,
         email: emailTrimmed,
       });
     }
-    
-    // Return success immediately - email is being sent in background
-    return jsonSuccess(res, 201, 'Account created successfully! Please check your email for the verification code.', {
-      email: emailTrimmed,
-      message: 'A verification code has been sent to your email. Please verify your email to complete registration.',
-      requiresVerification: true,
+
+    return jsonSuccess(res, 201, 'Account created successfully!', {
+      user: sanitizeUser(user),
+      token,
     });
   } catch (err) {
     // Always log errors - these are important for production debugging
@@ -281,27 +283,6 @@ export async function login(req, res) {
     // Block login for paused accounts
     if (user.isPaused) {
       return jsonError(res, 403, 'Your account has been paused. Please contact support.');
-    }
-    
-    // Check if email is verified (skip for loved_one role)
-    if (user.role !== 'loved_one' && !user.isEmailVerified) {
-      // Send a fresh verification code and tell the frontend to show the code input
-      const otp = generateOTP();
-      const otpExpires = generateOTPExpiry();
-      user.otp = otp;
-      user.otpExpires = otpExpires;
-      await user.save();
-      sendEmailAsync(
-        () => sendOTPEmail(user.email, otp, user.name),
-        'login-unverified-otp'
-      );
-      res.setHeader('Content-Type', 'application/json');
-      return res.status(403).json({
-        success: false,
-        message: 'Please verify your email. We\'ve sent a new code to your inbox—enter it below.',
-        needs_verification: true,
-        email: user.email,
-      });
     }
     
     await ensureUserHasRole(user);

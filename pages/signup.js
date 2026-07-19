@@ -180,12 +180,6 @@ export default function SignupPage() {
         return
       }
 
-      if (data.data && (data.data.requiresVerification || data.data.message)) {
-        const targetEmail = data.data.email || email
-        router.push(`/verify-email?email=${encodeURIComponent(targetEmail)}`)
-        return
-      }
-
       if (data.data && data.data.token) {
         localStorage.setItem('token', data.data.token)
       }

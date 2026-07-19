@@ -2,7 +2,7 @@ import Head from 'next/head'
 import { useMemo, useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { Eye, EyeOff, Leaf, ShieldCheck, Recycle, MapPin } from 'lucide-react'
+import { Eye, EyeOff, ShieldCheck, Recycle, MapPin } from 'lucide-react'
 import Navbar from '../components/designndev/Navbar'
 import Footer from '../components/designndev/Footer'
 import { AuthCardSkeleton } from '../components/Skeleton'
@@ -79,13 +79,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [checkingAuth, setCheckingAuth] = useState(true)
   const hasCheckedAuth = useRef(false)
-  const [needsVerification, setNeedsVerification] = useState(false)
-  const [pendingEmail, setPendingEmail] = useState('')
-  const [verificationCode, setVerificationCode] = useState('')
-
-  const redirectTo = useMemo(() => {
-    return router.query.redirect || '/dashboard'
-  }, [router.query.redirect])
 
   useEffect(() => {
     if (!router.isReady || hasCheckedAuth.current) return
@@ -144,74 +137,6 @@ export default function LoginPage() {
     return !identifierValid || !passwordValid
   }, [identifier, password, loading])
 
-  const isVerifyDisabled = useMemo(() => {
-    if (loading) return true
-    return !verificationCode.trim() || verificationCode.trim().length < 4
-  }, [verificationCode, loading])
-
-  async function onVerifySubmit(e) {
-    e.preventDefault()
-    if (isVerifyDisabled) return
-    setLoading(true)
-    setError('')
-    setErrorDetail('')
-    try {
-      const res = await fetch('/api/auth/verify-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ email: pendingEmail, otp: verificationCode.trim() }),
-      })
-      const text = await res.text()
-      let data = {}
-      if (text && text.trim()) {
-        try {
-          data = JSON.parse(text)
-        } catch {
-          setError('Server error (HTTP ' + res.status + ')')
-          setErrorDetail(NON_JSON_ERROR_HINT)
-          setLoading(false)
-          return
-        }
-      }
-      if (!res.ok || !data.success) {
-        setError(formatErrorMessage(data, 'Invalid or expired code. Try again or request a new one.'))
-        if (data.code && ERROR_HINTS[data.code]) {
-          setErrorDetail(ERROR_HINTS[data.code])
-        }
-        setLoading(false)
-        return
-      }
-      if (data.data && data.data.token) {
-        localStorage.setItem('token', data.data.token)
-      }
-      if (typeof window !== 'undefined') {
-        sessionStorage.removeItem('auth_redirect_count')
-        sessionStorage.removeItem('auth_redirect_time')
-      }
-      const redirectDest = router.query.redirect || '/dashboard'
-      if (redirectDest === '/dashboard' || !router.query.redirect) {
-        router.replace('/dashboard#submit-complaint')
-      } else {
-        router.replace(redirectDest)
-      }
-    } catch (err) {
-      console.error('[Login] Verify error', err)
-      setError(err.message || 'Something went wrong. Please try again.')
-      setErrorDetail('')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  function backToSignIn() {
-    setNeedsVerification(false)
-    setPendingEmail('')
-    setVerificationCode('')
-    setError('')
-    setErrorDetail('')
-  }
-
   async function onSubmit(e) {
     e.preventDefault()
     if (isDisabled) return
@@ -256,14 +181,6 @@ export default function LoginPage() {
       }
 
       if (!res.ok || !data.success) {
-        if (res.status === 403 && data.needs_verification && data.email) {
-          setPendingEmail(data.email)
-          setNeedsVerification(true)
-          setError('')
-          setErrorDetail('')
-          setLoading(false)
-          return
-        }
         const errorMessage = formatErrorMessage(data, "We couldn't sign you in with those credentials.")
         setError(errorMessage)
         if (data.code && ERROR_HINTS[data.code]) {
@@ -362,100 +279,58 @@ export default function LoginPage() {
                 </div>
               )}
 
-              {needsVerification ? (
-                <>
-                  <p className="text-gray-600 text-sm mb-6">
-                    We&apos;ve sent a verification code to <strong className="text-gray-900">{pendingEmail}</strong>. Enter it below to sign in.
-                  </p>
-                  <form onSubmit={onVerifySubmit} className="flex flex-col gap-5" noValidate>
-                    <label>
-                      <span className={labelClass}>Verification Code</span>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        autoComplete="one-time-code"
-                        id="login-verify-code"
-                        name="otp"
-                        placeholder="Enter 6-digit code"
-                        value={verificationCode}
-                        onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                        maxLength={6}
-                        disabled={loading}
-                        className={fieldClass}
-                      />
-                    </label>
-                    <button type="submit" disabled={isVerifyDisabled} className="btn-fc-primary w-full justify-center py-3">
-                      {loading && (
-                        <span className="inline-block h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" aria-hidden />
-                      )}
-                      <span>{loading ? 'Verifying...' : 'Verify & Sign In'}</span>
-                    </button>
-                  </form>
-                  <button
-                    type="button"
-                    onClick={backToSignIn}
+              <form onSubmit={onSubmit} className="flex flex-col gap-5" noValidate>
+                <label>
+                  <span className={labelClass}>Email or Username</span>
+                  <input
+                    type="text"
+                    inputMode="text"
+                    autoComplete="username email"
+                    id="login-identifier"
+                    name="identifier"
+                    placeholder="you@example.com or username"
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
+                    required
                     disabled={loading}
-                    className="mt-4 text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors disabled:opacity-60"
-                  >
-                    &larr; Back to sign in
-                  </button>
-                </>
-              ) : (
-                <>
-                  <form onSubmit={onSubmit} className="flex flex-col gap-5" noValidate>
-                    <label>
-                      <span className={labelClass}>Email or Username</span>
-                      <input
-                        type="text"
-                        inputMode="text"
-                        autoComplete="username email"
-                        id="login-identifier"
-                        name="identifier"
-                        placeholder="you@example.com or username"
-                        value={identifier}
-                        onChange={(e) => setIdentifier(e.target.value)}
-                        required
-                        disabled={loading}
-                        className={fieldClass}
-                      />
-                    </label>
-                    <label>
-                      <span className={labelClass}>Password</span>
-                      <div className="relative">
-                        <input
-                          type={showPassword ? 'text' : 'password'}
-                          autoComplete="current-password"
-                          id="login-password"
-                          name="password"
-                          placeholder="Enter your password"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          required
-                          minLength={5}
-                          disabled={loading}
-                          className={`${fieldClass} pr-12`}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword((p) => !p)}
-                          tabIndex={-1}
-                          aria-label={showPassword ? 'Hide password' : 'Show password'}
-                          disabled={loading}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600 rounded-md disabled:opacity-50"
-                        >
-                          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
-                      </div>
-                    </label>
-                    <button type="submit" disabled={isDisabled} className="btn-fc-primary w-full justify-center py-3">
-                      {loading && (
-                        <span className="inline-block h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" aria-hidden />
-                      )}
-                      <span>{loading ? 'Signing you in...' : 'Sign In'}</span>
+                    className={fieldClass}
+                  />
+                </label>
+                <label>
+                  <span className={labelClass}>Password</span>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete="current-password"
+                      id="login-password"
+                      name="password"
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      minLength={5}
+                      disabled={loading}
+                      className={`${fieldClass} pr-12`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((p) => !p)}
+                      tabIndex={-1}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      disabled={loading}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600 rounded-md disabled:opacity-50"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
-                  </form>
-                </>
-              )}
+                  </div>
+                </label>
+                <button type="submit" disabled={isDisabled} className="btn-fc-primary w-full justify-center py-3">
+                  {loading && (
+                    <span className="inline-block h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" aria-hidden />
+                  )}
+                  <span>{loading ? 'Signing you in...' : 'Sign In'}</span>
+                </button>
+              </form>
 
               <footer className="mt-6 pt-5 border-t border-emerald-100/60 flex flex-wrap justify-center items-center gap-2 text-sm text-gray-500">
                 <span>Need an account?</span>
