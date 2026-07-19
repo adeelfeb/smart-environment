@@ -269,15 +269,14 @@ export async function login(req, res) {
       user = await User.findOne({ username: trimmedIdentifier });
     }
     
-    // Don't reveal if user exists or not - use generic message for security
     if (!user) {
-      return jsonError(res, 401, 'Invalid credentials');
+      return jsonError(res, 401, 'Invalid email');
     }
     
     // Verify password
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      return jsonError(res, 401, 'Invalid credentials');
+      return jsonError(res, 401, 'Invalid password');
     }
 
     // Block login for paused accounts

@@ -162,7 +162,8 @@ proof-response/
 │
 ├── .env.example
 ├── next.config.js
-└── package.json
+├── package.json
+└── server.start.js          # Production entry: seeds admin → starts server
 ```
 
 ---
@@ -171,8 +172,64 @@ proof-response/
 
 - Core roles seeded by default: `superadmin`, `admin`, `hr`, `marketing`, `developer`, and `base_user`.
 - `/api/setup/create-superadmin` bootstraps the first superadmin when called with `SUPERADMIN_SETUP_TOKEN`.
+- **Auto-seeded super admin** — the first admin user is created automatically on startup (see [Automatic Admin Seed](#-automatic-admin-seed) below).
 - Role management endpoints live under `/api/roles/**` and are protected by admin or superadmin privileges.
 - New signups inherit the `base_user` role automatically; roles can be reassigned later via user management flows.
+
+---
+
+## 🔑 Automatic Admin Seed
+
+On every production startup, a super admin user is created automatically — no manual `curl` commands needed after deploying.
+
+### How it works
+
+`npm start` runs `server.start.js`, which:
+
+1. Loads `.env` files from the project root.
+2. Connects to MongoDB and creates the `super_admin` role (if missing).
+3. Creates the admin user if the email doesn't already exist (idempotent).
+4. Disconnects the seed connection, then launches the Next.js server on `0.0.0.0:8000`.
+
+Credentials are read from **environment variables** — nothing is hardcoded.
+
+### Default Credentials (override before deploying)
+
+| Variable | Default | Description |
+|---|---|---|
+| `SEED_ADMIN_NAME` | `Super_Admin` | Display name |
+| `SEED_ADMIN_EMAIL` | `admin@admin.com` | Login email |
+| `SEED_ADMIN_PASSWORD` | `Admin@12345` | Password (min 5 chars) |
+| `SEED_ADMIN_ROLE` | `super_admin` | Role assigned |
+| `MONGODB_URI` | *(required)* | MongoDB connection string |
+
+**Always change `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` in production.**
+
+### Production Deployment
+
+```bash
+npm install
+npm run build
+npm start    # Seeds admin → starts server on port 8000
+```
+
+Or with Docker:
+
+```dockerfile
+CMD ["sh", "-c", "npm run build && npm start"]
+```
+
+### Manual Seed (Standalone)
+
+```bash
+# Seed only (no server start)
+npm run seed:admin
+
+# Or with custom credentials
+SEED_ADMIN_EMAIL=you@yourdomain.com SEED_ADMIN_PASSWORD=YourSecurePass123 npm run seed:admin
+```
+
+> **Security note:** Never commit credentials to version control. Set `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` via your hosting dashboard or `.env.production`.
 
 ---
 

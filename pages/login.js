@@ -181,7 +181,7 @@ export default function LoginPage() {
       }
 
       if (!res.ok || !data.success) {
-        const errorMessage = formatErrorMessage(data, "We couldn't sign you in with those credentials.")
+        const errorMessage = formatErrorMessage(data, "We couldn't sign you in. Please check your email/username and password.")
         setError(errorMessage)
         if (data.code && ERROR_HINTS[data.code]) {
           setErrorDetail(ERROR_HINTS[data.code])
@@ -281,14 +281,14 @@ export default function LoginPage() {
 
               <form onSubmit={onSubmit} className="flex flex-col gap-5" noValidate>
                 <label>
-                  <span className={labelClass}>Email or Username</span>
+                  <span className={labelClass}>Email</span>
                   <input
                     type="text"
                     inputMode="text"
-                    autoComplete="username email"
+                    autoComplete="email"
                     id="login-identifier"
                     name="identifier"
-                    placeholder="you@example.com or username"
+                    placeholder="you@example.com"
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
                     required

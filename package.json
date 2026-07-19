@@ -6,9 +6,11 @@
     "dev": "next dev --webpack",
     "build": "next build --webpack",
     "build:analyze": "ANALYZE=true next build --webpack",
-    "start": "next start -H 0.0.0.0 -p 8000",
+    "start": "node server.start.js",
+    "start:direct": "next start -H 0.0.0.0 -p 8000",
     "postinstall": "echo 'Dependencies installed successfully'",
-    "vercel-build": "next build --webpack"
+    "vercel-build": "next build --webpack",
+    "seed:admin": "node scripts/seed-admin.js"
   },
   "dependencies": {
     "ag-grid-community": "^34.3.1",

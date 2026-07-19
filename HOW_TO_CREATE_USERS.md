@@ -138,3 +138,39 @@ After running the commands, you should see a JSON response like:
 - **Email**: Must be a valid email format
 - **Role**: Will be created automatically if it doesn't exist
 
+---
+
+## 🔐 Production: Automatic Super Admin Seed
+
+In production, `npm start` runs `server.start.js` which **automatically creates the super admin user** before launching the server. You do not need to run any curl commands after deploying.
+
+### Default credentials
+
+| Variable | Default |
+|---|---|
+| `SEED_ADMIN_EMAIL` | `admin@admin.com` |
+| `SEED_ADMIN_PASSWORD` | `Admin@12345` |
+| `SEED_ADMIN_ROLE` | `super_admin` |
+
+### Override for production
+
+Set these environment variables on your server or hosting dashboard:
+
+```env
+SEED_ADMIN_EMAIL=admin@yourdomain.com
+SEED_ADMIN_PASSWORD=YourStrongPasswordHere!
+```
+
+### How it works
+
+- `npm start` → `node server.start.js` → seeds admin → starts Next.js
+- The seed is **idempotent**: if the admin email already exists, it skips creation
+- The seed disconnects before the server starts, so there's no connection conflict
+- If MongoDB is unreachable, the seed logs a warning and the server still starts
+
+### Manual seed only (no server start)
+
+```bash
+npm run seed:admin
+```
+
