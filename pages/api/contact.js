@@ -68,7 +68,7 @@ export default async function handler(req, res) {
           <p><strong>Email:</strong> ${emailStr}</p>
           ${extraRows}
           <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-          <p style="font-size: 12px; color: #777;">This is an automated message from the contact form on designndev.com</p>
+          <p style="font-size: 12px; color: #777;">This is an automated message from the EcoWatch contact form.</p>
         </div>
       </body>
       </html>
@@ -81,12 +81,12 @@ Name: ${nameStr}
 Email: ${emailStr}
 ${extraText ? '\n' + extraText + '\n' : ''}
 ---
-This is an automated message from the contact form on designndev.com
+This is an automated message from the EcoWatch contact form.
     `;
 
-    // Send email to at4563323@gmail.com
+    // Send email to admin
     const result = await sendEmail({
-      to: 'at4563323@gmail.com',
+      to: process.env.SEED_ADMIN_EMAIL ,
       subject,
       htmlBody,
       textBody,

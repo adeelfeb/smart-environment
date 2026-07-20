@@ -17,13 +17,7 @@ let cachedOrigins = {
 
 function parseDefaultOrigins() {
   // Default origins that should always be allowed
-  const defaultOrigins = [
-    'https://googleweb.uk',
-    'http://googleweb.uk',
-    'https://global-node.thefvg.com',
-    'https://designndev.com',
-    'http://designndev.com',
-  ];
+  const defaultOrigins = [];
   
   const configured = env.CORS_DEFAULT_ORIGINS || '';
   if (configured) {

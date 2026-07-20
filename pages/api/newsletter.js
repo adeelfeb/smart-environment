@@ -54,7 +54,7 @@ export default async function handler(req, res) {
 
   try {
     await sendEmail({
-      to: 'at4563323@gmail.com',
+      to: process.env.SEED_ADMIN_EMAIL ,
       subject: `Newsletter signup: ${emailStr}`,
       htmlBody,
       textBody,

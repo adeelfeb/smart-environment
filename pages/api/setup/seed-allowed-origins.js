@@ -4,38 +4,7 @@ import { jsonError, jsonSuccess } from '../../../lib/response';
 import { applyCors } from '../../../utils';
 
 // Default origins to seed
-const DEFAULT_ORIGINS = [
-  {
-    origin: 'https://googleweb.uk',
-    label: 'GoogleWeb UK (Production)',
-    description: 'Default production origin for GoogleWeb UK',
-    isActive: true,
-  },
-  {
-    origin: 'http://googleweb.uk',
-    label: 'GoogleWeb UK (HTTP)',
-    description: 'Default HTTP origin for GoogleWeb UK',
-    isActive: true,
-  },
-  {
-    origin: 'https://global-node.thefvg.com',
-    label: 'Global Node TheFVG (Production)',
-    description: 'Default production origin for Global Node TheFVG',
-    isActive: true,
-  },
-  {
-    origin: 'https://designndev.com',
-    label: 'Design n Dev (Production)',
-    description: 'Default production origin for Design n Dev',
-    isActive: true,
-  },
-  {
-    origin: 'http://designndev.com',
-    label: 'Design n Dev (HTTP)',
-    description: 'Default HTTP origin for Design n Dev',
-    isActive: true,
-  },
-];
+const DEFAULT_ORIGINS = [];
 
 export default async function handler(req, res) {
   // Allow CORS but don't block on origin check for setup endpoints

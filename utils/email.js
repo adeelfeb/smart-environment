@@ -103,7 +103,7 @@ async function sendEmailViaResend({ to, subject, htmlBody, textBody, from, fromN
  * Send email using SMTP protocol (fallback when API key is not available)
  */
 async function sendEmailViaSMTP({ to, subject, htmlBody, textBody, from, fromName }) {
-  const smtpHost = env.SMTP_HOST || 'mail.smtp2go.com';
+  const smtpHost = env.SMTP_HOST || '';
   const smtpPort = parseInt(env.SMTP_PORT || '25', 10);
   const smtpUsername = env.SMTP_USERNAME;
   const smtpPassword = env.SMTP_PASSWORD;
@@ -460,35 +460,6 @@ export async function sendWelcomeEmail(email, userName) {
                     You can now log in and start using all the features available to you.
                   </p>
                   
-                  <!-- Services Section -->
-                  <div style="background-color: #f9f9f9; border: 1px solid #e0e0e0; padding: 30px; margin: 40px 0;">
-                    <p style="color: #333333; font-size: 16px; margin: 0 0 20px 0; line-height: 1.7;">
-                      If you need assistance with website development, programming, app development, deployment, SEO, or email marketing, I'm available to help.
-                    </p>
-                    
-                    <!-- Links Section -->
-                    <p style="color: #333333; font-size: 15px; margin: 0 0 16px 0; line-height: 1.7;">
-                      You can find me on:
-                    </p>
-                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                      <tr>
-                        <td style="padding: 8px 0;">
-                          <a href="https://www.fiverr.com/s/EgQz3ey" style="color: #0066cc; text-decoration: underline; font-size: 15px;">Fiverr</a>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td style="padding: 8px 0;">
-                          <a href="https://www.upwork.com/freelancers/~015f09e4ce1f66527f?p=1804023285153173504" style="color: #0066cc; text-decoration: underline; font-size: 15px;">Upwork</a>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td style="padding: 8px 0;">
-                          <a href="https://designndev.com/" style="color: #0066cc; text-decoration: underline; font-size: 15px;">designndev.com</a>
-                        </td>
-                      </tr>
-                    </table>
-                  </div>
-                  
                   <p style="color: #666666; font-size: 15px; margin: 40px 0 0 0; line-height: 1.7;">
                     If you have any questions, feel free to reach out.
                   </p>
@@ -500,7 +471,7 @@ export async function sendWelcomeEmail(email, userName) {
                 <td style="background-color: #f9f9f9; padding: 30px 40px; border-top: 1px solid #e0e0e0;">
                   <p style="color: #999999; font-size: 13px; margin: 0; line-height: 1.6;">
                     This is an automated message. Please do not reply.<br>
-                    © ${new Date().getFullYear()} Design & Dev. All rights reserved.
+                    © ${new Date().getFullYear()} EcoWatch. All rights reserved.
                   </p>
                 </td>
               </tr>
@@ -519,18 +490,11 @@ Your email has been verified. Your account is now active and ready to use.
 
 You can now log in and start using all the features available to you.
 
-If you need assistance with website development, programming, app development, deployment, SEO, or email marketing, I'm available to help.
-
-You can find me on:
-- Fiverr: https://www.fiverr.com/s/EgQz3ey
-- Upwork: https://www.upwork.com/freelancers/~015f09e4ce1f66527f?p=1804023285153173504
-- designndev.com: https://designndev.com/
-
 If you have any questions, feel free to reach out.
 
 ---
 This is an automated message. Please do not reply.
-© ${new Date().getFullYear()} Design & Dev. All rights reserved.
+© ${new Date().getFullYear()} EcoWatch. All rights reserved.
   `;
 
   return sendEmail({
