@@ -855,10 +855,12 @@ export default function Dashboard({ user }) {
               background: transparent;
               box-shadow: none;
               overflow: visible;
-              flex: none;
+              flex: 1;
+              min-height: 0;
             }
             .section {
               gap: 0.5rem;
+              height: 100%;
             }
           }
 

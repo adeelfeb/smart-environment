@@ -489,6 +489,12 @@ export default function GisMapPanel({ user, onSelectComplaint }) {
         }
 
         @media (max-width: 480px) {
+          .gis-panel {
+            min-height: calc(100dvh - 160px);
+          }
+          .gis-panel-map {
+            min-height: calc(100dvh - 160px);
+          }
           .gis-panel-filters,
           .gis-panel-legend {
             left: 12px;
