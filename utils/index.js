@@ -6,10 +6,6 @@ export function validationError(res, details) {
 export { logger } from './logger';
 export { applyCors, clearCorsCache } from './cors';
 export { withErrorHandling } from './asyncHandler';
-export {
-  calculateProofScorePlaceholder,
-  normalizeFundingDataPlaceholder,
-} from './proofscore';
 export { sendEmail, sendOTPEmail, sendWelcomeEmail } from './email';
 export {
   generateOTP,

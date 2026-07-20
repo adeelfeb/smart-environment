@@ -1,359 +1,171 @@
+# EcoWatch - Smart Environment Activists Waste Complaint & Monitoring System
 
-# ⚡ Proof Response — Funding Intelligence Engine  
+A web application that enables citizens to report waste-related issues by uploading photos with automatic geotagging. The system captures complaint locations, identifies the responsible Environment Activists Corporation, and routes complaints to the appropriate administrator for review and resolution.
 
+## Features
 
->  
-> Migration of core automations and backend logic from *Global Assist* to the new *Proof Response* platform — with stable API routing, Mongo integration, and foundational data structures for funding intelligence.
+### Citizen Portal
+- Register and log in
+- Capture photos via device camera or upload existing images
+- Raise complaints: Overflowing Dustbin, Unauthorized Garbage Dumping, Damaged Dustbin, Missing Dustbin
+- Automatic GPS coordinate and address capture on photo upload
+- Manual selection of Environment Activists Corporation and Ward
+- Complaint tracking and history with status updates
 
----
+### Admin Dashboard
+- Complaint management with interactive GIS map
+- Filter complaints by Ward, Date, Complaint Type, and Status
+- Search by Complaint ID, Citizen Name, Ward, or Address
+- Update complaint status and add remarks
+- Upload verification photos and mark complaints resolved
+- Analytics dashboard with visualizations
 
-## 🚀 Current Focus  
+### Super Admin
+- Full system access across all corporations
+- Create, edit, and manage Environment Activists Corporations
+- Create, edit, and manage Administrator accounts
+- Global analytics dashboard
+- System audit logs
+- Organization-wide report generation
 
-### **Objective:**
-Establish the backend foundation for the Proof Response system and migrate existing automation endpoints from **FVG Global Assist** into this unified repository.
+## Tech Stack
 
-### **Scope:**
-Keep all existing MongoDB and Next.js setup **intact**, while adding foundational APIs, CORS configuration, controllers, and utility layers for later data automation and ProofScore logic.
+- **Frontend:** Next.js (App Router), TypeScript, Tailwind CSS, shadcn/ui, React Hook Form, Zod
+- **Backend:** Next.js API Routes, Server Actions
+- **Database:** MongoDB, Mongoose ODM
+- **Authentication:** NextAuth.js (Auth.js), JWT Session Management, Role-Based Access Control
+- **Maps & Geolocation:** Leaflet.js, OpenStreetMap, Browser Geolocation API, Nominatim Reverse Geocoding
+- **Image Storage:** Local uploads/, Multer (file uploads), file path stored in MongoDB
 
----
+## Prerequisites
 
-## 🔗 API Endpoints (Phase 1 Deliverables)
+- Node.js 18+
+- MongoDB (local or Atlas)
 
-| Endpoint | Method | Description |
-|-----------|--------|-------------|
-| `/api/newCandidate` | **POST** | Add a new candidate profile via automation scripts |
-| `/api/requestIntro` | **POST** | Handle introduction requests between candidates and recruiters |
-| `/api/jobComplete` | **POST** | Update job completion status and push to analytics |
-| `/api/auth/signup` | **POST** | Register a new user |
-| `/api/auth/login` | **POST** | Authenticate user credentials |
-| `/api/auth/logout` | **POST** | Terminate user session |
-| `/api/auth/me` | **GET** | Fetch logged-in user profile |
-| `/api/setup/create-superadmin` | **POST** | One-time superadmin bootstrap (requires setup token) |
-| `/api/roles/create` | **POST** | Create a new role definition (admin/superadmin) |
-| `/api/roles/list` | **GET** | List all available roles |
-| `/api/roles/:id` | **DELETE** | Remove an existing role (admin/superadmin) |
-| `/api/funding-opportunity/create` | **POST** | Create or dump new funding data |
-| `/api/funding-opportunity/list` | **GET** | Retrieve structured funding opportunities |
-| `/api/funding-opportunity/:id` | **GET** | Fetch a specific opportunity by ID |
-
-### **City + Service URLs**
-Dynamic routes for city and service pages:
-```
-
-/ab/calgary/electrician/high-voltage-electrician/
-
-````
-
----
-
-## 🧩 Purpose & Overview  
-
-This repository powers the **Funding Intelligence Engine** — the upstream automation layer for the Proof Response ecosystem.  
-
-It enables automated data ingestion, scoring, and access for funding, grants, RFPs, and incentive programs — all structured under a scalable Next.js + MongoDB architecture.
-
-**Key Goals:**
-- Move and stabilize automation endpoints from FVG Global Assist  
-- Maintain MongoDB connection and schemas  
-- Create reusable backend controllers and middleware  
-- Prepare for future ProofScore integration and upstream automation  
-
----
-
-## 🧠 Week 1 Focus  
-
-| Component | Description |
-|------------|--------------|
-| **Database Connection** | MongoDB setup retained; caching and connection helpers |
-| **Core Models** | `User` and `FundingOpportunity` schemas |
-| **Controllers** | Modular business logic for each API route |
-| **CORS Middleware** | Pre-configured for cross-origin automation |
-| **Response Utilities** | Unified success/error formatting |
-| **Base Routes** | Auth and funding APIs functional |
-| **Structure Base** | Ready for automation and ProofScore logic |
-
----
-
-## 📡 API Overview  
-
-### 🔐 Authentication
-
-| Method | Endpoint | Description |
-|--------|-----------|-------------|
-| **POST** | `/api/auth/signup` | Register a new user |
-| **POST** | `/api/auth/login` | Log in and issue JWT cookie |
-| **POST** | `/api/auth/logout` | Log out and clear session |
-| **GET** | `/api/auth/me` | Fetch logged-in user data |
-
-All JWTs now embed the authenticated user's `role`, and every signup is assigned the default `base_user` role unless elevated by an administrator.
-
----
-
-### 💰 Funding Opportunities  
-
-| Method | Endpoint | Description |
-|--------|-----------|-------------|
-| **GET** | `/api/funding-opportunity/list` | Get all available opportunities |
-| **GET** | `/api/funding-opportunity/:id` | Fetch opportunity by ID |
-| **POST** | `/api/funding-opportunity/create` | Add new funding opportunity |
-
-#### Example Payload  
-```json
-{
-  "title": "Clean Energy Grant 2025",
-  "description": "Funding support for renewable energy startups.",
-  "source": "Government of Alberta",
-  "url": "https://example.com/grant",
-  "deadline": "2025-12-31",
-  "amountMin": 5000,
-  "amountMax": 25000,
-  "currency": "USD",
-  "eligibility": "SMEs working in renewable energy",
-  "tags": ["energy", "green", "sustainability"],
-  "status": "open"
-}
-````
-
----
-
-## 🧱 Project Structure
-
-```
-proof-response/
-├── pages/
-│   ├── api/
-│   │   ├── auth/                    # Auth endpoints
-│   │   ├── roles/                   # Role management endpoints
-│   │   ├── setup/                   # Bootstrap/setup routes
-│   │   ├── funding-opportunity/     # Funding endpoints
-│   │   ├── newCandidate.js          # Candidate API
-│   │   ├── requestIntro.js          # Intro API
-│   │   ├── jobComplete.js           # Job completion API
-│   │   └── test.js                  # Health check route
-│   ├── index.js                     # Home page
-│   ├── dashboard.js                 # Protected dashboard
-│   └── _app.js                      # App wrapper
-│
-├── controllers/
-│   ├── authController.js
-│   ├── fundingController.js
-│   └── roleController.js
-│
-├── middlewares/
-│   ├── authMiddleware.js
-│   └── roleMiddleware.js
-│
-├── models/
-│   ├── Role.js
-│   ├── User.js
-│   └── FundingOpportunity.js
-│
-├── utils/
-│   ├── asyncHandler.js
-│   ├── cors.js
-│   ├── index.js
-│   ├── logger.js
-│   └── proofscore.js
-├── lib/
-│   ├── auth.js
-│   ├── config.js
-│   ├── db.js
-│   └── response.js
-│
-├── .env.example
-├── next.config.js
-├── package.json
-└── server.start.js          # Production entry: seeds admin → starts server
-```
-
----
-
-### 🛡️ Role-Based Access Control
-
-- Core roles seeded by default: `superadmin`, `admin`, `hr`, `marketing`, `developer`, and `base_user`.
-- `/api/setup/create-superadmin` bootstraps the first superadmin when called with `SUPERADMIN_SETUP_TOKEN`.
-- **Auto-seeded super admin** — the first admin user is created automatically on startup (see [Automatic Admin Seed](#-automatic-admin-seed) below).
-- Role management endpoints live under `/api/roles/**` and are protected by admin or superadmin privileges.
-- New signups inherit the `base_user` role automatically; roles can be reassigned later via user management flows.
-
----
-
-## 🔑 Automatic Admin Seed
-
-On every production startup, a super admin user is created automatically — no manual `curl` commands needed after deploying.
-
-### How it works
-
-`npm start` runs `server.start.js`, which:
-
-1. Loads `.env` files from the project root.
-2. Connects to MongoDB and creates the `super_admin` role (if missing).
-3. Creates the admin user if the email doesn't already exist (idempotent).
-4. Disconnects the seed connection, then launches the Next.js server on `0.0.0.0:8000`.
-
-Credentials are read from **environment variables** — nothing is hardcoded.
-
-### Default Credentials (override before deploying)
-
-| Variable | Default | Description |
-|---|---|---|
-| `SEED_ADMIN_NAME` | `Super_Admin` | Display name |
-| `SEED_ADMIN_EMAIL` | `admin@admin.com` | Login email |
-| `SEED_ADMIN_PASSWORD` | `Admin@12345` | Password (min 5 chars) |
-| `SEED_ADMIN_ROLE` | `super_admin` | Role assigned |
-| `MONGODB_URI` | *(required)* | MongoDB connection string |
-
-**Always change `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` in production.**
-
-### Production Deployment
-
-```bash
-npm install
-npm run build
-npm start    # Seeds admin → starts server on port 8000
-```
-
-Or with Docker:
-
-```dockerfile
-CMD ["sh", "-c", "npm run build && npm start"]
-```
-
-### Manual Seed (Standalone)
-
-```bash
-# Seed only (no server start)
-npm run seed:admin
-
-# Or with custom credentials
-SEED_ADMIN_EMAIL=you@yourdomain.com SEED_ADMIN_PASSWORD=YourSecurePass123 npm run seed:admin
-```
-
-> **Security note:** Never commit credentials to version control. Set `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` via your hosting dashboard or `.env.production`.
-
----
-
-## ⚙️ Setup & Installation
-
-### Prerequisites
-
-* Node.js 18+
-* MongoDB (local or cloud instance)
-
-### Installation
+## Installation
 
 ```bash
 npm install
 ```
 
-Create `.env` file from the example:
+Create a `.env` file from the example:
 
-```env
-MONGODB_URI=mongodb://127.0.0.1:27017/proofresponse
-JWT_SECRET=your_secret_key
-NEXT_PUBLIC_BASE_URL=http://localhost:3000
-SUPERADMIN_SETUP_TOKEN=bootstrap_token_for_first_superadmin
-
-# Email Configuration (choose ONE provider)
-# Option 1: Resend (Recommended for development)
-RESEND_API_KEY=your_resend_api_key
-RESEND_FROM_EMAIL=onboarding@resend.dev
-
-# Option 2: SMTP2Go (Alternative)
-# SMTP2GO_API_KEY=your_smtp2go_api_key
-# SMTP2GO_FROM_EMAIL=your_email@domain.com
-
-# Option 3: SMTP Protocol (Fallback)
-# SMTP_USERNAME=your_smtp_username
-# SMTP_PASSWORD=your_smtp_password
-# SMTP_FROM=noreply@yourdomain.com
+```bash
+cp .env.example .env
 ```
 
-**Email Provider Setup:**
+## Environment Variables
 
-#### Resend (Recommended)
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `MONGODB_URI` | MongoDB connection string | `mongodb://127.0.0.1:27017/smart-environmental-portal` |
+| `JWT_SECRET` | Secret key for JWT tokens | (required) |
+| `NEXT_PUBLIC_BASE_URL` | Application base URL | `http://localhost:3000` |
+| `SEED_ADMIN_NAME` | Auto-seeded admin name | `Super_Admin` |
+| `SEED_ADMIN_EMAIL` | Auto-seeded admin email | `admin@admin.com` |
+| `SEED_ADMIN_PASSWORD` | Auto-seeded admin password | `Admin@12345` |
+| `SEED_ADMIN_ROLE` | Auto-seeded admin role | `super_admin` |
+| `RESEND_API_KEY` | Resend API key for email | (optional) |
+| `RESEND_FROM_EMAIL` | Sender email address | `onboarding@resend.dev` |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name | (optional, uses local uploads) |
+| `CLOUDINARY_API_KEY` | Cloudinary API key | (optional) |
+| `CLOUDINARY_API_SECRET` | Cloudinary API secret | (optional) |
+| `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` | reCAPTCHA site key | (optional) |
+| `RECAPTCHA_SECRET_KEY` | reCAPTCHA secret key | (optional) |
 
-1. Sign up at [resend.com](https://resend.com) (free tier available)
-2. Go to API Keys and create a new key
-3. Add to your `.env` file:
-   ```env
-   RESEND_API_KEY=re_xxxxxxxxxxxxxxxx
-   RESEND_FROM_EMAIL=onboarding@resend.dev
-   ```
+## Running the Application
 
-> **Note:** For development, Resend allows you to use `onboarding@resend.dev` as the sender email without domain verification. This is perfect for testing the signup flow.
-
-#### SMTP2Go (Alternative)
-
-1. Sign up at [smtp2go.com](https://app.smtp2go.com)
-2. Get your API key from Settings > API
-3. Add to your `.env` file:
-   ```env
-   SMTP2GO_API_KEY=your_api_key
-   SMTP2GO_FROM_EMAIL=your_verified_email@domain.com
-   ```
-
-#### SMTP Protocol (Fallback)
-
-Use any SMTP server credentials (Gmail, Outlook, etc.):
-```env
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USERNAME=your_email@gmail.com
-SMTP_PASSWORD=your_app_password
-SMTP_FROM=your_email@gmail.com
-```
-
-**Email Provider Priority:**
-
-The email service tries providers in this order:
-1. **Resend** (if `RESEND_API_KEY` is set)
-2. **SMTP2Go API** (if `SMTP2GO_API_KEY` is set)
-3. **SMTP Protocol** (if `SMTP_USERNAME` and `SMTP_PASSWORD` are set)
-
-You can now test the signup flow and receive OTP emails!
-
-Run server:
+**Development:**
 
 ```bash
 npm run dev
 ```
 
-Visit: [http://localhost:3000](http://localhost:3000)
+Visit [http://localhost:3000](http://localhost:3000)
 
----
+**Production:**
 
-## 🌐 API Conventions
+```bash
+npm run build
+npm start
+```
 
-* **Content-Type:** `application/json`
-* **Success Response:** `{ success: true, message?, data? }`
-* **Error Response:** `{ success: false, message, error? }`
-* **Pagination:** `limit` + `offset` query params
-* **Validation:** handled at controller level
+The production server auto-seeds the super admin user on startup and runs on port 8000.
 
----
+## Default Login Credentials
 
-## 📈 Week 1 Summary
+| Role | Email | Password |
+|------|-------|----------|
+| Super Admin | admin@admin.com | Admin@12345 |
 
-✅ **Base foundation ready**
+> Change these credentials before deploying to production.
 
-* Core structure + routes + DB connection stable
-* Mongo connection working locally
-* Authentication + JWT cookies tested
-* Funding endpoints validated
-* Phase 1 APIs created (`newCandidate`, `requestIntro`, `jobComplete`)
-* Utilities prepped for ProofScore
+## Project Structure
 
-🧭 **Next Steps**
+```
+draft/
+├── app/                      # Next.js App Router pages
+├── components/               # React components
+│   └── dashboard/            # Dashboard panels (complaints, analytics, GIS, etc.)
+├── controllers/              # Business logic for API routes
+├── lib/                      # Core utilities (auth, db, config)
+├── middlewares/               # Auth and role middleware
+├── models/                   # Mongoose schemas (Complaint, User, Corporation, Ward, etc.)
+├── pages/                    # Next.js Pages Router
+│   └── api/                  # API route handlers
+├── public/                   # Static assets and uploads
+├── scripts/                  # Seed and utility scripts
+├── styles/                   # CSS modules
+├── utils/                    # Helper functions
+├── server.start.js           # Production startup script (seed + server)
+├── next.config.js            # Next.js configuration
+├── tailwind.config.js        # Tailwind CSS configuration
+├── vercel.json               # Vercel deployment config
+└── .env.example              # Environment variable template
+```
 
-1. Extend ProofScore logic integration
-2. Connect automation scripts to new endpoints
-3. Add schema validation and error tracing
-4. Implement frontend forms for `/api/newCandidate` etc.
+## API Endpoints
 
----
+### Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/signup` | Register a new user |
+| POST | `/api/auth/login` | Log in |
+| POST | `/api/auth/logout` | Log out |
+| GET | `/api/auth/me` | Get current user |
 
-## 📄 License
+### Complaints
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/complaints` | Submit a new complaint |
+| GET | `/api/complaints` | List complaints |
+| GET | `/api/complaints/:id` | Get complaint details |
+| PUT | `/api/complaints/:id` | Update complaint status |
 
-**Private Project — All Rights Reserved**
+### Corporations & Wards
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/corporations` | List corporations |
+| GET | `/api/wards` | List wards |
 
+### Admin
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/users` | List users |
+| GET | `/api/audit-logs` | View audit logs |
+| GET | `/api/notifications` | View notifications |
+
+## Complaint Workflow
+
+1. Citizen captures or uploads a photo
+2. GPS location is automatically captured
+3. System retrieves latitude, longitude, address, date, and time
+4. Citizen selects the Ward and Corporation
+5. Citizen selects complaint category and adds description
+6. System generates a Complaint ID
+7. Complaint is routed to the appropriate administrator
+8. Administrator reviews, updates status, and resolves
+
+## License
+
+Private Project - All Rights Reserved
