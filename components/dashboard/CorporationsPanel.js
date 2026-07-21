@@ -245,6 +245,7 @@ export default function CorporationsPanel({ user }) {
           {!search && <button className="cp-btn cp-btn-primary" onClick={openAdd}>Add Corporation</button>}
         </div>
       ) : (
+        <>
         <div className="cp-table-wrap">
           <table className="cp-table">
             <thead>
@@ -274,6 +275,9 @@ export default function CorporationsPanel({ user }) {
                         <button className={`cp-act-btn cp-act-toggle ${active ? '' : 'is-off'}`} onClick={(e) => { e.stopPropagation(); toggleActive(corp); }} title={active ? 'Deactivate' : 'Activate'}>
                           {active ? 'Deactivate' : 'Activate'}
                         </button>
+                        <button className="cp-act-btn cp-act-edit" onClick={(e) => { e.stopPropagation(); openEdit(corp); }} title="Edit corporation">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </button>
                         <button className="cp-act-btn cp-act-delete" onClick={(e) => { e.stopPropagation(); handleDelete(corp); }} title="Delete corporation">
                           Delete
                         </button>
@@ -285,6 +289,44 @@ export default function CorporationsPanel({ user }) {
             </tbody>
           </table>
         </div>
+
+        <div className="cp-cards">
+          {filtered.map((corp) => {
+            const active = corp.isActive !== false;
+            return (
+              <div key={corp._id || corp.id} className="cp-card" onClick={() => openEdit(corp)}>
+                <div className="cp-card-header">
+                  <span className="cp-card-name">{corp.name}</span>
+                  <span className={`cp-badge ${active ? 'cp-badge-on' : 'cp-badge-off'}`}>
+                    <span className="cp-badge-dot"/>{active ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
+                <div className="cp-card-body">
+                  <div className="cp-card-row">
+                    <span className="cp-card-label">State</span>
+                    <span>{corp.state || <span className="cp-td-na">--</span>}</span>
+                  </div>
+                  <div className="cp-card-row">
+                    <span className="cp-card-label">District</span>
+                    <span>{corp.district || <span className="cp-td-na">--</span>}</span>
+                  </div>
+                </div>
+                <div className="cp-card-actions" onClick={(e) => e.stopPropagation()}>
+                  <button className={`cp-act-btn cp-act-toggle ${active ? '' : 'is-off'}`} onClick={() => toggleActive(corp)} title={active ? 'Deactivate' : 'Activate'}>
+                    {active ? 'Deactivate' : 'Activate'}
+                  </button>
+                  <button className="cp-act-btn cp-act-edit" onClick={() => openEdit(corp)} title="Edit">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  </button>
+                  <button className="cp-act-btn cp-act-delete" onClick={() => handleDelete(corp)} title="Delete">
+                    Delete
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        </>
       )}
 
       {/* Comprehensive Edit/Add Modal */}
@@ -367,36 +409,36 @@ export default function CorporationsPanel({ user }) {
 
         /* Table */
         .cp-table-wrap { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
-        .cp-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .cp-th { text-align: left; padding: 12px 16px; font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; background: #f8fafc; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
+        .cp-table { width: 100%; border-collapse: collapse; }
+        .cp-th { text-align: left; padding: 8px 12px; font-weight: 600; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; background: #f8fafc; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
         .cp-th-right { text-align: right; }
-        .cp-table th[data-col="name"] { width: 30%; }
-        .cp-table th[data-col="state"] { width: 18%; }
-        .cp-table th[data-col="district"] { width: 18%; }
-        .cp-table th[data-col="status"] { width: 14%; }
-        .cp-table th[data-col="actions"] { width: 20%; }
+        .cp-table th[data-col="name"] { width: 32%; }
+        .cp-table th[data-col="state"] { width: 16%; }
+        .cp-table th[data-col="district"] { width: 16%; }
+        .cp-table th[data-col="status"] { width: 12%; }
+        .cp-table th[data-col="actions"] { width: 24%; }
 
         /* Row */
         .cp-row { border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.12s; }
         .cp-row:last-child { border-bottom: none; }
         .cp-row:hover { background: #f8fafc; }
-        .cp-td { padding: 14px 16px; vertical-align: middle; color: #334155; font-size: 0.85rem; }
+        .cp-td { padding: 8px 12px; vertical-align: middle; color: #334155; font-size: 0.8rem; }
         .cp-td-name { font-weight: 600; color: #0f172a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .cp-td-loc { color: #475569; }
         .cp-td-na { color: #94a3b8; font-style: italic; font-weight: 400; }
         .cp-td-actions { text-align: right; white-space: nowrap; }
 
         /* Badge */
-        .cp-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 99px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
-        .cp-badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+        .cp-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 99px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+        .cp-badge-dot { width: 5px; height: 5px; border-radius: 50%; }
         .cp-badge-on { background: #ecfdf5; color: #065f46; }
         .cp-badge-on .cp-badge-dot { background: #10b981; }
         .cp-badge-off { background: #fef2f2; color: #991b1b; }
         .cp-badge-off .cp-badge-dot { background: #ef4444; }
 
         /* Action buttons */
-        .cp-act { display: inline-flex; align-items: center; gap: 6px; justify-content: flex-end; }
-        .cp-act-btn { padding: 5px 10px; border-radius: 6px; font-size: 0.76rem; font-weight: 500; cursor: pointer; border: 1px solid #e2e8f0; background: #fff; color: #475569; transition: all 0.12s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+        .cp-act { display: inline-flex; align-items: center; gap: 4px; justify-content: flex-end; }
+        .cp-act-btn { padding: 4px 8px; border-radius: 5px; font-size: 0.72rem; font-weight: 500; cursor: pointer; border: 1px solid #e2e8f0; background: #fff; color: #475569; transition: all 0.12s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; line-height: 1.3; }
         .cp-act-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
         .cp-act-toggle { color: #dc2626; border-color: #fecaca; }
         .cp-act-toggle:hover { background: #fef2f2; }
@@ -404,6 +446,19 @@ export default function CorporationsPanel({ user }) {
         .cp-act-toggle.is-off:hover { background: #f0fdf4; }
         .cp-act-edit { color: #3b82f6; border-color: #bfdbfe; }
         .cp-act-edit:hover { background: #eff6ff; }
+        .cp-act-delete { color: #dc2626; border-color: #fecaca; }
+        .cp-act-delete:hover { background: #fef2f2; }
+
+        /* Mobile cards */
+        .cp-cards { display: none; }
+        .cp-card { background: #fff; border: 1.5px solid #e2e8f0; border-radius: 10px; overflow: hidden; cursor: pointer; transition: border-color 0.15s; }
+        .cp-card:hover { border-color: #10b981; }
+        .cp-card-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px 8px; }
+        .cp-card-name { font-weight: 600; font-size: 0.88rem; color: #0f172a; }
+        .cp-card-body { padding: 0 14px 8px; display: flex; flex-direction: column; gap: 4px; }
+        .cp-card-row { display: flex; gap: 6px; font-size: 0.78rem; color: #475569; align-items: center; }
+        .cp-card-label { font-weight: 600; color: #64748b; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.03em; min-width: 56px; flex-shrink: 0; }
+        .cp-card-actions { display: flex; gap: 4px; padding: 8px 14px 10px; border-top: 1px solid #f1f5f9; }
 
         /* Responsive */
         @media (min-width: 1400px) {
@@ -414,25 +469,14 @@ export default function CorporationsPanel({ user }) {
           .cp-table th[data-col="actions"] { width: 22%; }
         }
         @media (max-width: 900px) {
-          .cp-table th[data-col="state"],
-          .cp-table td:nth-child(2) { display: none; }
-          .cp-table th[data-col="district"],
-          .cp-table td:nth-child(3) { display: none; }
-          .cp-table th[data-col="name"] { width: 40%; }
-          .cp-table th[data-col="status"] { width: 25%; }
-          .cp-table th[data-col="actions"] { width: 35%; }
+          .cp-table-wrap { display: none; }
+          .cp-cards { display: flex; flex-direction: column; gap: 10px; }
         }
         @media (max-width: 768px) {
           .cp-header { flex-direction: column; align-items: stretch; }
           .cp-header-actions { justify-content: flex-start; flex-wrap: wrap; }
           .cp-toolbar { flex-direction: column; align-items: stretch; }
           .cp-search { min-width: 0; }
-        }
-        @media (max-width: 600px) {
-          .cp-table th[data-col="actions"],
-          .cp-table td.cp-td-actions { display: none; }
-          .cp-table th[data-col="name"] { width: 60%; }
-          .cp-table th[data-col="status"] { width: 40%; }
         }
       `}</style>
     </div>
