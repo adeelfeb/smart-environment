@@ -254,6 +254,7 @@ export default function CorporationsPanel({ user }) {
                 <th className="cp-th" data-col="state">State</th>
                 <th className="cp-th" data-col="district">District</th>
                 <th className="cp-th" data-col="status">Status</th>
+                <th className="cp-th" data-col="created">Created</th>
                 <th className="cp-th cp-th-right" data-col="actions">Actions</th>
               </tr>
             </thead>
@@ -270,6 +271,7 @@ export default function CorporationsPanel({ user }) {
                         <span className="cp-badge-dot"/>{active ? 'Active' : 'Inactive'}
                       </span>
                     </td>
+                    <td className="cp-td cp-td-date">{corp.createdAt ? new Date(corp.createdAt).toLocaleDateString() : <span className="cp-td-na">--</span>}</td>
                     <td className="cp-td cp-td-actions">
                       <div className="cp-act">
                         <button className={`cp-act-btn cp-act-toggle ${active ? '' : 'is-off'}`} onClick={(e) => { e.stopPropagation(); toggleActive(corp); }} title={active ? 'Deactivate' : 'Activate'}>
@@ -309,6 +311,10 @@ export default function CorporationsPanel({ user }) {
                   <div className="cp-card-row">
                     <span className="cp-card-label">District</span>
                     <span>{corp.district || <span className="cp-td-na">--</span>}</span>
+                  </div>
+                  <div className="cp-card-row">
+                    <span className="cp-card-label">Created</span>
+                    <span>{corp.createdAt ? new Date(corp.createdAt).toLocaleDateString() : <span className="cp-td-na">--</span>}</span>
                   </div>
                 </div>
                 <div className="cp-card-actions" onClick={(e) => e.stopPropagation()}>
@@ -412,11 +418,12 @@ export default function CorporationsPanel({ user }) {
         .cp-table { width: 100%; border-collapse: collapse; }
         .cp-th { text-align: left; padding: 8px 12px; font-weight: 600; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; background: #f8fafc; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
         .cp-th-right { text-align: right; }
-        .cp-table th[data-col="name"] { width: 32%; }
-        .cp-table th[data-col="state"] { width: 16%; }
-        .cp-table th[data-col="district"] { width: 16%; }
-        .cp-table th[data-col="status"] { width: 12%; }
-        .cp-table th[data-col="actions"] { width: 24%; }
+        .cp-table th[data-col="name"] { width: 28%; }
+        .cp-table th[data-col="state"] { width: 14%; }
+        .cp-table th[data-col="district"] { width: 14%; }
+        .cp-table th[data-col="status"] { width: 11%; }
+        .cp-table th[data-col="created"] { width: 11%; }
+        .cp-table th[data-col="actions"] { width: 22%; }
 
         /* Row */
         .cp-row { border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.12s; }
@@ -598,26 +605,31 @@ function CorporationModal({ isOpen, onClose, editingCorp, form, setForm, formSta
           </div>
         )}
 
-        {/* Section: Wards (only in edit mode) */}
-        {isEdit && (
-          <div className="cm-section">
-            <div className="cm-section-title cm-section-title-between">
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                Administrative Wards
-                {wards.length > 0 && <span className="cm-wards-count">{wards.length}</span>}
-              </div>
+        {/* Section: Wards */}
+        <div className="cm-section">
+          <div className="cm-section-title cm-section-title-between">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              Administrative Wards
+              {wards.length > 0 && <span className="cm-wards-count">{wards.length}</span>}
+            </div>
+            {corpId && (
               <button type="button" className="cp-btn cp-btn-sm cp-btn-primary" onClick={() => setWardFormOpen(!wardFormOpen)}>
                 {wardFormOpen ? 'Cancel' : '+ Add Ward'}
               </button>
-            </div>
+            )}
+          </div>
 
+          {!corpId ? (
+            <div className="cm-wards-empty">Save the corporation first, then add wards.</div>
+          ) : (
+            <>
             {wardFormOpen && (
-              <form className="cm-ward-form" onSubmit={addWard}>
+              <div className="cm-ward-form">
                 <input type="text" placeholder="Ward name" value={wardForm.name} onChange={(e) => setWardForm({ ...wardForm, name: e.target.value })} required autoFocus />
                 <input type="text" placeholder="Number" value={wardForm.wardNumber} onChange={(e) => setWardForm({ ...wardForm, wardNumber: e.target.value })} required style={{ maxWidth: 100 }} />
                 <button type="button" className="cp-btn cp-btn-sm cp-btn-primary" onClick={addWard} disabled={wardSaving}>{wardSaving ? 'Saving...' : 'Add'}</button>
-              </form>
+              </div>
             )}
 
             {wardsErr && <div className="cm-alert">{wardsErr}</div>}
@@ -665,8 +677,9 @@ function CorporationModal({ isOpen, onClose, editingCorp, form, setForm, formSta
                 })}
               </ul>
             )}
-          </div>
-        )}
+            </>
+          )}
+        </div>
 
         {/* Footer */}
         <div className="cm-footer">
