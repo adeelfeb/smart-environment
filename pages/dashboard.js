@@ -84,6 +84,7 @@ const NAVIGATION_BY_ROLE = {
   admin: [
     { key: 'admin-dashboard', label: 'Dashboard' },
     { key: 'complaints', label: 'Complaints' },
+    { key: 'corporations', label: 'Corporations' },
     { key: 'gis-map', label: 'GIS Map' },
     { key: 'analytics', label: 'Analytics' },
     { key: 'help', label: 'Help' },

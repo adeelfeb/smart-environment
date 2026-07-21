@@ -17,13 +17,13 @@ export default async function handler(req, res) {
     case 'PUT': {
       const user = await authMiddleware(req, res);
       if (!user) return;
-      if (!roleMiddleware(['superadmin', 'developer'])(req, res)) return;
+      if (!roleMiddleware(['superadmin', 'developer', 'admin'])(req, res)) return;
       return updateCorporation(req, res);
     }
     case 'DELETE': {
       const user = await authMiddleware(req, res);
       if (!user) return;
-      if (!roleMiddleware(['superadmin', 'developer'])(req, res)) return;
+      if (!roleMiddleware(['superadmin', 'developer', 'admin'])(req, res)) return;
       return deleteCorporation(req, res);
     }
     default: {

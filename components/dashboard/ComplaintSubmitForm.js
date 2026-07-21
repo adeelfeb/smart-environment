@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { safeParseJsonResponse } from '../../utils/safeJsonResponse';
 
 const CATEGORIES = [
@@ -17,7 +17,6 @@ function authHeaders() {
   return {
     'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    credentials: 'include',
   };
 }
 
@@ -161,7 +160,13 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
       const uploadPromises = files.map(async (file) => {
         const formData = new FormData();
         formData.append('file', file);
-        const res = await fetch('/api/upload', { method: 'POST', body: formData });
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+          credentials: 'include',
+          ...(token ? { headers: { Authorization: `Bearer ${token}` } } : {}),
+        });
         const payload = await safeParseJsonResponse(res).catch(() => ({}));
         if (!res.ok) throw new Error(payload?.message || 'Upload failed');
         return {
@@ -172,27 +177,30 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
       });
 
       const uploaded = await Promise.all(uploadPromises);
-      setPhotos((prev) => [...prev, ...uploaded]);
-      syncFormState({ photos: [...photos, ...uploaded] });
+      const updated = [...photos, ...uploaded];
+      setPhotos(updated);
+      syncFormState({ photos: updated });
     } catch (err) {
       setUploadError(err?.message || 'Failed to upload photo');
     } finally {
       setUploading(false);
       if (event.target) event.target.value = '';
     }
-  }, []);
+  }, [photos, syncFormState]);
 
   const handleRemovePhoto = useCallback((index) => {
-    setPhotos((prev) => {
-      if (prev[index]?.preview) URL.revokeObjectURL(prev[index].preview);
-      return prev.filter((_, i) => i !== index);
-    });
-    syncFormState({ photos: photos.filter((_, i) => i !== index) });
-  }, []);
+    const updated = photos.filter((_, i) => i !== index);
+    if (photos[index]?.preview) URL.revokeObjectURL(photos[index].preview);
+    setPhotos(updated);
+    syncFormState({ photos: updated });
+  }, [photos, syncFormState]);
+
+  const photosRef = useRef(photos);
+  photosRef.current = photos;
 
   useEffect(() => {
     return () => {
-      photos.forEach((p) => { if (p.preview) URL.revokeObjectURL(p.preview); });
+      photosRef.current.forEach((p) => { if (p.preview) URL.revokeObjectURL(p.preview); });
     };
   }, []);
 
@@ -243,7 +251,8 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
 
       const res = await fetch('/api/complaints', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(localStorage.getItem('token') ? { Authorization: `Bearer ${localStorage.getItem('token')}` } : {}) },
+        credentials: 'include',
         body: JSON.stringify(body),
       });
       const payload = await safeParseJsonResponse(res).catch(() => ({}));

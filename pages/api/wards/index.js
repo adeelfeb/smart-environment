@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     case 'POST': {
       const user = await authMiddleware(req, res);
       if (!user) return;
-      if (!roleMiddleware(['superadmin', 'developer'])(req, res)) return;
+      if (!roleMiddleware(['superadmin', 'developer', 'admin'])(req, res)) return;
       return createWard(req, res);
     }
     default: {
