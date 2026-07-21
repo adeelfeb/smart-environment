@@ -115,9 +115,9 @@ export async function deleteCorporation(req, res) {
     if (!corporation) {
       return jsonError(res, 404, 'Corporation not found');
     }
-    corporation.isActive = false;
-    await corporation.save();
-    return jsonSuccess(res, 200, 'Corporation deactivated');
+    await Ward.deleteMany({ corporation: id });
+    await Corporation.findByIdAndDelete(id);
+    return jsonSuccess(res, 200, 'Corporation and its wards deleted');
   } catch (err) {
     return jsonError(res, 500, 'Failed to delete corporation', err.message);
   }

@@ -463,7 +463,6 @@ export default function Dashboard({ user }) {
       const hashPart = key ? `#${key}` : '';
       window.history.replaceState(null, '', `${basePath}${hashPart}`);
     }
-    window.dispatchEvent(new Event('hashchange'));
   }, []);
 
   const sectionParam = router.query?.section;
@@ -494,10 +493,6 @@ export default function Dashboard({ user }) {
           setActiveSection((prev) => {
             return prev === resolvedKey ? prev : resolvedKey;
           });
-          const hasComplaintId = /^complaints\//.test(hashValue) || /^complaint-history\//.test(hashValue);
-          if (!hasComplaintId) {
-            updateUrlHash(resolvedKey);
-          }
           return;
         }
       }

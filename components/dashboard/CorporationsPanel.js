@@ -107,6 +107,22 @@ export default function CorporationsPanel({ user }) {
     }
   };
 
+  const handleDelete = async (corp) => {
+    if (!confirm(`Delete "${corp.name}"? This will deactivate the corporation and its wards.`)) return;
+    try {
+      const res = await fetch(`/api/corporations/${corp._id || corp.id}`, {
+        method: 'DELETE',
+        headers: authHeaders(),
+        credentials: 'include',
+      });
+      const data = await safeParseJsonResponse(res);
+      if (!res.ok || !data.success) throw new Error(data.message || 'Failed to delete');
+      fetchCorporations();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   const filtered = corporations.filter((c) => {
     if (!search.trim()) return true;
     const q = search.toLowerCase();
@@ -258,8 +274,8 @@ export default function CorporationsPanel({ user }) {
                         <button className={`cp-act-btn cp-act-toggle ${active ? '' : 'is-off'}`} onClick={(e) => { e.stopPropagation(); toggleActive(corp); }} title={active ? 'Deactivate' : 'Activate'}>
                           {active ? 'Deactivate' : 'Activate'}
                         </button>
-                        <button className="cp-act-btn cp-act-edit" onClick={(e) => { e.stopPropagation(); openEdit(corp); }} title="Edit corporation">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        <button className="cp-act-btn cp-act-delete" onClick={(e) => { e.stopPropagation(); handleDelete(corp); }} title="Delete corporation">
+                          Delete
                         </button>
                       </div>
                     </td>
