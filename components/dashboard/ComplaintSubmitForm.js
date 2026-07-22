@@ -12,6 +12,49 @@ const CATEGORIES = [
 
 const MAX_DESCRIPTION = 500;
 
+const GPS_ERROR_MESSAGES = {
+  1: 'Location access was denied. Please enable location permissions in your browser settings and try again.',
+  2: 'Unable to determine your location. The GPS signal may be weak. You can enter coordinates manually.',
+  3: 'Location request timed out. Please try again or enter coordinates manually.',
+};
+
+function getGpsErrorMessage(err) {
+  const code = err && (err.code !== undefined ? err.code : err.PERMISSION_DENIED);
+  return GPS_ERROR_MESSAGES[code] || err?.message || 'Unable to retrieve your location';
+}
+
+function requestLocation(successCallback, errorCallback) {
+  if (!navigator.geolocation) {
+    errorCallback({ message: 'Geolocation is not supported by your browser', code: 2 });
+    return;
+  }
+
+  if (typeof window !== 'undefined' && window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    errorCallback({ message: 'Geolocation requires a secure connection (HTTPS). Location access is not available on HTTP.', code: 1 });
+    return;
+  }
+
+  let attempts = 0;
+  const maxAttempts = 2;
+
+  function attempt() {
+    attempts++;
+    navigator.geolocation.getCurrentPosition(
+      (position) => successCallback(position),
+      (err) => {
+        if (attempts < maxAttempts && err.code === 3) {
+          attempt();
+        } else {
+          errorCallback(err);
+        }
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 120000 }
+    );
+  }
+
+  attempt();
+}
+
 function authHeaders() {
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
   return {
@@ -27,9 +70,9 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
 
-  const [gpsCoords, setGpsCoords] = useState(() => formState?.gpsCoords || { lat: 31.585075, lng: 74.311270 });
-  const [address, setAddress] = useState(() => formState?.address || 'Tibbi City Police Station, Katri Shams Pir, Urban Lahore, Walled City of Lahore, Lahore, Lahore City Tehsil, Lahore District, Lahore Division, Punjab, 54100, Pakistan');
-  const [gpsLoading, setGpsLoading] = useState(false);
+  const [gpsCoords, setGpsCoords] = useState(() => formState?.gpsCoords || null);
+  const [address, setAddress] = useState(() => formState?.address || '');
+  const [gpsLoading, setGpsLoading] = useState(true);
   const [gpsError, setGpsError] = useState('');
   const [dateTime, setDateTime] = useState(() => formState?.dateTime || new Date());
 
@@ -48,14 +91,11 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
   const [complaintId, setComplaintId] = useState('');
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (!navigator.geolocation) {
-      setGpsError('Geolocation is not supported by your browser');
-      setGpsLoading(false);
-      return;
-    }
+  const retryLocation = useCallback(() => {
+    setGpsLoading(true);
+    setGpsError('');
 
-    navigator.geolocation.getCurrentPosition(
+    requestLocation(
       async (position) => {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
@@ -73,12 +113,15 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
         setGpsLoading(false);
       },
       (err) => {
-        setGpsError(err.message || 'Unable to retrieve location');
+        setGpsError(getGpsErrorMessage(err));
         setGpsLoading(false);
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+      }
     );
   }, []);
+
+  useEffect(() => {
+    retryLocation();
+  }, [retryLocation]);
 
   useEffect(() => {
     let cancelled = false;
@@ -206,7 +249,7 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
 
   const canGoNext = () => {
     if (step === 1) return photos.length > 0 && !uploading;
-    if (step === 2) return selectedCorporation && selectedWard && gpsCoords;
+    if (step === 2) return selectedCorporation && selectedWard && gpsCoords && !gpsLoading;
     if (step === 3) return category && !submitting;
     return false;
   };
@@ -320,7 +363,7 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
         </div>
 
         <style jsx>{`
-          .complaint-form { display: flex; justify-content: center; padding: 2rem 1rem; overflow-y: auto; flex: 1; scrollbar-width: thin; scrollbar-color: rgba(148, 163, 184, 0.6) rgba(241, 245, 249, 0.8); }
+          .complaint-form { display: flex; flex-direction: column; align-items: center; padding: 2rem 1rem; flex: 1; }
           .success-receipt {
             background: #fff;
             border-radius: 1.25rem;
@@ -441,18 +484,27 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
           {step === 1 && (
             <div className="step-inner">
               <h3>Photo Evidence</h3>
-              <p className="step-hint">Take photos or upload images of the issue (up to 5)</p>
+              <p className="step-hint">Take a photo with your camera or upload from your device (up to 5)</p>
 
-              <input
-                ref={(el) => { el && (el.value = ''); }}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                multiple
-                className="file-input"
-                onChange={handlePhotoSelect}
-                disabled={uploading}
-              />
+              {gpsLoading && (
+                <div className="gps-status">
+                  <span className="spinner-sm" />
+                  <span>Detecting your location...</span>
+                </div>
+              )}
+              {gpsError && !gpsLoading && (
+                <div className="gps-status gps-status--error">
+                  <span className="gps-error-text">{gpsError}</span>
+                  <button type="button" className="gps-retry-btn" onClick={retryLocation}>
+                    Retry
+                  </button>
+                </div>
+              )}
+              {gpsCoords && !gpsLoading && (
+                <div className="gps-status gps-status--ok">
+                  <span>Location detected</span>
+                </div>
+              )}
 
               {photos.length > 0 && (
                 <div className="photos-grid">
@@ -470,21 +522,48 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
               )}
 
               {photos.length < 5 && (
-                <label className="upload-area">
-                  <input type="file" accept="image/*" capture="environment" multiple onChange={handlePhotoSelect} disabled={uploading} />
-                  <div className="upload-placeholder">
-                    {uploading ? (
-                      <span className="spinner" />
-                    ) : (
-                      <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                        <rect width="48" height="48" rx="12" fill="#d1fae5" />
-                        <path d="M24 16v16M16 24h16" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" />
+                <div className="photo-actions">
+                  <div className="photo-actions-label">Add Photo</div>
+                  <div className="photo-buttons">
+                    <label className="photo-btn photo-btn--camera">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={handlePhotoSelect}
+                        disabled={uploading}
+                      />
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                        <circle cx="12" cy="13" r="4" />
                       </svg>
-                    )}
-                    <span>{uploading ? 'Uploading...' : 'Tap to add more photos'}</span>
-                    {photos.length > 0 && <span className="photo-count">{photos.length}/5 added</span>}
+                      <span>Take Photo</span>
+                    </label>
+                    <label className="photo-btn photo-btn--upload">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handlePhotoSelect}
+                        disabled={uploading}
+                      />
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="17 8 12 3 7 8" />
+                        <line x1="12" y1="3" x2="12" y2="15" />
+                      </svg>
+                      <span>Upload Photo</span>
+                    </label>
                   </div>
-                </label>
+                  <p className="photo-actions-hint">You can add up to 5 photos</p>
+                </div>
+              )}
+
+              {uploading && (
+                <div className="uploading-indicator">
+                  <span className="spinner" />
+                  <span>Uploading photo...</span>
+                </div>
               )}
 
               {uploadError && <p className="field-error">{uploadError}</p>}
@@ -503,10 +582,9 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
                       type="button"
                       className="locate-btn"
                       onClick={() => {
-                        if (!navigator.geolocation) return;
                         setGpsLoading(true);
                         setGpsError('');
-                        navigator.geolocation.getCurrentPosition(
+                        requestLocation(
                           async (position) => {
                             const lat = position.coords.latitude;
                             const lng = position.coords.longitude;
@@ -526,10 +604,9 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
                             setGpsLoading(false);
                           },
                           (err) => {
-                            setGpsError(err.message || 'Unable to retrieve location');
+                            setGpsError(getGpsErrorMessage(err));
                             setGpsLoading(false);
-                          },
-                          { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+                          }
                         );
                       }}
                       disabled={gpsLoading}
@@ -537,7 +614,12 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
                       {gpsLoading ? 'Locating...' : 'Locate Me'}
                     </button>
                   </div>
-                  {gpsError && <p className="field-error">{gpsError}</p>}
+                  {gpsError && (
+                    <div className="field-error-row">
+                      <p className="field-error">{gpsError}</p>
+                      <button type="button" className="gps-retry-btn" onClick={retryLocation}>Retry</button>
+                    </div>
+                  )}
                   <div className="gps-inputs">
                     <label className="field">
                       <span className="field-label">Latitude</span>
@@ -547,7 +629,7 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
                         value={gpsCoords?.lat ?? ''}
                         onChange={(e) => {
                           const lat = parseFloat(e.target.value) || 0;
-                          const newCoords = { ...gpsCoords, lat };
+                          const newCoords = { ...(gpsCoords || { lng: 0 }), lat };
                           setGpsCoords(newCoords);
                           syncFormState({ gpsCoords: newCoords });
                         }}
@@ -562,7 +644,7 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
                         value={gpsCoords?.lng ?? ''}
                         onChange={(e) => {
                           const lng = parseFloat(e.target.value) || 0;
-                          const newCoords = { ...gpsCoords, lng };
+                          const newCoords = { ...(gpsCoords || { lat: 0 }), lng };
                           setGpsCoords(newCoords);
                           syncFormState({ gpsCoords: newCoords });
                         }}
@@ -717,13 +799,10 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
       <style jsx>{`
         .complaint-form {
           display: flex;
-          justify-content: center;
+          flex-direction: column;
+          align-items: center;
           padding: 2rem 1rem;
-          min-height: 500px;
-          overflow-y: auto;
           flex: 1;
-          scrollbar-width: thin;
-          scrollbar-color: rgba(148, 163, 184, 0.6) rgba(241, 245, 249, 0.8);
         }
 
         .form-card {
@@ -733,7 +812,8 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
           padding: 2rem;
           width: 100%;
           max-width: 560px;
-          display: grid;
+          display: flex;
+          flex-direction: column;
           gap: 1.5rem;
         }
 
@@ -785,6 +865,7 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
         }
 
         .step-content {
+          flex: 1;
           min-height: 240px;
         }
 
@@ -804,46 +885,6 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
           margin: -0.25rem 0 0;
           color: #64748b;
           font-size: 0.9rem;
-        }
-
-        .file-input {
-          display: none;
-        }
-
-        .upload-area {
-          display: flex;
-          cursor: pointer;
-          border: 2px dashed #d1fae5;
-          border-radius: 1rem;
-          padding: 2.5rem 1rem;
-          transition: all 0.2s ease;
-          background: #f0fdf4;
-        }
-
-        .upload-area:hover {
-          border-color: #059669;
-          background: #d1fae5;
-        }
-
-        .upload-area input {
-          display: none;
-        }
-
-        .upload-placeholder {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 0.75rem;
-          width: 100%;
-          color: #059669;
-          font-size: 0.95rem;
-          font-weight: 500;
-        }
-
-        .photo-count {
-          font-size: 0.8rem;
-          color: #64748b;
-          font-weight: 400;
         }
 
         .preview-wrapper {
@@ -886,6 +927,133 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
           border-radius: 1rem;
         }
 
+        .gps-status {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.5rem 0.75rem;
+          border-radius: 0.5rem;
+          font-size: 0.8rem;
+          font-weight: 500;
+          background: #f0fdf4;
+          color: #059669;
+          border: 1px solid #d1fae5;
+        }
+
+        .gps-status--error {
+          background: #fef2f2;
+          color: #991b1b;
+          border-color: #fecaca;
+        }
+
+        .gps-error-text {
+          flex: 1;
+          font-size: 0.78rem;
+          line-height: 1.3;
+        }
+
+        .gps-retry-btn {
+          flex-shrink: 0;
+          border: none;
+          background: #991b1b;
+          color: #fff;
+          border-radius: 0.35rem;
+          padding: 0.25rem 0.6rem;
+          font-size: 0.72rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background 0.15s;
+          font-family: inherit;
+        }
+
+        .gps-retry-btn:hover {
+          background: #7f1d1d;
+        }
+
+        .gps-status--ok {
+          background: #f0fdf4;
+          color: #059669;
+          border-color: #d1fae5;
+        }
+
+        .spinner-sm {
+          width: 14px;
+          height: 14px;
+          border: 2px solid rgba(5, 150, 105, 0.2);
+          border-top-color: #059669;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+          flex-shrink: 0;
+        }
+
+        .photo-actions {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .photo-actions-label {
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: #1e293b;
+        }
+
+        .photo-buttons {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.75rem;
+        }
+
+        .photo-btn {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          padding: 1.5rem 1rem;
+          border-radius: 1rem;
+          border: 2px dashed #d1fae5;
+          background: #f0fdf4;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          color: #059669;
+          font-weight: 600;
+          font-size: 0.9rem;
+          text-align: center;
+        }
+
+        .photo-btn:hover {
+          border-color: #059669;
+          background: #d1fae5;
+        }
+
+        .photo-btn input {
+          display: none;
+        }
+
+        .photo-btn--camera {
+          border-style: solid;
+          border-color: #a7f3d0;
+        }
+
+        .photo-actions-hint {
+          margin: 0;
+          font-size: 0.75rem;
+          color: #94a3b8;
+          text-align: center;
+        }
+
+        .uploading-indicator {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          padding: 0.75rem;
+          color: #059669;
+          font-size: 0.9rem;
+          font-weight: 500;
+        }
+
         .spinner {
           width: 32px;
           height: 32px;
@@ -893,6 +1061,11 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
           border-top-color: #fff;
           border-radius: 50%;
           animation: spin 0.8s linear infinite;
+        }
+
+        .photo-buttons .spinner {
+          border-color: rgba(5, 150, 105, 0.2);
+          border-top-color: #059669;
         }
 
         @keyframes spin {
@@ -924,6 +1097,20 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
           margin: 0;
           color: #991b1b;
           font-size: 0.875rem;
+        }
+
+        .field-error-row {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.5rem;
+        }
+
+        .field-error-row .field-error {
+          flex: 1;
+        }
+
+        .field-error-row .gps-retry-btn {
+          margin-top: 0;
         }
 
         .info-block {
@@ -1164,8 +1351,6 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
         @media (max-width: 640px) {
           .complaint-form {
             padding: 0.5rem;
-            min-height: auto;
-            overflow-y: visible;
             flex: none;
           }
 
@@ -1182,6 +1367,7 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
           }
 
           .step-content {
+            flex: none;
             min-height: auto;
           }
 
@@ -1208,9 +1394,6 @@ export default function ComplaintSubmitForm({ user, onComplaintSubmitted, formSt
             font-size: 0.9rem;
           }
 
-          .upload-area {
-            padding: 2rem 0.75rem;
-          }
         }
       `}</style>
     </div>
