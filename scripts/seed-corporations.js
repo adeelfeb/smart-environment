@@ -3,8 +3,37 @@
  * Run with: node scripts/seed-corporations.js
  */
 import mongoose from 'mongoose';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { readFileSync, existsSync } from 'fs';
 import Corporation from '../models/Corporation.js';
 import Ward from '../models/Ward.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+function loadEnvFiles() {
+  const files = ['.env', '.env.local', '.env.production', '.env.production.local'];
+  for (const file of files) {
+    const filePath = resolve(__dirname, '..', file);
+    if (!existsSync(filePath)) continue;
+    try {
+      const content = readFileSync(filePath, 'utf-8');
+      for (const line of content.split('\n')) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith('#')) continue;
+        const eqIdx = trimmed.indexOf('=');
+        if (eqIdx < 1) continue;
+        const key = trimmed.slice(0, eqIdx).trim();
+        const val = trimmed.slice(eqIdx + 1).trim().replace(/^["']|["']$/g, '');
+        if (!process.env[key]) process.env[key] = val;
+      }
+    } catch {
+      // Skip unreadable files
+    }
+  }
+}
+
+loadEnvFiles();
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/ecowatch';
 

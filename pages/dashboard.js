@@ -380,7 +380,7 @@ function ComplaintListWrapper({ user, onHashChange }) {
 
 export default function Dashboard({ user }) {
   const [sessionUser, setSessionUser] = useState(user);
-  const normalizedRole = (sessionUser?.role || '').toLowerCase();
+  const normalizedRole = (sessionUser?.role || '').toLowerCase().replace('super_admin', 'superadmin');
   const navItems = NAVIGATION_BY_ROLE[normalizedRole] || FALLBACK_NAV;
   const router = useRouter();
 

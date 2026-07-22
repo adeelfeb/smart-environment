@@ -92,6 +92,18 @@ npm start
 
 The production server auto-seeds the super admin user on startup and runs on port 8000.
 
+## Seeding Data
+
+Before using the application, seed the required data:
+
+```bash
+# Create the super admin user
+npm run seed:admin
+
+# Create sample corporations and wards
+node scripts/seed-corporations.js
+```
+
 ## Default Login Credentials
 
 | Role | Email | Password |
